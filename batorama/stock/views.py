@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 from rest_framework import serializers
 
 from stock.models import Shift, LumberRecord, Employee, Lumber
-from stock.testings_utils import create_init_data
+from stock.testing_utils import create_init_data
 
 
 class InitTestDataView(APIView):
