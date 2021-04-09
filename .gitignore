@@ -1,0 +1,13 @@
+*.pyc
+*.log
+**/migrations/*.py
+!**/migrations/__init__.py
+**/media
+**/postgres_data
+!**/frontend/static
+**/certs
+!**/static/static
+**/static/admin
+**/static/rest_framework
+**/static/rest_framework_swagger
+

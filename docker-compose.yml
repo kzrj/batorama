@@ -1,0 +1,29 @@
+version: '3'
+
+services: 
+  db:
+    restart: unless-stopped
+    image: postgres:10.1-alpine
+    ports: 
+      - "5432"
+
+  backend:
+    build: .
+    depends_on:
+      - db
+    command: bash -c "cd batorama &&
+                      python manage.py migrate &&
+                      python manage.py makemigrations --no-input &&
+                      python manage.py test stock.tests.test_views"
+
+    # restart: unless-stopped
+    # command: bash -c "cd batorama && 
+    #                   python manage.py makemigrations --no-input &&
+    #                   python manage.py migrate &&
+    #                   python manage.py collectstatic --no-input &&
+    #                   gunicorn batorama.wsgi -b 0.0.0.0:8000"
+   
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
