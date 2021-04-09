@@ -36,3 +36,14 @@ def create_test_lumber():
 def create_test_data():
 	create_test_users()
 	create_test_lumber()
+
+
+def create_init_data():
+	create_test_lumber()
+	admin = User.objects.create_user(username='bato', password='banzai123')
+	Employee.objects.create(user=admin)
+	
+	superuser = User.objects.create_superuser(username='kaizerj', password='batorama123')
+	Employee.objects.create(user=superuser)
+	create_test_users()
+	create_test_lumber()

@@ -6,6 +6,13 @@ from rest_framework.decorators import action
 from rest_framework import serializers
 
 from stock.models import Shift, LumberRecord, Employee, Lumber
+from stock.testings_utils import create_init_data
+
+
+class InitTestDataView(APIView):
+    def get(self, request, format=None):
+        create_init_data()
+        return Response({'msg': 'Done.'})
 
 
 class ShiftSerializer(serializers.ModelSerializer):
