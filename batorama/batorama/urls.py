@@ -10,7 +10,7 @@ from rest_framework import routers
 
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
 
-from stock.views import ShiftViewSet
+from stock.views import ShiftViewSet, InitTestDataView
 
 router = routers.DefaultRouter()
 router.register(r'shifts', ShiftViewSet, basename='shifts')
