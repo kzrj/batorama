@@ -63,6 +63,7 @@ class ShiftViewSet(viewsets.ModelViewSet):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(methods=['get'], detail=False)
     def lumbers(self, request):
         return Response(LumberSerializer(queryset=Lumber.objects.all(), many=True).data,
             status=status.HTTP_200_OK)
