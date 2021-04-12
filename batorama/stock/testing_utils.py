@@ -11,10 +11,10 @@ def create_test_employee(name, is_ramshik1=False, is_senior_ramshik=False, is_ma
 
 def create_test_users():
     admin = create_test_employee(name='admin', is_manager=True)
-    ramshik1 = create_test_employee(name='ramshik1', is_ramshik1=True, is_senior_ramshik=True)
-    ramshik2 = create_test_employee(name='ramshik2', is_ramshik1=True)
-    ramshik3 = create_test_employee(name='ramshik3', is_ramshik1=True)
-    ramshik4 = create_test_employee(name='ramshik4', is_ramshik1=True)
+    ramshik1 = create_test_employee(name='ramshik1', is_ramshik=True, is_senior_ramshik=True)
+    ramshik2 = create_test_employee(name='ramshik2', is_ramshik=True)
+    ramshik3 = create_test_employee(name='ramshik3', is_ramshik=True)
+    ramshik4 = create_test_employee(name='ramshik4', is_ramshik=True)
     
 def create_test_lumber():
     Lumber.objects.create(name='брус 10*15', width=0.1, height=0.15, length=4, volume=0.06, employee_rate=600)
