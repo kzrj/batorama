@@ -40,7 +40,7 @@ class ShiftCreateSerializer(serializers.ModelSerializer):
 
 class LumberSerializer(serializers.ModelSerializer):
     quantity = serializers.IntegerField(default=0)
-    volume_1pcs = serializers.IntegerField(default=0)
+    volume_1 = serializers.IntegerField(default=0)
     volume_total = serializers.IntegerField(default=0)
     cash = serializers.IntegerField(default=0)
 
