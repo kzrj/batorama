@@ -38,6 +38,12 @@ class ShiftCreateSerializer(serializers.ModelSerializer):
         fields = ('date', 'shift_type', 'employees', 'raw_records')
 
 
+class LumberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lumber
+        exclude = ['created_at', 'modified_at']
+
+
 class ShiftViewSet(viewsets.ModelViewSet):
     queryset = Shift.objects.all()
     serializer_class = ShiftSerializer
@@ -56,3 +62,7 @@ class ShiftViewSet(viewsets.ModelViewSet):
             return Response(ShiftSerializer(shift).data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def lumbers(self, request):
+        return Response(LumberSerializer(queryset=Lumber.objects.all(), many=True).data,
+            status=status.HTTP_200_OK)
