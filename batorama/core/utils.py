@@ -5,13 +5,15 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework.exceptions import ValidationError as DRFValidationError
 from rest_framework.exceptions import PermissionDenied, NotAuthenticated
 
-from rest_framework import status, exceptions
+from rest_framework import status, exceptions, serializers
 from rest_framework.views import exception_handler as drf_exception_handler
 
 from django.utils.encoding import force_text
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.db.utils import IntegrityError as DjangoIntegrityError
+
+from stock.models import Employee,
 
 
 class CustomValidation(exceptions.APIException):
@@ -52,8 +54,16 @@ def custom_exception_handler(exc, context):
     return drf_exception_handler(exc, context)
 
 
-# def jwt_response_payload_handler(token, user=None, request=None):
-#     return {
-#         'token': token,
-#         'user': WorkshopEmployeeSerializer(user.employee).data
-#     }
+class EmployeeSerializer(serializers.ModelSerializer):
+	user = serializers.StringRelatedField()
+	
+	class Meta:
+		model = Employee
+		exclude = ('created_at', 'modified_at')
+
+
+def jwt_response_payload_handler(token, user=None, request=None):
+    return {
+        'token': token,
+        'user': EmployeeSerializer(user.employee).data
+    }

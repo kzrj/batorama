@@ -15,6 +15,10 @@ class Employee(CoreModel):
     user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True,
         related_name="employee")
 
+    is_ramshik = models.BooleanField(default=False)
+    is_senior_ramshik = models.BooleanField(default=False)
+    is_manager = models.BooleanField(default=False)
+
     objects = EmployeeQuerySet.as_manager()
 
     def __str__(self):
