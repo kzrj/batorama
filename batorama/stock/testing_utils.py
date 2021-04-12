@@ -6,7 +6,7 @@ from stock.models import (Employee, Lumber, Shift, LumberRecord, CashRecord)
 
 def create_test_employee(name, is_ramshik=False, is_senior_ramshik=False, is_manager=False):
     user = User.objects.create_user(username=name, password='123')
-    emp = Employee.objects.create(user=user)
+    emp = Employee.objects.create(user=user, is_ramshik=is_ramshik)
     return user
 
 def create_test_users():
