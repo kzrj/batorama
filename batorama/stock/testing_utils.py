@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from stock.models import (Employee, Lumber, Shift, LumberRecord, CashRecord)
 
 
-def create_test_employee(name, is_ramshik1=False, is_senior_ramshik=False, is_manager=False):
+def create_test_employee(name, is_ramshik=False, is_senior_ramshik=False, is_manager=False):
     user = User.objects.create_user(username=name, password='123')
     emp = Employee.objects.create(user=user)
     return user
