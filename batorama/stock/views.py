@@ -65,5 +65,5 @@ class ShiftViewSet(viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=False)
     def lumbers(self, request):
-        return Response(LumberSerializer(queryset=Lumber.objects.all(), many=True).data,
+        return Response(LumberSerializer(data=Lumber.objects.all(), many=True).data,
             status=status.HTTP_200_OK)
