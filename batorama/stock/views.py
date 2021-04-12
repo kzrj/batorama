@@ -41,7 +41,6 @@ class ShiftCreateSerializer(serializers.ModelSerializer):
 class LumberSerializer(serializers.ModelSerializer):
     quantity = serializers.IntegerField(default=0)
     volume = serializers.IntegerField(default=0)
-    rate = serializers.IntegerField(default=0)
 
     class Meta:
         model = Lumber

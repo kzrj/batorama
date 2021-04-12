@@ -35,6 +35,7 @@ class Lumber(CoreModel):
     length = models.FloatField()
     height = models.FloatField()
     volume = models.FloatField()
+    employee_rate = models.IntegerField(default=0)
 
     objects = LumberQuerySet.as_manager()
 
