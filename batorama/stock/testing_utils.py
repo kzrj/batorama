@@ -46,4 +46,3 @@ def create_init_data():
     superuser = User.objects.create_superuser(username='kaizerj', password='batorama123')
     Employee.objects.create(user=superuser)
     create_test_users()
-    create_test_lumber()
