@@ -14,6 +14,7 @@ class EmployeeQuerySet(models.QuerySet):
 class Employee(CoreModel):
     user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True,
         related_name="employee")
+    nickname = models.CharField(max_length=20, null=True, blank=True)
 
     is_ramshik = models.BooleanField(default=False)
     is_senior_ramshik = models.BooleanField(default=False)

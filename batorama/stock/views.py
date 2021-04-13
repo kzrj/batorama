@@ -40,13 +40,18 @@ class ShiftCreateSerializer(serializers.ModelSerializer):
 
 class LumberSerializer(serializers.ModelSerializer):
     quantity = serializers.IntegerField(default=0)
-    volume_1 = serializers.IntegerField(default=0)
     volume_total = serializers.IntegerField(default=0)
     cash = serializers.IntegerField(default=0)
 
     class Meta:
         model = Lumber
         exclude = ['created_at', 'modified_at']
+
+
+class RamshikSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Employee
+        fields = ['id', 'nickname']
 
 
 class ShiftViewSet(viewsets.ModelViewSet):
@@ -69,6 +74,8 @@ class ShiftViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['get'], detail=False)
-    def lumbers(self, request):
-        return Response(LumberSerializer(Lumber.objects.all(), many=True).data,
-            status=status.HTTP_200_OK)
+    def shift_create_data(self, request):
+        return Response({
+            'lumbers': LumberSerializer(Lumber.objects.all(), many=True).data,
+            'employees': RamshikSerializer(Employee.objects.filter(is_ramshik=True), many=True).data,
+            }, status=status.HTTP_200_OK)
