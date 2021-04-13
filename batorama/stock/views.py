@@ -24,9 +24,9 @@ class ShiftSerializer(serializers.ModelSerializer):
 class RawLumberRecordSerializer(serializers.Serializer):
     lumber = serializers.PrimaryKeyRelatedField(queryset=Lumber.objects.all())
     quantity = serializers.IntegerField()
-    volume = serializers.FloatField()
+    volume_total = serializers.FloatField()
     employee_rate = serializers.IntegerField()
-    total = serializers.IntegerField()
+    cash = serializers.IntegerField()
 
 
 class ShiftCreateSerializer(serializers.ModelSerializer):

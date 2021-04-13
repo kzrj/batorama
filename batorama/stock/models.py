@@ -93,9 +93,10 @@ class LumberRecordQuerySet(models.QuerySet):
     def create_from_list(self, records_list):
         lumber_records = list()
         for record in records_list:
-            lumber_records.append(LumberRecord(lumber=record['lumber'], quantity=record['quantity'],
-                volume=record['volume'], employee_rate=record['employee_rate'],
-                employee_total_cash=record['total']))
+            if record['quantity'] > 0:
+                lumber_records.append(LumberRecord(lumber=record['lumber'], quantity=record['quantity'],
+                    volume=record['volume_total'], employee_rate=record['employee_rate'],
+                    employee_total_cash=record['cash']))
         return self.bulk_create(lumber_records)
 
     def calc_total_volume(self):
