@@ -26,7 +26,7 @@ class RawLumberRecordSerializer(serializers.Serializer):
     quantity = serializers.IntegerField()
     volume_total = serializers.FloatField()
     employee_rate = serializers.IntegerField()
-    cash = serializers.IntegerField()
+    cash = serializers.FloatField()
 
 
 class ShiftCreateSerializer(serializers.ModelSerializer):
@@ -40,8 +40,8 @@ class ShiftCreateSerializer(serializers.ModelSerializer):
 
 class LumberSerializer(serializers.ModelSerializer):
     quantity = serializers.IntegerField(default=0)
-    volume_total = serializers.IntegerField(default=0)
-    cash = serializers.IntegerField(default=0)
+    volume_total = serializers.FloatField(default=0)
+    cash = serializers.FloatField(default=0)
 
     class Meta:
         model = Lumber
