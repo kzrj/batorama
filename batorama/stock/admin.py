@@ -1,11 +1,6 @@
 from django.contrib import admin
 
-from stock.models import (Employee, Lumber, Shift, LumberRecord, CashRecord)
-
-
-@admin.register(Employee)
-class EmployeeAdmin(admin.ModelAdmin):
-    list_display = [f.name for f in Employee._meta.fields]
+from stock.models import (Lumber, Shift, LumberRecord)
 
 
 @admin.register(Lumber)

@@ -7,25 +7,6 @@ from django.utils import timezone
 from core.models import CoreModel, CoreModelManager
 
 
-class EmployeeQuerySet(models.QuerySet):
-    pass
-
-
-class Employee(CoreModel):
-    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True,
-        related_name="employee")
-    nickname = models.CharField(max_length=20, null=True, blank=True)
-
-    is_ramshik = models.BooleanField(default=False)
-    is_senior_ramshik = models.BooleanField(default=False)
-    is_manager = models.BooleanField(default=False)
-
-    objects = EmployeeQuerySet.as_manager()
-
-    def __str__(self):
-        return self.user.username
-
-
 class LumberQuerySet(models.QuerySet):
     pass
 
@@ -57,6 +38,10 @@ class ShiftQuerySet(models.QuerySet):
         shift.cash_per_employee = shift.employee_cash / len(employees)
         shift.save()
 
+        for emp in employees:
+            emp.cash_records.create_payout_from_shift(employee=emp, shift=shift, amount=shift.cash_per_employee,
+                initiator=initiator)
+
         return shift
 
     def create_shift_raw_records(self, **kwargs):
@@ -72,7 +57,7 @@ class Shift(CoreModel):
 
     shift_type = models.CharField(max_length=10, choices=SHIFT_TYPES)
 
-    employees = models.ManyToManyField(Employee)
+    employees = models.ManyToManyField('accounts.Account')
     initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='shifts')
 
     volume = models.FloatField(null=True)
@@ -122,20 +107,3 @@ class LumberRecord(CoreModel):
 
     def __str__(self):
         return f'{self.lumber} {self.quantity}'
-
-
-class CashRecordQuerySet(models.QuerySet):
-    pass
-
-
-class CashRecord(CoreModel):
-    amount = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True)
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='payouts',
-     null=True, blank=True)
-
-    # sale = models.ForeignKey(Sale, related_name='cashouts', null=True, blank=True)
-
-    objects = CashRecordQuerySet.as_manager()
-
-    def __str__(self):
-        return self.amount

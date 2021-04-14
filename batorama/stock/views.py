@@ -5,8 +5,9 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import serializers
 
-from stock.models import Shift, LumberRecord, Employee, Lumber
+from stock.models import Shift, LumberRecord, Lumber
 from stock.testing_utils import create_init_data
+from accounts.models import Account
 
 
 class InitTestDataView(APIView):
@@ -30,7 +31,7 @@ class RawLumberRecordSerializer(serializers.Serializer):
 
 
 class ShiftCreateSerializer(serializers.ModelSerializer):
-    employees = serializers.PrimaryKeyRelatedField(queryset=Employee.objects.all(), many=True)
+    employees = serializers.PrimaryKeyRelatedField(queryset=Account.objects.all(), many=True)
     raw_records = RawLumberRecordSerializer(many=True)
 
     class Meta:
@@ -50,7 +51,7 @@ class LumberSerializer(serializers.ModelSerializer):
 
 class RamshikSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Employee
+        model = Account
         fields = ['id', 'nickname']
 
 
@@ -77,5 +78,5 @@ class ShiftViewSet(viewsets.ModelViewSet):
     def shift_create_data(self, request):
         return Response({
             'lumbers': LumberSerializer(Lumber.objects.all(), many=True).data,
-            'employees': RamshikSerializer(Employee.objects.filter(is_ramshik=True), many=True).data,
+            'employees': RamshikSerializer(Account.objects.filter(is_ramshik=True), many=True).data,
             }, status=status.HTTP_200_OK)

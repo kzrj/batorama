@@ -13,7 +13,7 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from django.db.utils import IntegrityError as DjangoIntegrityError
 
-from stock.models import Employee
+from accounts.models import Account
 
 
 class CustomValidation(exceptions.APIException):
@@ -58,7 +58,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
 	user = serializers.StringRelatedField()
 
 	class Meta:
-		model = Employee
+		model = Account
 		exclude = ('created_at', 'modified_at')
 
 
