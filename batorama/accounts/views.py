@@ -38,7 +38,7 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
 				)
 			return Response({
 	            'employees': RamshikWithCashSerializer(
-	            	Account.objects.filter(is_ramshik=True), many=True).data
+	            	Account.objects.filter(is_ramshik=True), many=True).data,
 	            'message': 'Успешно',
 	            },
 	            status=status.HTTP_200_OK)
