@@ -20,7 +20,7 @@ class CreateRamshikPayoutSerializer(serializers.Serializer):
 
 
 class LastPayoutsSerializer(serializers.ModelSerializer):
-    employee = serializer.ReadOnlyField(source='account.nickname')
+    employee = serializers.ReadOnlyField(source='account.nickname')
 
     class Meta:
         model = CashRecord
