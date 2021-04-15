@@ -11,9 +11,11 @@ from rest_framework import routers
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
 
 from stock.views import ShiftViewSet, InitTestDataView
+from accounts.views import RamshikiPaymentViewSet
 
 router = routers.DefaultRouter()
 router.register(r'shifts', ShiftViewSet, basename='shifts')
+router.register(r'manager/ramshik_payments', RamshikiPaymentViewSet, basename='ramshik_payments')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
