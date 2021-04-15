@@ -33,7 +33,8 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
         return Response({
             'employees': RamshikWithCashSerializer(
                 Account.objects.filter(is_ramshik=True), many=True).data,
-            'last_payouts': LastPayoutsSerializer(CashRecord.objects.all(), many=True).data
+            'last_payouts': LastPayoutsSerializer(
+                CashRecord.objects.all().order_by('-created_at')[:10], many=True).data
             },
                 status=status.HTTP_200_OK)
 
@@ -49,7 +50,8 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
             return Response({
                 'employees': RamshikWithCashSerializer(
                     Account.objects.filter(is_ramshik=True), many=True).data,
-                'last_payouts': LastPayoutsSerializer(CashRecord.objects.all(), many=True).data,
+                'last_payouts': LastPayoutsSerializer(
+                    CashRecord.objects.all().order_by('-created_at')[:10], many=True).data,
                 'message': 'Успешно',
                 },
                 status=status.HTTP_200_OK)
