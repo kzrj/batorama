@@ -19,12 +19,22 @@ class CreateRamshikPayoutSerializer(serializers.Serializer):
     amount = serializers.IntegerField()
 
 
+class LastPayoutsSerializer(serializers.ModelSerializer):
+    employee = serializer.ReadOnlyField(source='account.nickname')
+
+    class Meta:
+        model = CashRecord
+        fields = ['id', 'amount', 'record_type', 'created_at','employee']
+
+
 class RamshikiPaymentViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['get'])
     def init_data(self, request, pk=None):
         return Response({
             'employees': RamshikWithCashSerializer(
-                Account.objects.filter(is_ramshik=True), many=True).data},
+                Account.objects.filter(is_ramshik=True), many=True).data,
+            'last_payouts': LastPayoutsSerializer(CashRecord.objects.all(), many=True).data
+            },
                 status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'])
@@ -39,6 +49,7 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
             return Response({
                 'employees': RamshikWithCashSerializer(
                     Account.objects.filter(is_ramshik=True), many=True).data,
+                'last_payouts': LastPayoutsSerializer(CashRecord.objects.all(), many=True).data,
                 'message': 'Успешно',
                 },
                 status=status.HTTP_200_OK)
