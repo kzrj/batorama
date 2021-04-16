@@ -25,7 +25,8 @@ urlpatterns = [
     url(r'^api/jwt/api-token-refresh/', refresh_jwt_token),
     url(r'^api/jwt/api-token-verify/', verify_jwt_token),
 
-    path('manager/ramshik_payments/', RamshikiPaymentViewSet.as_view()),
+    path('manager/ramshik_payments/init_data/', RamshikiPaymentViewSet.as_view({'get': 'init_data'})),
+    path('manager/ramshik_payments/ramshik_payout/', RamshikiPaymentViewSet.as_view({'post': 'ramshik_payout'})),
 
 
 
