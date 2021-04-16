@@ -71,6 +71,7 @@ class LumberRecordSerializer(serializers.ModelSerializer):
 class ShiftSerializer(serializers.ModelSerializer):
     employees = serializers.StringRelatedField(many=True)
     lumber_records = LumberRecordSerializer(many=True)
+    initiator = serializers.ReadOnlyField(source='initiator.account.nickname')
 
     class Meta:
         model = Shift
@@ -78,6 +79,6 @@ class ShiftSerializer(serializers.ModelSerializer):
 
 
 class ShiftListView(generics.ListAPIView):
-    queryset = Shift.objects.all()
+    queryset = Shift.objects.all().select_related('lumber_records__lumber', 'employees', 'initiator__account')
     serializer_class = ShiftSerializer
     permission_classes = [IsAuthenticated]
