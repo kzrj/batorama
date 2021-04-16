@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     'stock.apps.StockConfig',
     'accounts.apps.AccountsConfig',
+    'apis.apps.ApisConfig',
 
     'corsheaders',
     'rest_framework',
