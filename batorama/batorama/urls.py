@@ -23,12 +23,14 @@ urlpatterns = [
     url(r'^api/jwt/api-token-refresh/', refresh_jwt_token),
     url(r'^api/jwt/api-token-verify/', verify_jwt_token),
 
+    # manager api
     path('api/manager/ramshik_payments/init_data/', RamshikiPaymentViewSet.as_view({'get': 'init_data'})),
     path('api/manager/ramshik_payments/ramshik_payout/', RamshikiPaymentViewSet.as_view({'post': 'ramshik_payout'})),
     path('api/manager/shift_list/', ShiftListView.as_view()),
 
-
-
+    # ramshik api
+    path('api/ramshik/shift/create/init_data/', ShiftViewSet.as_view({'get': 'shift_create_data'})),
+    path('api/ramshik/shift/create/', ShiftViewSet.as_view({'post': 'create'})),
 
 
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
