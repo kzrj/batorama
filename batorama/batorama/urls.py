@@ -25,7 +25,7 @@ urlpatterns = [
 
     path('api/manager/ramshik_payments/init_data/', RamshikiPaymentViewSet.as_view({'get': 'init_data'})),
     path('api/manager/ramshik_payments/ramshik_payout/', RamshikiPaymentViewSet.as_view({'post': 'ramshik_payout'})),
-    path('api/manager/shift_list/', ShiftListView.as_view({'post': 'list'})),
+    path('api/manager/shift_list/', ShiftListView.as_view()),
 
 
 
