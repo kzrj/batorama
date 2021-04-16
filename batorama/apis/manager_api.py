@@ -64,7 +64,7 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
 class LumberRecordSerializer(serializers.ModelSerializer):
     lumber = serializers.StringRelatedField()
     class Meta:
-        models = LumberRecord
+        model = LumberRecord
         fields = ['lumber', 'quantity', 'volume', 'employee_rate']
 
 
