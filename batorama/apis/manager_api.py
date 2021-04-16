@@ -61,7 +61,17 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class LumberRecordSerializer(serializers.ModelSerializer):
+    lumber = serializer.StringRelatedField()
+    class Meta:
+        models = LumberRecord
+        fields = ['lumber', 'quantity', 'volume', 'employee_rate']
+
+
 class ShiftSerializer(serializers.ModelSerializer):
+    employees = serializers.StringRelatedField(many=True)
+    lumber_records = LumberRecordSerializer(many=True)
+
     class Meta:
         model = Shift
         fields = '__all__'
