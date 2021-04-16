@@ -7,7 +7,7 @@ from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated
 
 from accounts.models import Account, CashRecord
-from stock.models import Shift
+from stock.models import Shift, LumberRecord
 
 
 class RamshikWithCashSerializer(serializers.ModelSerializer):
@@ -62,7 +62,7 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
 
 
 class LumberRecordSerializer(serializers.ModelSerializer):
-    lumber = serializer.StringRelatedField()
+    lumber = serializers.StringRelatedField()
     class Meta:
         models = LumberRecord
         fields = ['lumber', 'quantity', 'volume', 'employee_rate']
