@@ -79,6 +79,8 @@ class ShiftSerializer(serializers.ModelSerializer):
 
 
 class ShiftListView(generics.ListAPIView):
-    queryset = Shift.objects.all().select_related('lumber_records__lumber', 'employees', 'initiator__account')
+    queryset = Shift.objects.all() \
+        .select_related('initiator__account') \
+        .prefetch_related('lumber_records__lumber', 'employees',)
     serializer_class = ShiftSerializer
     permission_classes = [IsAuthenticated]
