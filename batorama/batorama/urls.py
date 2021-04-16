@@ -10,7 +10,7 @@ from rest_framework import routers
 
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
 
-from apis.manager_api import RamshikiPaymentViewSet
+from apis.manager_api import RamshikiPaymentViewSet, ShiftListView
 from apis.ramshik_api import ShiftViewSet, InitTestDataView
 
 router = routers.DefaultRouter()
@@ -19,10 +19,14 @@ router.register(r'manager/ramshik_payments', RamshikiPaymentViewSet, basename='r
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    url(r'^api/', include(router.urls)),
+    # url(r'^api/', include(router.urls)),
     url(r'^api/init_data/$', InitTestDataView.as_view()),
     url(r'^api/jwt/api-token-auth/', obtain_jwt_token),
     url(r'^api/jwt/api-token-refresh/', refresh_jwt_token),
     url(r'^api/jwt/api-token-verify/', verify_jwt_token),
+
+    path('manager/ramshik_payments/', RamshikiPaymentViewSet.as_view()),
+
+
 
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

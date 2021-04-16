@@ -1,9 +1,10 @@
 # # -*- coding: utf-8 -*-
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import serializers
+from rest_framework.permissions import IsAuthenticated
 
 from accounts.models import Account, CashRecord
 
@@ -57,3 +58,15 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
                 status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ShiftSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Shift
+        fields = '__all__'
+
+
+class ShiftListView(generics.ListAPIView):
+    queryset = Shift.objects.all()
+    serializer_class = ShiftSerializer
+    permission_classes = [IsAuthenticated]
