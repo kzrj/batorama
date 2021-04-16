@@ -7,6 +7,7 @@ from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated
 
 from accounts.models import Account, CashRecord
+from stock.models import Shift
 
 
 class RamshikWithCashSerializer(serializers.ModelSerializer):
