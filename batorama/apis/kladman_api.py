@@ -26,7 +26,7 @@ class SaleCreateSerializer(serializers.ModelSerializer):
     raw_records = RawLumberRecordSerializer(many=True)
 
     class Meta:
-        model = Shift
+        model = Sale
         fields = ('date', 'raw_records')
 
 
