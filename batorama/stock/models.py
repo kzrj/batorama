@@ -74,14 +74,24 @@ class Shift(CoreModel):
         return f'Cмена {self.shift_type} {self.date.strftime("%d-%m-%Y")}'
 
 
+
+class SaleLumber(CoreModel):
+    date = models.DateTimeField(null=True, blank=True)
+    initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='shifts')
+
+    total_volume = models.FloatField(null=True)
+
+    cash = models.FloatField(null=True)
+
+
 class LumberRecordQuerySet(models.QuerySet):
     def create_from_list(self, records_list):
         lumber_records = list()
         for record in records_list:
             if record['quantity'] > 0:
                 lumber_records.append(LumberRecord(lumber=record['lumber'], quantity=record['quantity'],
-                    volume=record['volume_total'], employee_rate=record['employee_rate'],
-                    employee_total_cash=record['cash']))
+                    volume=record['volume_total'], rate=record['employee_rate'],
+                    total_cash=record['cash']))
         return self.bulk_create(lumber_records)
 
     def calc_total_volume(self):
@@ -95,8 +105,8 @@ class LumberRecord(CoreModel):
     lumber = models.ForeignKey(Lumber, on_delete=models.CASCADE, related_name='records')
     quantity = models.IntegerField(default=0)
     volume = models.FloatField(default=0)
-    employee_rate = models.IntegerField(default=0)
-    employee_total_cash = models.FloatField(default=0)
+    rate = models.IntegerField(default=0)
+    total_cash = models.FloatField(default=0)
 
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE, null=True, related_name='lumber_records')
 

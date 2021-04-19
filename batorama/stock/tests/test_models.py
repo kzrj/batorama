@@ -25,10 +25,10 @@ class OsnTest(TransactionTestCase):
 
     def test_create_from_shift_list(self):
         data_list = [
-            {'lumber': self.brus1, 'quantity': 10, 'volume_total': 0.6, 'employee_rate': 600, 'cash': 360 },
-            {'lumber': self.brus2, 'quantity': 10, 'volume_total': 0.4, 'employee_rate': 600, 'cash': 240 },
-            {'lumber': self.doska1, 'quantity': 50, 'volume_total': 1.44, 'employee_rate': 600, 'cash': 864 },
-            {'lumber': self.doska2, 'quantity': 40, 'volume_total': 0.96, 'employee_rate': 600, 'cash': 576 },
+            {'lumber': self.brus1, 'quantity': 10, 'volume_total': 0.6, 'rate': 600, 'cash': 360 },
+            {'lumber': self.brus2, 'quantity': 10, 'volume_total': 0.4, 'rate': 600, 'cash': 240 },
+            {'lumber': self.doska1, 'quantity': 50, 'volume_total': 1.44, 'rate': 600, 'cash': 864 },
+            {'lumber': self.doska2, 'quantity': 40, 'volume_total': 0.96, 'rate': 600, 'cash': 576 },
         ]
 
         lrs = LumberRecord.objects.create_from_list(records_list=data_list)
@@ -37,10 +37,10 @@ class OsnTest(TransactionTestCase):
     def test_create_shift(self):
         employees = [self.ramshik1.account, self.ramshik2.account, self.ramshik3.account]
         data_list = [
-            {'lumber': self.brus1, 'quantity': 10, 'volume_total': 0.6, 'employee_rate': 600, 'cash': 360 },
-            {'lumber': self.brus2, 'quantity': 10, 'volume_total': 0.4, 'employee_rate': 600, 'cash': 240 },
-            {'lumber': self.doska1, 'quantity': 50, 'volume_total': 1.44, 'employee_rate': 600, 'cash': 864 },
-            {'lumber': self.doska2, 'quantity': 40, 'volume_total': 0.96, 'employee_rate': 600, 'cash': 576 },
+            {'lumber': self.brus1, 'quantity': 10, 'volume_total': 0.6, 'rate': 600, 'cash': 360 },
+            {'lumber': self.brus2, 'quantity': 10, 'volume_total': 0.4, 'rate': 600, 'cash': 240 },
+            {'lumber': self.doska1, 'quantity': 50, 'volume_total': 1.44, 'rate': 600, 'cash': 864 },
+            {'lumber': self.doska2, 'quantity': 40, 'volume_total': 0.96, 'rate': 600, 'cash': 576 },
         ]
         LumberRecord.objects.create_from_list(records_list=data_list)
         lumber_records = LumberRecord.objects.all()
@@ -55,10 +55,10 @@ class OsnTest(TransactionTestCase):
     def test_create_shift_raw_records(self):
         employees = [self.ramshik1.account, self.ramshik2.account, self.ramshik3.account]
         data_list = [
-            {'lumber': self.brus1, 'quantity': 10, 'volume_total': 0.6, 'employee_rate': 600, 'cash': 360 },
-            {'lumber': self.brus2, 'quantity': 10, 'volume_total': 0.4, 'employee_rate': 600, 'cash': 240 },
-            {'lumber': self.doska1, 'quantity': 50, 'volume_total': 1.44, 'employee_rate': 600, 'cash': 864 },
-            {'lumber': self.doska2, 'quantity': 40, 'volume_total': 0.96, 'employee_rate': 600, 'cash': 576 },
+            {'lumber': self.brus1, 'quantity': 10, 'volume_total': 0.6, 'rate': 600, 'cash': 360 },
+            {'lumber': self.brus2, 'quantity': 10, 'volume_total': 0.4, 'rate': 600, 'cash': 240 },
+            {'lumber': self.doska1, 'quantity': 50, 'volume_total': 1.44, 'rate': 600, 'cash': 864 },
+            {'lumber': self.doska2, 'quantity': 40, 'volume_total': 0.96, 'rate': 600, 'cash': 576 },
         ]
 
         shift = Shift.objects.create_shift_raw_records(shift_type='day', employees=employees, 

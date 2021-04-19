@@ -63,9 +63,10 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
 
 class LumberRecordSerializer(serializers.ModelSerializer):
     lumber = serializers.StringRelatedField()
+    
     class Meta:
         model = LumberRecord
-        fields = ['lumber', 'quantity', 'volume', 'employee_rate']
+        fields = ['lumber', 'quantity', 'volume', 'rate']
 
 
 class ShiftSerializer(serializers.ModelSerializer):
@@ -75,7 +76,7 @@ class ShiftSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Shift
-        fields = '__all__'
+        exclude = ['created_at', 'modified_at']
 
 
 class ShiftListView(generics.ListAPIView):
