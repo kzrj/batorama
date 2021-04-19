@@ -29,7 +29,7 @@ class ShiftQuerySet(models.QuerySet):
     def create_shift(self, shift_type, cash, volume, employees, lumber_records, initiator=None, date=None):
         if not date:
             date = timezone.now()
-        shift = self.create(shift_type=shift_type, date=date, employee_cash=employee_cash, volume=volume)
+        shift = self.create(shift_type=shift_type, date=date, employee_cash=cash, volume=volume)
         shift.employees.add(*employees)
         lumber_records.update(shift=shift)
         shift.initiator = initiator
