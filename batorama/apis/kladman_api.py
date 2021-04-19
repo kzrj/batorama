@@ -41,7 +41,7 @@ class LumberSerializer(serializers.ModelSerializer):
 
 
 
-class SaleList(viewsets.ModelSerializer):
+class SaleList(viewsets.ModelViewSet):
     queryset = Sale.objects.all()
     serializer_class = SaleSerializer
     # permission_classes = [IsAdminUser]
