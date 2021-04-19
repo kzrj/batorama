@@ -1,6 +1,5 @@
 # # -*- coding: utf-8 -*-
-from rest_framework import status, viewsets
-from rest_framework.views import APIView
+from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import serializers
@@ -23,7 +22,7 @@ class RawLumberRecordSerializer(serializers.Serializer):
     cash = serializers.FloatField()
 
 
-class SeleCreateSerializer(serializers.ModelSerializer):
+class SaleCreateSerializer(serializers.ModelSerializer):
     raw_records = RawLumberRecordSerializer(many=True)
 
     class Meta:
@@ -41,34 +40,27 @@ class LumberSerializer(serializers.ModelSerializer):
         exclude = ['created_at', 'modified_at']
 
 
-class RamshikSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Account
-        fields = ['id', 'nickname']
 
-
-class ShiftViewSet(viewsets.ModelViewSet):
-    queryset = Shift.objects.all()
-    serializer_class = ShiftSerializer
+class SaleList(generics.ListCreateAPIView):
+    queryset = Sale.objects.all()
+    serializer_class = SaleSerializer
+    # permission_classes = [IsAdminUser]
 
     def create(self, request):
-        serializer = ShiftCreateSerializer(data=request.data)
+        serializer = SaleCreateSerializer(data=request.data)
         if serializer.is_valid():
-            shift = Shift.objects.create_shift_raw_records(
+            sale = Sale.objects.create_shift_raw_records(
                 date=serializer.validated_data.get('date'),
-                shift_type=serializer.validated_data['shift_type'],
-                employees=serializer.validated_data['employees'],
                 raw_records=serializer.validated_data['raw_records'],
                 initiator=request.user,
                 )
             
-            return Response(ShiftSerializer(shift).data, status=status.HTTP_200_OK)
+            return Response(SaleSerializer(sale).data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['get'], detail=False)
-    def shift_create_data(self, request):
+    def sale_create_data(self, request):
         return Response({
             'lumbers': LumberSerializer(Lumber.objects.all(), many=True).data,
-            'employees': RamshikSerializer(Account.objects.filter(is_ramshik=True), many=True).data,
             }, status=status.HTTP_200_OK)

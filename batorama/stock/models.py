@@ -76,14 +76,32 @@ class Shift(CoreModel):
 
 class SaleQuerySet(models.QuerySet):
     def create_sale(self, lumber_records, initiator, date=None):
-        pass
+        if not date:
+            date = timezone.now()
+        sale = self.create(date=date, initiator=initiator)
+        lumber_records.update(sale=sale)
+        sale.volume = lumber_records.calc_total_volume()
+        sale.cash = lumber_records.calc_total_cash()
+        sale.save()
+
+        # for emp in employees:
+        #     emp.cash_records.create_payout_from_shift(employee=emp, shift=shift, amount=shift.cash_per_employee,
+        #         initiator=initiator)
+
+        return sale
+
+    def create_sale_raw_records(self, **kwargs):
+        lumber_records = LumberRecord.objects.create_from_list(records_list=kwargs['raw_records'])
+        kwargs['lumber_records'] = LumberRecord.objects.filter(pk__in=(lr.pk for lr in lumber_records))
+        del kwargs['raw_records']
+        return self.create_sale(**kwargs)
 
 
 class Sale(CoreModel):
     date = models.DateTimeField(null=True, blank=True)
     initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, 
         related_name='sales')
-    total_volume = models.FloatField(null=True)
+    volume = models.FloatField(null=True)
     note = models.TextField(null=True, blank=True)
     cash = models.FloatField(null=True)
 
@@ -96,7 +114,7 @@ class LumberRecordQuerySet(models.QuerySet):
         for record in records_list:
             if record['quantity'] > 0:
                 lumber_records.append(LumberRecord(lumber=record['lumber'], quantity=record['quantity'],
-                    volume=record['volume_total'], rate=record['employee_rate'],
+                    volume=record['volume_total'], rate=record['rate'],
                     total_cash=record['cash']))
         return self.bulk_create(lumber_records)
 
@@ -104,7 +122,7 @@ class LumberRecordQuerySet(models.QuerySet):
         return self.aggregate(total_volume=Sum('volume'))['total_volume']
 
     def calc_total_cash(self):
-        return self.aggregate(total_cash=Sum('employee_total_cash'))['total_cash']
+        return self.aggregate(cash=Sum('total_cash'))['cash']
 
 
 class LumberRecord(CoreModel):
