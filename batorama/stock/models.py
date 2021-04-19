@@ -74,14 +74,20 @@ class Shift(CoreModel):
         return f'Cмена {self.shift_type} {self.date.strftime("%d-%m-%Y")}'
 
 
+class SaleQuerySet(models.QuerySet):
+    def create_sale(self, lumber_records, initiator, date=None):
+        pass
 
-class SaleLumber(CoreModel):
+
+class Sale(CoreModel):
     date = models.DateTimeField(null=True, blank=True)
-    initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='shifts')
-
+    initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, 
+        related_name='sales')
     total_volume = models.FloatField(null=True)
-
+    note = models.TextField(null=True, blank=True)
     cash = models.FloatField(null=True)
+
+    objects = SaleQuerySet.as_manager()
 
 
 class LumberRecordQuerySet(models.QuerySet):
@@ -110,8 +116,7 @@ class LumberRecord(CoreModel):
 
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE, null=True, related_name='lumber_records')
 
-    # sale = models.ForeignKey(Sale, related_name='lumbers_records')
-    # price = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True)
+    sale = models.ForeignKey(Sale, on_delete=models.CASCADE, null=True, related_name='lumbers_records')
 
     objects = LumberRecordQuerySet.as_manager()
 
