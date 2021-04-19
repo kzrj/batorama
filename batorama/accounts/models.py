@@ -19,6 +19,7 @@ class Account(CoreModel):
     is_ramshik = models.BooleanField(default=False)
     is_senior_ramshik = models.BooleanField(default=False)
     is_manager = models.BooleanField(default=False)
+    is_kladman = models.BooleanField(default=False)
 
     cash = models.IntegerField(default=0)
 
