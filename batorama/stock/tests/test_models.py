@@ -46,11 +46,13 @@ class OsnTest(TransactionTestCase):
         lumber_records = LumberRecord.objects.all()
 
         shift = Shift.objects.create_shift(shift_type='day', employees=employees, 
-            lumber_records=lumber_records)
+            lumber_records=lumber_records, cash=1000, volume=10)
 
-        self.assertEqual(shift.volume, 3.4)
-        self.assertEqual(shift.employee_cash, 2040)
+        self.assertEqual(shift.back_calc_volume, 3.4)
+        self.assertEqual(shift.back_calc_cash, 2040)
         self.assertEqual(shift.cash_per_employee, 680)
+        self.assertEqual(shift.cash, 1000)
+        self.assertEqual(shift.volume, 10)
 
     def test_create_shift_raw_records(self):
         employees = [self.ramshik1.account, self.ramshik2.account, self.ramshik3.account]
@@ -62,11 +64,13 @@ class OsnTest(TransactionTestCase):
         ]
 
         shift = Shift.objects.create_shift_raw_records(shift_type='day', employees=employees, 
-            raw_records=data_list)
+            raw_records=data_list, cash=1000, volume=10)
 
-        self.assertEqual(shift.volume, 3.4)
-        self.assertEqual(shift.employee_cash, 2040)
+        self.assertEqual(shift.back_calc_volume, 3.4)
+        self.assertEqual(shift.back_calc_cash, 2040)
         self.assertEqual(shift.cash_per_employee, 680)
+        self.assertEqual(shift.cash, 1000)
+        self.assertEqual(shift.volume, 10)
 
     def test_create_sale_raw_records(self):
         employees = [self.ramshik1.account, self.ramshik2.account, self.ramshik3.account]
@@ -77,7 +81,10 @@ class OsnTest(TransactionTestCase):
             {'lumber': self.doska2, 'quantity': 40, 'volume_total': 0.96, 'rate': 7000, 'cash': 6720 },
         ]
 
-        sale = Sale.objects.create_sale_raw_records(raw_records=data_list, initiator=None)
+        sale = Sale.objects.create_sale_raw_records(raw_records=data_list, cash=1000, volume=10,
+            initiator=None)
 
-        self.assertEqual(sale.volume, 3.4)
-        self.assertEqual(sale.cash, 29120)
+        self.assertEqual(sale.back_calc_volume, 3.4)
+        self.assertEqual(sale.back_calc_cash, 29120)
+        self.assertEqual(sale.cash, 1000)
+        self.assertEqual(sale.volume, 10)

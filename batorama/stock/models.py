@@ -26,15 +26,15 @@ class Lumber(CoreModel):
 
 
 class ShiftQuerySet(models.QuerySet):
-    def create_shift(self, shift_type, employees, lumber_records, initiator=None, date=None):
+    def create_shift(self, shift_type, cash, volume, employees, lumber_records, initiator=None, date=None):
         if not date:
             date = timezone.now()
-        shift = self.create(shift_type=shift_type, date=date)
+        shift = self.create(shift_type=shift_type, date=date, employee_cash=employee_cash, volume=volume)
         shift.employees.add(*employees)
         lumber_records.update(shift=shift)
         shift.initiator = initiator
-        shift.volume = lumber_records.calc_total_volume()
-        shift.employee_cash = lumber_records.calc_total_cash()
+        shift.back_calc_volume = lumber_records.calc_total_volume()
+        shift.back_calc_cash = lumber_records.calc_total_cash()
         shift.cash_per_employee = shift.employee_cash / len(employees)
         shift.save()
 
@@ -65,6 +65,9 @@ class Shift(CoreModel):
     employee_cash = models.FloatField(null=True)
     cash_per_employee = models.FloatField(null=True)
 
+    back_calc_volume = models.FloatField(null=True)
+    back_calc_cash = models.FloatField(null=True)
+
     objects = ShiftQuerySet.as_manager()
 
     class Meta:
@@ -75,13 +78,14 @@ class Shift(CoreModel):
 
 
 class SaleQuerySet(models.QuerySet):
-    def create_sale(self, lumber_records, initiator, date=None):
+    def create_sale(self, lumber_records, volume, cash, initiator, date=None):
         if not date:
             date = timezone.now()
-        sale = self.create(date=date, initiator=initiator)
+        sale = self.create(date=date, volume=volume, cash=cash, initiator=initiator)
         lumber_records.update(sale=sale)
-        sale.volume = lumber_records.calc_total_volume()
-        sale.cash = lumber_records.calc_total_cash()
+
+        sale.back_calc_volume = lumber_records.calc_total_volume()
+        sale.back_calc_cash = lumber_records.calc_total_cash()
         sale.save()
 
         # for emp in employees:
@@ -104,6 +108,9 @@ class Sale(CoreModel):
     volume = models.FloatField(null=True)
     note = models.TextField(null=True, blank=True)
     cash = models.FloatField(null=True)
+
+    back_calc_volume = models.FloatField(null=True)
+    back_calc_cash = models.FloatField(null=True)
 
     objects = SaleQuerySet.as_manager()
 
