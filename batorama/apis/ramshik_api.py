@@ -26,7 +26,7 @@ class RawLumberRecordSerializer(serializers.Serializer):
     lumber = serializers.PrimaryKeyRelatedField(queryset=Lumber.objects.all())
     quantity = serializers.IntegerField()
     volume_total = serializers.FloatField()
-    rate = serializers.IntegerField()
+    employee_rate = serializers.IntegerField()
     cash = serializers.FloatField()
 
 
