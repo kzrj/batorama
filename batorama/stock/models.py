@@ -113,7 +113,7 @@ class LumberRecordQuerySet(models.QuerySet):
         lumber_records = list()
         for record in records_list:
             if record['quantity'] > 0:
-                rate = record['rate'] | record['employee_rate']
+                rate = record.get('rate') | record.get('employee_rate')
                 lumber_records.append(LumberRecord(lumber=record['lumber'], quantity=record['quantity'],
                     volume=record['volume_total'], rate=rate,
                     total_cash=record['cash']))
