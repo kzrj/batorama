@@ -30,8 +30,8 @@ urlpatterns = [
     path('api/manager/shift_list/', ShiftListView.as_view()),
 
     # ramshik api
-    path('api/ramshik/shift/create/init_data/', ShiftViewSet.as_view({'get': 'shift_create_data'})),
-    path('api/ramshik/shift/create/', ShiftViewSet.as_view({'post': 'create'})),
+    path('api/ramshik/shifts/create/init_data/', ShiftViewSet.as_view({'get': 'shift_create_data'})),
+    path('api/ramshik/shifts/create/', ShiftViewSet.as_view({'post': 'create'})),
 
     # kladman api
     path('api/kladman/sales/create/init_data/', SaleList.as_view({'get': 'sale_create_data'})),
