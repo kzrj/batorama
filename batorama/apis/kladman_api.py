@@ -34,11 +34,11 @@ class LumberSerializer(serializers.ModelSerializer):
     quantity = serializers.IntegerField(default=0)
     volume_total = serializers.FloatField(default=0)
     cash = serializers.FloatField(default=0)
-    rate = serializers.ReadOnlyField(source='employee_rate')
+    rate = serializers.FloatField(default=0)
 
     class Meta:
         model = Lumber
-        exclude = ['created_at', 'modified_at']
+        exclude = ['created_at', 'modified_at', 'employee_rate']
 
 
 
