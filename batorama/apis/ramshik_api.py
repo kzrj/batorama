@@ -80,3 +80,9 @@ class ShiftViewSet(viewsets.ModelViewSet):
             'lumbers': LumberSerializer(Lumber.objects.all(), many=True).data,
             'employees': RamshikSerializer(Account.objects.filter(is_ramshik=True), many=True).data,
             }, status=status.HTTP_200_OK)
+
+    def update(self, request, pk=None):
+        pass
+
+    def destroy(self, request, pk=None):
+        pass

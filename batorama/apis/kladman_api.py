@@ -1,5 +1,5 @@
 # # -*- coding: utf-8 -*-
-from rest_framework import status, generics
+from rest_framework import status, generics, viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import serializers
@@ -41,7 +41,7 @@ class LumberSerializer(serializers.ModelSerializer):
 
 
 
-class SaleList(generics.ListCreateAPIView):
+class SaleList(viewsets.ModelSerializer):
     queryset = Sale.objects.all()
     serializer_class = SaleSerializer
     # permission_classes = [IsAdminUser]
@@ -64,3 +64,9 @@ class SaleList(generics.ListCreateAPIView):
         return Response({
             'lumbers': LumberSerializer(Lumber.objects.all(), many=True).data,
             }, status=status.HTTP_200_OK)
+
+    def update(self, request, pk=None):
+        pass
+
+    def destroy(self, request, pk=None):
+        pass
