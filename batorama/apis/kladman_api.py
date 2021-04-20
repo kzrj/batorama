@@ -50,9 +50,11 @@ class SaleList(viewsets.ModelViewSet):
     def create(self, request):
         serializer = SaleCreateSerializer(data=request.data)
         if serializer.is_valid():
-            sale = Sale.objects.create_shift_raw_records(
+            sale = Sale.objects.create_sale_raw_records(
                 date=serializer.validated_data.get('date'),
                 raw_records=serializer.validated_data['raw_records'],
+                cash=serializer.validated_data['cash'],
+                volume=serializer.validated_data['volume'],
                 initiator=request.user,
                 )
             

@@ -3,7 +3,7 @@ import datetime
 from django.test import TestCase, TransactionTestCase
 from django.contrib.auth.models import User
 
-from stock.models import Shift, Lumber, LumberRecord, Sale
+from stock.models import Shift, Lumber, LumberRecord, Sale, Rama
 from accounts.models import Account
 
 import stock.testing_utils as testing
@@ -22,6 +22,8 @@ class OsnTest(TransactionTestCase):
         self.brus2 = Lumber.objects.filter(name__contains='брус')[1]
         self.doska1 = Lumber.objects.filter(name__contains='доска')[0]
         self.doska2 = Lumber.objects.filter(name__contains='доска')[1]
+
+        self.rama = Rama.objects.all().first()
 
     def test_create_from_shift_list(self):
         data_list = [
@@ -46,13 +48,15 @@ class OsnTest(TransactionTestCase):
         lumber_records = LumberRecord.objects.all()
 
         shift = Shift.objects.create_shift(shift_type='day', employees=employees, 
-            lumber_records=lumber_records, cash=1000, volume=10)
+            lumber_records=lumber_records, cash=1200, volume=10, initiator=self.ramshik1)
 
         self.assertEqual(shift.back_calc_volume, 3.4)
         self.assertEqual(shift.back_calc_cash, 2040)
-        self.assertEqual(shift.cash_per_employee, 680)
-        self.assertEqual(shift.cash, 1000)
+        self.assertEqual(shift.back_calc_cash_per_employee, 680)
+        self.assertEqual(shift.cash_per_employee, 400)
+        self.assertEqual(shift.employee_cash, 1200)
         self.assertEqual(shift.volume, 10)
+        self.assertEqual(shift.rama, self.rama)
 
     def test_create_shift_raw_records(self):
         employees = [self.ramshik1.account, self.ramshik2.account, self.ramshik3.account]
@@ -64,13 +68,15 @@ class OsnTest(TransactionTestCase):
         ]
 
         shift = Shift.objects.create_shift_raw_records(shift_type='day', employees=employees, 
-            raw_records=data_list, cash=1000, volume=10)
+            raw_records=data_list, cash=1200, volume=10, initiator=self.ramshik1)
 
         self.assertEqual(shift.back_calc_volume, 3.4)
         self.assertEqual(shift.back_calc_cash, 2040)
-        self.assertEqual(shift.cash_per_employee, 680)
-        self.assertEqual(shift.cash, 1000)
+        self.assertEqual(shift.back_calc_cash_per_employee, 680)
+        self.assertEqual(shift.cash_per_employee, 400)
+        self.assertEqual(shift.employee_cash, 1200)
         self.assertEqual(shift.volume, 10)
+        self.assertEqual(shift.rama, self.rama)
 
     def test_create_sale_raw_records(self):
         employees = [self.ramshik1.account, self.ramshik2.account, self.ramshik3.account]
@@ -82,9 +88,10 @@ class OsnTest(TransactionTestCase):
         ]
 
         sale = Sale.objects.create_sale_raw_records(raw_records=data_list, cash=1000, volume=10,
-            initiator=None)
+            initiator=self.ramshik1.account)
 
         self.assertEqual(sale.back_calc_volume, 3.4)
         self.assertEqual(sale.back_calc_cash, 29120)
         self.assertEqual(sale.cash, 1000)
         self.assertEqual(sale.volume, 10)
+        self.assertEqual(sale.rama, self.rama)

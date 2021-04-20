@@ -16,6 +16,9 @@ class Account(CoreModel):
         related_name="account")
     nickname = models.CharField(max_length=20, null=True, blank=True)
 
+    rama = models.ForeignKey('stock.Rama', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='accounts')
+
     is_ramshik = models.BooleanField(default=False)
     is_senior_ramshik = models.BooleanField(default=False)
     is_manager = models.BooleanField(default=False)
@@ -47,11 +50,25 @@ class CashRecordQuerySet(models.QuerySet):
         self.create(amount=amount, account=employee, record_type='withdraw_employee', initiator=initiator)
         employee.remove_cash(amount)
 
+    def create_adding_cash_from_sale(self, manager_account, amount, sale, initiator=None):
+        self.create(amount=amount, account=manager_account, record_type='add_cash_for_sale_to_manager', 
+            initiator=initiator, sale=sale)
+        manager_account.add_cash(amount)
+
+    def create_withdraw_cash_from_manager(self, manager_account, amount, initiator=None):
+        self.create(amount=amount, account=manager_account, record_type='withdraw_cash_from_manager', 
+            initiator=initiator)
+        manager_account.remove_cash(amount)
+
 
 class CashRecord(CoreModel):
     amount = models.IntegerField()
-    RECORD_TYPES = [('payout_to_employee_from_shift', 'Начисление работникам'),
-         ('withdraw_employee', 'Обналичивание работникам')]
+    RECORD_TYPES = [
+        ('payout_to_employee_from_shift', 'Начисление работникам'),
+        ('withdraw_employee', 'Обналичивание работникам'),
+        ('add_cash_for_sale_to_manager', 'Начисление кладмэну/менеджеру за продажу'),
+        ('withdraw_cash_from_manager', 'Вывод средств от кладмэна/менеджера'),
+    ]
     record_type = models.CharField(max_length=50, choices=RECORD_TYPES)
 
     account = models.ForeignKey(Account, on_delete=models.SET_NULL, related_name='cash_records',
@@ -59,7 +76,8 @@ class CashRecord(CoreModel):
 
     shift = models.ForeignKey('stock.Shift', on_delete=models.SET_NULL, related_name='payouts',
         null=True, blank=True)
-    # sale = models.ForeignKey(Sale, related_name='cashouts', null=True, blank=True)
+    sale = models.ForeignKey('stock.Sale', on_delete=models.SET_NULL, related_name='cash_records',
+        null=True, blank=True)
 
     initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='cash_records')

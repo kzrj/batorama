@@ -33,15 +33,15 @@ class OsnAccountTest(TransactionTestCase):
         ]
 
         shift = Shift.objects.create_shift_raw_records(shift_type='day', employees=employees, 
-            raw_records=data_list)
+            raw_records=data_list, initiator=self.ramshik1, cash=1200, volume=10)
 
-        self.assertEqual(shift.volume, 3.4)
-        self.assertEqual(shift.employee_cash, 2040)
-        self.assertEqual(shift.cash_per_employee, 680)
+        self.assertEqual(shift.volume, 10)
+        self.assertEqual(shift.employee_cash, 1200)
+        self.assertEqual(shift.cash_per_employee, 400)
 
-        self.assertEqual(self.ramshik1.account.cash, 680)
-        self.assertEqual(self.ramshik2.account.cash, 680)
-        self.assertEqual(self.ramshik3.account.cash, 680)
+        self.assertEqual(self.ramshik1.account.cash, 400)
+        self.assertEqual(self.ramshik2.account.cash, 400)
+        self.assertEqual(self.ramshik3.account.cash, 400)
 
         self.assertEqual(CashRecord.objects.all().count(), 3)
         for cr in CashRecord.objects.all():
@@ -56,4 +56,14 @@ class OsnAccountTest(TransactionTestCase):
         self.assertEqual(employee.cash, -1000)
         self.assertEqual(CashRecord.objects.all().count(), 1)
         self.assertEqual(CashRecord.objects.all().first().record_type, 'withdraw_employee')
+        self.assertEqual(CashRecord.objects.all().first().initiator, self.ramshik1)
+
+    def test_create_adding_cash_from_sale(self):
+        employee = self.ramshik1.account
+        CashRecord.objects.create_adding_cash_from_sale(manager_account=employee, amount=1000, 
+            initiator=self.ramshik1, sale=None)
+
+        self.assertEqual(employee.cash, 1000)
+        self.assertEqual(CashRecord.objects.all().count(), 1)
+        self.assertEqual(CashRecord.objects.all().first().record_type, 'add_cash_for_sale_to_manager')
         self.assertEqual(CashRecord.objects.all().first().initiator, self.ramshik1)

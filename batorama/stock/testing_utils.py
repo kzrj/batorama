@@ -1,13 +1,15 @@
 # # -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
 
-from stock.models import (Lumber, Shift, LumberRecord)
+from stock.models import (Lumber, Shift, LumberRecord, Rama)
 from accounts.models import (Account, CashRecord)
 
 
-def create_test_employee(name, is_ramshik=False, is_senior_ramshik=False, is_manager=False, is_kladman=False):
+def create_test_employee(name, is_ramshik=False, is_senior_ramshik=False, is_manager=False, 
+        is_kladman=False):
+    rama = Rama.objects.all().first()
     user = User.objects.create_user(username=name, password='123')
-    emp = Account.objects.create(user=user, is_ramshik=is_ramshik, nickname=name,
+    emp = Account.objects.create(user=user, is_ramshik=is_ramshik, nickname=name, rama=rama,
         is_senior_ramshik=is_senior_ramshik, is_manager=is_manager, is_kladman=is_kladman)
     return user
 
@@ -42,10 +44,11 @@ def create_test_data():
 
 
 def create_init_data():
+    rama1 = Rama.objects.create(name='batorama')
     create_test_lumber()
     admin = User.objects.create_user(username='bato', password='banzai123')
-    Account.objects.create(user=admin, is_manager=True, nickname='bato')
+    Account.objects.create(user=admin, is_manager=True, rama=rama1, nickname='bato')
     
     superuser = User.objects.create_superuser(username='kaizerj', password='batorama123')
-    Account.objects.create(user=superuser, is_manager=True, nickname='kzr')
+    Account.objects.create(user=superuser, is_manager=True, rama=rama1, nickname='kzr')
     create_test_users()

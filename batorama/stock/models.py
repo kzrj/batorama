@@ -25,22 +25,35 @@ class Lumber(CoreModel):
         return self.name
 
 
+class RamaQuerySet(models.QuerySet):
+    pass
+
+
+class Rama(CoreModel):
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name    
+
+
 class ShiftQuerySet(models.QuerySet):
-    def create_shift(self, shift_type, cash, volume, employees, lumber_records, initiator=None, date=None):
+    def create_shift(self, shift_type, cash, volume, employees, lumber_records, initiator=None,
+         date=None, note=None):
         if not date:
             date = timezone.now()
-        shift = self.create(shift_type=shift_type, date=date, employee_cash=cash, volume=volume)
+        shift = self.create(shift_type=shift_type, date=date, employee_cash=cash, volume=volume,
+            initiator=initiator, rama=initiator.account.rama, note=note)
         shift.employees.add(*employees)
         lumber_records.update(shift=shift)
-        shift.initiator = initiator
         shift.back_calc_volume = lumber_records.calc_total_volume()
         shift.back_calc_cash = lumber_records.calc_total_cash()
+        shift.back_calc_cash_per_employee = shift.back_calc_cash / len(employees)
         shift.cash_per_employee = shift.employee_cash / len(employees)
         shift.save()
 
         for emp in employees:
-            emp.cash_records.create_payout_from_shift(employee=emp, shift=shift, amount=shift.cash_per_employee,
-                initiator=initiator)
+            emp.cash_records.create_payout_from_shift(employee=emp, shift=shift,
+             amount=shift.cash_per_employee, initiator=initiator)
 
         return shift
 
@@ -53,12 +66,15 @@ class ShiftQuerySet(models.QuerySet):
 
 class Shift(CoreModel):
     date = models.DateTimeField(null=True, blank=True)
-    SHIFT_TYPES = [('day', 'День'), ('night', 'Ночь')]
+    rama = models.ForeignKey(Rama, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='shifts')
 
+    SHIFT_TYPES = [('day', 'День'), ('night', 'Ночь')]
     shift_type = models.CharField(max_length=10, choices=SHIFT_TYPES)
 
     employees = models.ManyToManyField('accounts.Account')
-    initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='shifts')
+    initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='shifts')
 
     volume = models.FloatField(null=True)
 
@@ -67,6 +83,9 @@ class Shift(CoreModel):
 
     back_calc_volume = models.FloatField(null=True)
     back_calc_cash = models.FloatField(null=True)
+    back_calc_cash_per_employee = models.FloatField(null=True)
+
+    note = models.TextField(null=True, blank=True)
 
     objects = ShiftQuerySet.as_manager()
 
@@ -78,19 +97,21 @@ class Shift(CoreModel):
 
 
 class SaleQuerySet(models.QuerySet):
-    def create_sale(self, lumber_records, volume, cash, initiator, date=None):
+    def create_sale(self, lumber_records, volume, cash, initiator, date=None, add_expenses=0, 
+            note=None):
         if not date:
             date = timezone.now()
-        sale = self.create(date=date, volume=volume, cash=cash, initiator=initiator)
+        sale = self.create(date=date, volume=volume, cash=cash, initiator=initiator, 
+            rama=initiator.account.rama, add_expenses=add_expenses, note=note)
         lumber_records.update(sale=sale)
 
         sale.back_calc_volume = lumber_records.calc_total_volume()
-        sale.back_calc_cash = lumber_records.calc_total_cash()
+        sale.back_calc_cash = lumber_records.calc_total_cash() - add_expenses
         sale.save()
 
-        # for emp in employees:
-        #     emp.cash_records.create_payout_from_shift(employee=emp, shift=shift, amount=shift.cash_per_employee,
-        #         initiator=initiator)
+        sale.cash_records.create_adding_cash_from_sale(
+            amount=cash, sale=sale, initiator=initiator, manager_account=initiator.account
+            )
 
         return sale
 
@@ -103,12 +124,17 @@ class SaleQuerySet(models.QuerySet):
 
 class Sale(CoreModel):
     date = models.DateTimeField(null=True, blank=True)
+    rama = models.ForeignKey(Rama, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='sales')
+
     initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, 
         related_name='sales')
     volume = models.FloatField(null=True)
-    note = models.TextField(null=True, blank=True)
-    cash = models.FloatField(null=True)
 
+    note = models.TextField(null=True, blank=True)
+    add_expenses = models.IntegerField(null=True, blank=True)
+
+    cash = models.FloatField(null=True)
     back_calc_volume = models.FloatField(null=True)
     back_calc_cash = models.FloatField(null=True)
 
