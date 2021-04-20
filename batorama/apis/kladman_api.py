@@ -55,6 +55,8 @@ class SaleList(viewsets.ModelViewSet):
                 raw_records=serializer.validated_data['raw_records'],
                 cash=serializer.validated_data['cash'],
                 volume=serializer.validated_data['volume'],
+                add_expenses=serializer.validated_data.get('add_expenses', 0),
+                note=serializer.validated_data.get('note'),
                 initiator=request.user,
                 )
             

@@ -69,6 +69,7 @@ class ShiftViewSet(viewsets.ModelViewSet):
                 raw_records=serializer.validated_data['raw_records'],
                 cash=serializer.validated_data['employee_cash'],
                 volume=serializer.validated_data['volume'],
+                note=serializer.validated_data.get('note'),
                 initiator=request.user,
                 )
             
