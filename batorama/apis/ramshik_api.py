@@ -36,7 +36,7 @@ class ShiftCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Shift
-        fields = ('date', 'shift_type', 'employees', 'raw_records', 'employee_cash', 'volume')
+        fields = ('date', 'shift_type', 'employees', 'raw_records', 'employee_cash', 'volume', 'note')
 
 
 class LumberSerializer(serializers.ModelSerializer):

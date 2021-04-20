@@ -27,7 +27,7 @@ class SaleCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Sale
-        fields = ('date', 'raw_records')
+        fields = ('date', 'raw_records', 'cash', 'volume', 'add_expenses', 'note')
 
 
 class LumberSerializer(serializers.ModelSerializer):
