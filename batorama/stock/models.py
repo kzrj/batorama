@@ -106,7 +106,7 @@ class SaleQuerySet(models.QuerySet):
         lumber_records.update(sale=sale)
 
         sale.back_calc_volume = lumber_records.calc_total_volume()
-        sale.back_calc_cash = lumber_records.calc_total_cash() - add_expenses
+        sale.back_calc_cash = lumber_records.calc_total_cash() + add_expenses
         sale.save()
 
         sale.cash_records.create_adding_cash_from_sale(
