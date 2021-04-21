@@ -17,7 +17,13 @@ class LumberRecordSerializer(serializers.ModelSerializer):
 
 
 class SaleSerializer(serializers.ModelSerializer):
-    lumber_records = LumberRecordSerializer(many=True, read_only=True)
+    class Meta:
+        model = Sale
+        fields = '__all__'
+
+
+class SaleReadSerializer(serializers.ModelSerializer):
+    lumber_records = LumberRecordSerializer(many=True)
 
     class Meta:
         model = Sale
@@ -72,7 +78,7 @@ class SaleList(viewsets.ModelViewSet):
                 )
             
             return Response({
-                'sale': SaleSerializer(sale).data,
+                'sale': SaleReadSerializer(sale).data,
                 'message': 'Успешно'
                 },
                  status=status.HTTP_200_OK)
