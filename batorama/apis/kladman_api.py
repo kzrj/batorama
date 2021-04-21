@@ -13,7 +13,7 @@ class LumberRecordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LumberRecord
-        fields = ('lumber', 'quantity', 'volume', 'rate', 'total_cash')
+        fields = ('lumber', 'quantity', 'volume', 'rate', 'total_cash', 'back_total_cash')
 
 
 class SaleSerializer(serializers.ModelSerializer):
