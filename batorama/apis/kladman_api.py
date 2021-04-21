@@ -17,7 +17,7 @@ class LumberRecordSerializer(serializers.ModelSerializer):
 
 
 class SaleSerializer(serializers.ModelSerializer):
-    lumber_records = LumberRecordSerializer(many=True, redd_only=True)
+    lumber_records = LumberRecordSerializer(many=True, read_only=True)
 
     class Meta:
         model = Sale
