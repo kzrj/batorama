@@ -147,9 +147,10 @@ class LumberRecordQuerySet(models.QuerySet):
         for record in records_list:
             if record['quantity'] > 0:
                 rate = record.get('rate') or record.get('employee_rate')
-                lumber_records.append(LumberRecord(lumber=record['lumber'], quantity=record['quantity'],
-                    volume=record['volume_total'], rate=rate,
-                    total_cash=record['cash']))
+                lumber_records.append(
+                    LumberRecord(lumber=record['lumber'], quantity=record['quantity'],
+                        volume=record['volume_total'], rate=rate,
+                        total_cash=record['cash'], back_total_cash=rate*record['volume_total']))
         return self.bulk_create(lumber_records)
 
     def calc_total_volume(self):
@@ -165,6 +166,7 @@ class LumberRecord(CoreModel):
     volume = models.FloatField(default=0)
     rate = models.IntegerField(default=0)
     total_cash = models.FloatField(default=0)
+    back_total_cash = models.FloatField(default=0)
 
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE, null=True, related_name='lumber_records')
 
