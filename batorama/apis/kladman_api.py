@@ -8,7 +8,17 @@ from stock.models import Sale, LumberRecord, Lumber
 from accounts.models import Account
 
 
+class LumberRecordSerializer(serializers.ModelSerializer):
+    lumber = serializers.StringRelatedField()
+
+    class Meta:
+        model = LumberRecord
+        fields = ('lumber', 'quantity', 'volume', 'rate', 'total_cash')
+
+
 class SaleSerializer(serializers.ModelSerializer):
+    lumber_records = LumberRecordSerializer(many=True)
+    
     class Meta:
         model = Sale
         fields = '__all__'
