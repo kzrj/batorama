@@ -61,7 +61,11 @@ class SaleList(viewsets.ModelViewSet):
                 initiator=request.user,
                 )
             
-            return Response(SaleSerializer(sale).data, status=status.HTTP_200_OK)
+            return Response({
+                'sale': SaleSerializer(sale).data,
+                'message': 'Успешно'
+                },
+                 status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
