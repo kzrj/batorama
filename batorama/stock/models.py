@@ -168,7 +168,7 @@ class LumberRecord(CoreModel):
 
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE, null=True, related_name='lumber_records')
 
-    sale = models.ForeignKey(Sale, on_delete=models.CASCADE, null=True, related_name='lumbers_records')
+    sale = models.ForeignKey(Sale, on_delete=models.CASCADE, null=True, related_name='lumber_records')
 
     objects = LumberRecordQuerySet.as_manager()
 
