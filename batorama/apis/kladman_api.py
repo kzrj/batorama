@@ -58,6 +58,14 @@ class LumberSerializer(serializers.ModelSerializer):
         exclude = ['created_at', 'modified_at', 'employee_rate']
 
 
+class LumberSimpleSerializer(serializers.ModelSerializer):
+    lumber = serializers.ReadOnlyField(source='pk')
+
+    class Meta:
+        model = Lumber
+        exclude = ['created_at', 'modified_at', 'employee_rate']
+
+
 
 class SaleList(viewsets.ModelViewSet):
     queryset = Sale.objects.all()
@@ -88,14 +96,16 @@ class SaleList(viewsets.ModelViewSet):
     @action(methods=['get'], detail=False)
     def sale_create_data(self, request):
         return Response({
-            'pine_brus_lumbers': LumberSerializer(
+            'pine_brus_lumbers': LumberSimpleSerializer(
                 Lumber.objects.filter(lumber_type='brus', wood_species='pine'), many=True).data,
-            'larch_brus_lumbers': LumberSerializer(
+            'larch_brus_lumbers': LumberSimpleSerializer(
                 Lumber.objects.filter(lumber_type='brus', wood_species='larch'), many=True).data,
-            'pine_doska_lumbers': LumberSerializer(
+            'pine_doska_lumbers': LumberSimpleSerializer(
                 Lumber.objects.filter(lumber_type='doska', wood_species='pine'), many=True).data,
-            'larch_doska_lumbers': LumberSerializer(
+            'larch_doska_lumbers': LumberSimpleSerializer(
                 Lumber.objects.filter(lumber_type='doska', wood_species='larch'), many=True).data,
+            'lumbers': LumberSerializer(
+                Lumber.objects.all(), many=True).data,
             }, status=status.HTTP_200_OK)
 
     def update(self, request, pk=None):
