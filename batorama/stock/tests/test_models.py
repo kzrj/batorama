@@ -88,7 +88,7 @@ class OsnTest(TransactionTestCase):
         ]
 
         sale = Sale.objects.create_sale_raw_records(raw_records=data_list, cash=1000, volume=10,
-            initiator=self.ramshik1.account)
+            initiator=self.ramshik1)
 
         self.assertEqual(sale.back_calc_volume, 3.4)
         self.assertEqual(sale.back_calc_cash, 29120)

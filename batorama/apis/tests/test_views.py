@@ -26,17 +26,23 @@ class ShiftViewSetTest(APITestCase):
         
     def test_shift_create(self):
         self.client.force_authenticate(user=self.ramshik1)
-        response = self.client.post('/api/shifts/', 
+        response = self.client.post('/api/ramshik/shifts/create/', 
             {
             # 'date': '2021-04-09',
             'raw_records':[
-                {'lumber': self.brus1.pk, 'quantity': 10, 'volume': 0.6, 'employee_rate': 600, 'total': 360 },
-                {'lumber': self.brus2.pk, 'quantity': 10, 'volume': 0.4, 'employee_rate': 600, 'total': 240 },
-                {'lumber': self.doska1.pk, 'quantity': 50, 'volume': 1.44, 'employee_rate': 600, 'total': 864 },
-                {'lumber': self.doska2.pk, 'quantity': 40, 'volume': 0.96, 'employee_rate': 600, 'total': 576 },
+                {'lumber': self.brus1.pk, 'quantity': 10, 'volume_total': 0.6, 'employee_rate': 600,
+                 'cash': 360,  },
+                {'lumber': self.brus2.pk, 'quantity': 10, 'volume_total': 0.4, 'employee_rate': 600,
+                 'cash': 240 },
+                {'lumber': self.doska1.pk, 'quantity': 50, 'volume_total': 1.44, 'employee_rate': 600,
+                'cash': 864 },
+                {'lumber': self.doska2.pk, 'quantity': 40, 'volume_total': 0.96, 'employee_rate': 600,
+                 'cash': 576 },
             ],
             'shift_type': 'day',
-            'employees': [self.ramshik1.employee.pk, self.ramshik2.employee.pk, self.ramshik3.employee.pk,]
+            'employees': [self.ramshik1.account.pk, self.ramshik2.account.pk, self.ramshik3.account.pk,],
+            'employee_cash': 1000,
+            'volume': 1000,
 
             }, format='json')
         print(response.data)

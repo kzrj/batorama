@@ -88,7 +88,14 @@ class SaleList(viewsets.ModelViewSet):
     @action(methods=['get'], detail=False)
     def sale_create_data(self, request):
         return Response({
-            'lumbers': LumberSerializer(Lumber.objects.all(), many=True).data,
+            'pine_brus_lumbers': LumberSerializer(
+                Lumber.objects.filter(lumber_type='brus', wood_species='pine'), many=True).data,
+            'larch_brus_lumbers': LumberSerializer(
+                Lumber.objects.filter(lumber_type='brus', wood_species='larch'), many=True).data,
+            'pine_doska_lumbers': LumberSerializer(
+                Lumber.objects.filter(lumber_type='doska', wood_species='pine'), many=True).data,
+            'larch_doska_lumbers': LumberSerializer(
+                Lumber.objects.filter(lumber_type='doska', wood_species='larch'), many=True).data,
             }, status=status.HTTP_200_OK)
 
     def update(self, request, pk=None):

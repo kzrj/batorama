@@ -19,6 +19,12 @@ class Lumber(CoreModel):
     volume = models.FloatField()
     employee_rate = models.IntegerField(default=0)
 
+    SPECIES = [('pine', 'Сосна'), ('larch', 'Лиственница')]
+    wood_species = models.CharField(max_length=20, choices=SPECIES)
+
+    LUMBER_TYPES = [('brus', 'brus'), ('doska', 'doska')]
+    lumber_type = models.CharField(max_length=20, choices=SPECIES)
+
     objects = LumberQuerySet.as_manager()
 
     def __str__(self):
