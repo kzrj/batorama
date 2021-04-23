@@ -63,7 +63,7 @@ class LumberSimpleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lumber
-        exclude = ['name', 'lumber_type', 'wood_species', 'id', 'lumber']
+        fields = ['name', 'lumber_type', 'wood_species', 'id', 'lumber']
 
 
 
