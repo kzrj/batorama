@@ -31,12 +31,12 @@ urlpatterns = [
 
     # ramshik api
     path('api/ramshik/shifts/create/init_data/', ShiftViewSet.as_view({'get': 'shift_create_data'})),
-    path('api/ramshik/shifts/create/', ShiftViewSet.as_view({'post': 'create_shift'})),
-    path('api/ramshik/shifts/list/', ShiftViewSet.as_view({'get': 'list_shift'})),
+    path('api/ramshik/shifts/create/', ShiftViewSet.as_view({'post': 'create'})),
+    path('api/ramshik/shifts/list/', ShiftViewSet.as_view({'get': 'list'})),
 
     # kladman api
     path('api/kladman/sales/create/init_data/', SaleList.as_view({'get': 'sale_create_data'})),
-    path('api/kladman/sales/create/', SaleList.as_view({'post': 'create_sale'})),
+    path('api/kladman/sales/create/', SaleList.as_view({'post': 'create'})),
 
 
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
