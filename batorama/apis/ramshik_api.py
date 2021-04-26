@@ -7,7 +7,7 @@ from rest_framework import serializers
 
 from stock.models import Shift, LumberRecord, Lumber
 from stock.testing_utils import create_init_data
-from accounts.models import Account
+from accounts.models import Account, CashRecord
 
 
 class InitTestDataView(APIView):
@@ -121,3 +121,29 @@ class ShiftViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, pk=None):
         pass
+
+
+class RamshikWithCashSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields = ['id', 'nickname', 'cash']
+
+
+class LastPayoutsSerializer(serializers.ModelSerializer):
+    employee = serializers.ReadOnlyField(source='account.nickname')
+
+    class Meta:
+        model = CashRecord
+        fields = ['id', 'amount', 'record_type', 'created_at', 'employee']
+
+
+class RamshikiPaymentViewSet(viewsets.ViewSet):
+    @action(detail=False, methods=['get'])
+    def get_data(self, request, pk=None):
+        ramshik = request.user.account
+        return Response({
+            'ramshik': RamshikWithCashSerializer(ramshik).data,
+            'last_payouts': LastPayoutsSerializer(
+                CashRecord.objects.filter(account=ramshik).order_by('-created_at')).data
+            },
+                status=status.HTTP_200_OK)

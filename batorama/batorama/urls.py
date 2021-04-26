@@ -9,7 +9,7 @@ from django.conf import settings
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
 
 from apis.manager_api import RamshikiPaymentViewSet, ShiftListView
-from apis.ramshik_api import ShiftViewSet, InitTestDataView
+from apis.ramshik_api import ShiftViewSet, InitTestDataView, RamshikPaymentViewSet
 from apis.kladman_api import SaleList
 
 # router = routers.DefaultRouter()
@@ -33,6 +33,7 @@ urlpatterns = [
     path('api/ramshik/shifts/create/init_data/', ShiftViewSet.as_view({'get': 'shift_create_data'})),
     path('api/ramshik/shifts/create/', ShiftViewSet.as_view({'post': 'create'})),
     path('api/ramshik/shifts/list/', ShiftViewSet.as_view({'get': 'list'})),
+    path('api/ramshik/payments/', RamshikPaymentViewSet.as_view({'get': 'get_data'})),
 
     # kladman api
     path('api/kladman/sales/create/init_data/', SaleList.as_view({'get': 'sale_create_data'})),
