@@ -34,7 +34,7 @@ class ShiftReadSerializer(serializers.ModelSerializer):
     lumber_records = LumberRecordSerializer(many=True)
 
     class Meta:
-        model = Sale
+        model = Shift
         fields = '__all__'
 
 
