@@ -22,7 +22,7 @@ class LumberRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = LumberRecord
         fields = ('lumber', 'quantity', 'volume', 'rate', 'total_cash', 'back_total_cash')
-        
+
 
 class ShiftSerializer(serializers.ModelSerializer):
     class Meta:
@@ -32,6 +32,7 @@ class ShiftSerializer(serializers.ModelSerializer):
 
 class ShiftReadSerializer(serializers.ModelSerializer):
     lumber_records = LumberRecordSerializer(many=True)
+    employees = serializers.StringRelatedField()
 
     class Meta:
         model = Shift
