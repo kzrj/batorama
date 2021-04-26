@@ -80,7 +80,7 @@ class ShiftViewSet(viewsets.ModelViewSet):
 
     def list(self, request):
         queryset = self.filter_queryset(
-            self.queryset.filter(employees__cointains=request.user.account))
+            self.queryset.filter(employees__contains=request.user.account))
                 
         serializer = ShiftReadSerializer(queryset, many=True)
 
