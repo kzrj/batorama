@@ -137,7 +137,7 @@ class LastPayoutsSerializer(serializers.ModelSerializer):
         fields = ['id', 'amount', 'record_type', 'created_at', 'employee']
 
 
-class RamshikiPaymentViewSet(viewsets.ViewSet):
+class RamshikPayoutViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['get'])
     def get_data(self, request, pk=None):
         ramshik = request.user.account
