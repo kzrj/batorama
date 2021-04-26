@@ -130,11 +130,11 @@ class RamshikWithCashSerializer(serializers.ModelSerializer):
 
 
 class LastPayoutsSerializer(serializers.ModelSerializer):
-    employee = serializers.ReadOnlyField(source='account.nickname')
+    ramshik = serializers.ReadOnlyField(source='account.nickname')
 
     class Meta:
         model = CashRecord
-        fields = ['id', 'amount', 'record_type', 'created_at', 'employee']
+        fields = ['id', 'amount', 'record_type', 'created_at', 'ramshik']
 
 
 class RamshikPayoutViewSet(viewsets.ViewSet):
@@ -144,6 +144,6 @@ class RamshikPayoutViewSet(viewsets.ViewSet):
         return Response({
             'ramshik': RamshikWithCashSerializer(ramshik).data,
             'last_payouts': LastPayoutsSerializer(
-                CashRecord.objects.filter(account=ramshik).order_by('-created_at')).data
+                CashRecord.objects.filter(account=ramshik).order_by('-created_at'), many=True).data
             },
                 status=status.HTTP_200_OK)
