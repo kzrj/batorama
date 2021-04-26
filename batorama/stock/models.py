@@ -101,6 +101,10 @@ class Shift(CoreModel):
     def __str__(self):
         return f'Cмена {self.shift_type} {self.date.strftime("%d-%m-%Y")}'
 
+    @property
+    def get_empoyees(self):
+        return self.employees.all()
+
 
 class SaleQuerySet(models.QuerySet):
     def create_sale(self, lumber_records, volume, cash, initiator, date=None, add_expenses=0, 

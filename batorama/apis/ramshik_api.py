@@ -32,7 +32,7 @@ class ShiftSerializer(serializers.ModelSerializer):
 
 class ShiftReadSerializer(serializers.ModelSerializer):
     lumber_records = LumberRecordSerializer(many=True)
-    employees = serializers.StringRelatedField()
+    employees = serializers.StringRelatedField(queryset=Account.objects.all(), many=True)
 
     class Meta:
         model = Shift
