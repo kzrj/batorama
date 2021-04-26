@@ -16,9 +16,25 @@ class InitTestDataView(APIView):
         return Response({'msg': 'Done.'})
 
 
+class LumberRecordSerializer(serializers.ModelSerializer):
+    lumber = serializers.StringRelatedField()
+
+    class Meta:
+        model = LumberRecord
+        fields = ('lumber', 'quantity', 'volume', 'rate', 'total_cash', 'back_total_cash')
+        
+
 class ShiftSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shift
+        fields = '__all__'
+
+
+class ShiftReadSerializer(serializers.ModelSerializer):
+    lumber_records = LumberRecordSerializer(many=True)
+
+    class Meta:
+        model = Sale
         fields = '__all__'
 
 
