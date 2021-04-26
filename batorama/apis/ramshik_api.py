@@ -73,8 +73,23 @@ class RamshikSerializer(serializers.ModelSerializer):
 
 
 class ShiftViewSet(viewsets.ModelViewSet):
-    queryset = Shift.objects.all()
-    serializer_class = ShiftSerializer
+    queryset = Shift.objects.all()\
+        .select_related('initiator__account') \
+        .prefetch_related('lumber_records__lumber', 'employees',)
+    serializer_class = ShiftReadSerializer
+
+    def list(self, request):
+        queryset = self.filter_queryset(
+            self.queryset.filter(employees__cointains=request.user.account))
+                
+        serializer = ShiftReadSerializer(queryset, many=True)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = ShiftReadSerializer(queryset, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        return super().list(request)
 
     def create(self, request):
         serializer = ShiftCreateSerializer(data=request.data)
