@@ -130,11 +130,11 @@ class RamshikWithCashSerializer(serializers.ModelSerializer):
 
 
 class LastPayoutsSerializer(serializers.ModelSerializer):
-    ramshik = serializers.ReadOnlyField(source='account.nickname')
+    employee = serializers.ReadOnlyField(source='account.nickname')
 
     class Meta:
         model = CashRecord
-        fields = ['id', 'amount', 'record_type', 'created_at', 'ramshik']
+        fields = ['id', 'amount', 'record_type', 'created_at', 'employee']
 
 
 class RamshikPayoutViewSet(viewsets.ViewSet):
