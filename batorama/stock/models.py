@@ -20,10 +20,24 @@ class LumberQuerySet(models.QuerySet):
             lumber=OuterRef('pk'), rama=rama)            
         return self.annotate(total_outcome_volume=Coalesce(Subquery(subquery), 0.0))
 
+    def add_rama_income_quantity(self, rama):
+        subquery = LumberRecord.objects.calc_total_income_quantity_by_rama_by_lumber(
+            lumber=OuterRef('pk'), rama=rama)
+
+        return self.annotate(total_income_quantity=Coalesce(Subquery(subquery), 0.0))
+
+    def add_rama_outcome_quantity(self, rama):
+        subquery = LumberRecord.objects.calc_total_outcome_quantity_by_rama_by_lumber(
+            lumber=OuterRef('pk'), rama=rama)            
+        return self.annotate(total_outcome_quantity=Coalesce(Subquery(subquery), 0.0))
+
     def add_rama_current_stock(self, rama):
         return self.add_rama_income(rama=rama) \
                 .add_rama_outcome(rama=rama) \
-                .annotate(current_stock=F('total_income_volume') - F('total_outcome_volume'))
+                .annotate(current_stock=F('total_income_volume') - F('total_outcome_volume')) \
+                .add_rama_income_quantity(rama=rama) \
+                .add_rama_outcome_quantity(rama=rama) \
+                .annotate(current_stock=F('total_income_quantity') - F('total_outcome_quantity'))
 
 
 class Lumber(CoreModel):
@@ -200,6 +214,18 @@ class LumberRecordQuerySet(models.QuerySet):
             .values('rama') \
             .annotate(total_outcome_volume=Sum('volume')) \
             .values('total_outcome_volume')
+
+    def calc_total_income_quantity_by_rama_by_lumber(self, lumber, rama):
+        return self.filter(lumber=lumber, rama=rama, shift__isnull=False) \
+            .values('rama') \
+            .annotate(total_income_volume=Sum('quantity')) \
+            .values('total_income_quantity')
+
+    def calc_total_outcome_quantity_by_rama_by_lumber(self, lumber, rama):
+        return self.filter(lumber=lumber, rama=rama, sale__isnull=False) \
+            .values('rama') \
+            .annotate(total_outcome_volume=Sum('quantity')) \
+            .values('total_outcome_quantity')
 
 
 class LumberRecord(CoreModel):
