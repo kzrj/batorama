@@ -47,6 +47,7 @@ class Lumber(CoreModel):
     height = models.FloatField()
     volume = models.FloatField()
     employee_rate = models.IntegerField(default=0)
+    market_cost = models.IntegerField(default=0)
 
     SPECIES = [('pine', 'Сосна'), ('larch', 'Лиственница')]
     wood_species = models.CharField(max_length=20, choices=SPECIES)
