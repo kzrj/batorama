@@ -90,10 +90,10 @@ class ShiftListView(generics.ListAPIView):
 
 
 class LumberStockReadSerializer(AnnotateFieldsModelSerializer):
-    lumber = serializers.StringRelatedField()
+    stock_total_cash = serializers.ReadOnlyField()
     
     class Meta:
-        model = LumberRecord
+        model = Lumber
         fields = '__all__'
 
 

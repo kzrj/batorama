@@ -60,6 +60,10 @@ class Lumber(CoreModel):
     def __str__(self):
         return self.name
 
+    @property
+    def stock_total_cash(self):
+        return self.total_income_volume * self.market_cost
+
 
 class RamaQuerySet(models.QuerySet):
     pass
