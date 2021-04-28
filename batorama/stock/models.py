@@ -218,13 +218,13 @@ class LumberRecordQuerySet(models.QuerySet):
     def calc_total_income_quantity_by_rama_by_lumber(self, lumber, rama):
         return self.filter(lumber=lumber, rama=rama, shift__isnull=False) \
             .values('rama') \
-            .annotate(total_income_volume=Sum('quantity')) \
+            .annotate(total_income_quantity=Sum('quantity')) \
             .values('total_income_quantity')
 
     def calc_total_outcome_quantity_by_rama_by_lumber(self, lumber, rama):
         return self.filter(lumber=lumber, rama=rama, sale__isnull=False) \
             .values('rama') \
-            .annotate(total_outcome_volume=Sum('quantity')) \
+            .annotate(total_outcome_quantity=Sum('quantity')) \
             .values('total_outcome_quantity')
 
 
