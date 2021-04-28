@@ -35,7 +35,7 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
     def init_data(self, request, pk=None):
         return Response({
             'employees': RamshikWithCashSerializer(
-                Account.objects.filter(is_ramshik=True), many=True).data,
+                Account.objects.filter(is_ramshik=True).order_by('nickname'), many=True).data,
             'last_payouts': LastPayoutsSerializer(
                 CashRecord.objects.all().order_by('-created_at')[:10], many=True).data
             },
