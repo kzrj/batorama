@@ -62,7 +62,7 @@ class Lumber(CoreModel):
 
     @property
     def stock_total_cash(self):
-        return self.total_income_volume * self.market_cost
+        return self.current_stock_quantity * self.market_cost
 
 
 class RamaQuerySet(models.QuerySet):
