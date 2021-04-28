@@ -117,3 +117,43 @@ class LumberStockListView(generics.ListAPIView):
             return self.get_paginated_response(serializer.data)
 
         return super().list(request)
+
+
+class SaleLumberRecordSerializer(serializers.ModelSerializer):
+    lumber = serializers.StringRelatedField()
+    
+    class Meta:
+        model = LumberRecord
+        fields = ['lumber', 'quantity', 'volume', 'rate', 'total_cash', 'back_total_cash']
+
+
+class SaleReadSerializer(serializers.ModelSerializer):
+    lumber_records = SaleLumberRecordSerializer(many=True)
+    initiator = serializers.ReadOnlyField(source='initiator.account.nickname')
+
+    class Meta:
+        model = Sale
+        exclude = ['created_at', 'modified_at']
+
+
+class SaleListView(generics.ListAPIView):
+    queryset = Sale.objects.all() \
+        .select_related('initiator__account') \
+        .prefetch_related('lumber_records__lumber',)
+    serializer_class = SalesReadSerializer
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        rama = request.user.account.rama
+        queryset = self.filter_queryset(
+            self.queryset.filter(rama=rama)
+            )
+                
+        serializer = SalesReadSerializer(queryset, many=True)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = SalesReadSerializer(queryset, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        return super().list(request)
