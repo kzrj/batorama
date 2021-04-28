@@ -94,7 +94,7 @@ class LumberStockReadSerializer(AnnotateFieldsModelSerializer):
     
     class Meta:
         model = LumberRecord
-        fields = ['name', 'wood_species', 'lumber_type', 'rate']
+        fields = '__all__'
 
 
 class LumberStockListView(generics.ListAPIView):
