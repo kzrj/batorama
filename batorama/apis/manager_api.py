@@ -140,7 +140,7 @@ class SaleListView(generics.ListAPIView):
     queryset = Sale.objects.all() \
         .select_related('initiator__account') \
         .prefetch_related('lumber_records__lumber',)
-    serializer_class = SalesReadSerializer
+    serializer_class = SaleReadSerializer
     permission_classes = [IsAuthenticated]
 
     def list(self, request):
@@ -149,11 +149,11 @@ class SaleListView(generics.ListAPIView):
             self.queryset.filter(rama=rama)
             )
                 
-        serializer = SalesReadSerializer(queryset, many=True)
+        serializer = SaleReadSerializer(queryset, many=True)
 
         page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = SalesReadSerializer(queryset, many=True)
+            serializer = SaleReadSerializer(queryset, many=True)
             return self.get_paginated_response(serializer.data)
 
         return super().list(request)
