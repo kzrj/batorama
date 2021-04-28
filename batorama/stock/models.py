@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
-from django.db.models import Q, Subquery, OuterRef, Count, Prefetch, F, Sum
+from django.db.models import Q, Subquery, OuterRef, Count, Prefetch, F, Sum, ExpressionWrapper
+from django.db.models.functions import Coalesce
 from django.contrib.auth.models import User
 from django.utils import timezone
 
@@ -8,7 +9,21 @@ from core.models import CoreModel, CoreModelManager
 
 
 class LumberQuerySet(models.QuerySet):
-    pass
+    def add_rama_income(self, rama):
+        subquery = LumberRecord.objects.calc_total_income_volume_by_rama_by_lumber(
+            lumber=OuterRef('pk'), rama=rama)
+
+        return self.annotate(total_income_volume=Coalesce(Subquery(subquery), 0.0))
+
+    def add_rama_outcome(self, rama):
+        subquery = LumberRecord.objects.calc_total_outcome_volume_by_rama_by_lumber(
+            lumber=OuterRef('pk'), rama=rama)            
+        return self.annotate(total_outcome_volume=Coalesce(Subquery(subquery), 0.0))
+
+    def add_rama_current_stock(self, rama):
+        return self.add_rama_income(rama=rama) \
+                .add_rama_outcome(rama=rama) \
+                .annotate(current_stock=F('total_income_volume') - F('total_outcome_volume'))
 
 
 class Lumber(CoreModel):
@@ -64,9 +79,11 @@ class ShiftQuerySet(models.QuerySet):
         return shift
 
     def create_shift_raw_records(self, **kwargs):
-        lumber_records = LumberRecord.objects.create_from_list(records_list=kwargs['raw_records'])
+        lumber_records = LumberRecord.objects.create_from_list(records_list=kwargs['raw_records'],
+            rama=kwargs['rama'])
         kwargs['lumber_records'] = LumberRecord.objects.filter(pk__in=(lr.pk for lr in lumber_records))
         del kwargs['raw_records']
+        del kwargs['rama']
         return self.create_shift(**kwargs)
 
 
@@ -126,9 +143,11 @@ class SaleQuerySet(models.QuerySet):
         return sale
 
     def create_sale_raw_records(self, **kwargs):
-        lumber_records = LumberRecord.objects.create_from_list(records_list=kwargs['raw_records'])
+        lumber_records = LumberRecord.objects.create_from_list(records_list=kwargs['raw_records'],
+            rama=kwargs['rama'])
         kwargs['lumber_records'] = LumberRecord.objects.filter(pk__in=(lr.pk for lr in lumber_records))
         del kwargs['raw_records']
+        del kwargs['rama']
         return self.create_sale(**kwargs)
 
 
@@ -152,15 +171,16 @@ class Sale(CoreModel):
 
 
 class LumberRecordQuerySet(models.QuerySet):
-    def create_from_list(self, records_list):
+    def create_from_list(self, records_list, rama=None):
         lumber_records = list()
         for record in records_list:
             if record['quantity'] > 0:
                 rate = record.get('rate') or record.get('employee_rate')
                 lumber_records.append(
                     LumberRecord(lumber=record['lumber'], quantity=record['quantity'],
-                        volume=record['volume_total'], rate=rate,
-                        total_cash=record['cash'], back_total_cash=rate*record['volume_total']))
+                        volume=record['quantity']*record['lumber'].volume, rate=rate,
+                        total_cash=record['cash'], back_total_cash=rate*record['volume_total'],
+                        rama=rama))
         return self.bulk_create(lumber_records)
 
     def calc_total_volume(self):
@@ -169,9 +189,23 @@ class LumberRecordQuerySet(models.QuerySet):
     def calc_total_cash(self):
         return self.aggregate(cash=Sum('total_cash'))['cash']
 
+    def calc_total_income_volume_by_rama_by_lumber(self, lumber, rama):
+        return self.filter(lumber=lumber, rama=rama, shift__isnull=False) \
+            .values('rama') \
+            .annotate(total_income_volume=Sum('volume')) \
+            .values('total_income_volume')
+
+    def calc_total_outcome_volume_by_rama_by_lumber(self, lumber, rama):
+        return self.filter(lumber=lumber, rama=rama, sale__isnull=False) \
+            .values('rama') \
+            .annotate(total_outcome_volume=Sum('volume')) \
+            .values('total_outcome_volume')
+
 
 class LumberRecord(CoreModel):
     lumber = models.ForeignKey(Lumber, on_delete=models.CASCADE, related_name='records')
+    rama = models.ForeignKey(Rama, on_delete=models.SET_NULL, null=True, blank=True, 
+        related_name='lumber_records')
     quantity = models.IntegerField(default=0)
     volume = models.FloatField(default=0)
     rate = models.IntegerField(default=0)

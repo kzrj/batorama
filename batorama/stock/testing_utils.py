@@ -84,7 +84,6 @@ def create_test_data():
     create_test_users()
     create_test_lumber()
 
-
 def create_init_data():
     rama1 = Rama.objects.create(name='batorama')
     create_test_lumber()

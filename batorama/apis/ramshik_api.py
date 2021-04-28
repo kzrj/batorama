@@ -79,7 +79,6 @@ class ShiftViewSet(viewsets.ModelViewSet):
     serializer_class = ShiftReadSerializer
 
     def list(self, request):
-        # request.user.account.shift_set.all()
         queryset = self.filter_queryset(request.user.account.shift_set.all())
                 
         serializer = ShiftReadSerializer(queryset, many=True)
@@ -102,6 +101,7 @@ class ShiftViewSet(viewsets.ModelViewSet):
                 cash=serializer.validated_data['employee_cash'],
                 volume=serializer.validated_data['volume'],
                 note=serializer.validated_data.get('note'),
+                rama=request.user.account.rama,
                 initiator=request.user,
                 )
             

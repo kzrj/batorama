@@ -7,7 +7,8 @@ from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated
 
 from accounts.models import Account, CashRecord
-from stock.models import Shift, LumberRecord
+from stock.models import Shift, LumberRecord, Lumber
+from core.serializers import AnnotateFieldsModelSerializer
 
 
 class RamshikWithCashSerializer(serializers.ModelSerializer):
@@ -86,3 +87,33 @@ class ShiftListView(generics.ListAPIView):
         .prefetch_related('lumber_records__lumber', 'employees',)
     serializer_class = ShiftSerializer
     permission_classes = [IsAuthenticated]
+
+
+class LumberStockReadSerializer(AnnotateFieldsModelSerializer):
+    lumber = serializers.StringRelatedField()
+    
+    class Meta:
+        model = LumberRecord
+        fields = ['name', 'wood_species', 'lumber_type', 'rate']
+
+
+class LumberStockListView(generics.ListAPIView):
+    queryset = Lumber.objects.all() \
+        .prefetch_related('records', )
+    serializer_class = LumberStockReadSerializer
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        rama = request.user.account.rama
+        queryset = self.filter_queryset(
+            self.queryset.add_rama_current_stock(rama=rama)
+            )
+                
+        serializer = LumberStockReadSerializer(queryset, many=True)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = LumberStockReadSerializer(queryset, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        return super().list(request)

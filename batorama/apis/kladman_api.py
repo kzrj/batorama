@@ -82,6 +82,7 @@ class SaleList(viewsets.ModelViewSet):
                 volume=serializer.validated_data['volume'],
                 add_expenses=serializer.validated_data.get('add_expenses', 0),
                 note=serializer.validated_data.get('note'),
+                rama=request.user.account.rama,
                 initiator=request.user,
                 )
             
