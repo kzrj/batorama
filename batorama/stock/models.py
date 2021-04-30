@@ -53,7 +53,7 @@ class Lumber(CoreModel):
     wood_species = models.CharField(max_length=20, choices=SPECIES)
 
     LUMBER_TYPES = [('brus', 'brus'), ('doska', 'doska')]
-    lumber_type = models.CharField(max_length=20, choices=SPECIES)
+    lumber_type = models.CharField(max_length=20, choices=LUMBER_TYPES)
 
     objects = LumberQuerySet.as_manager()
 
