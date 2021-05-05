@@ -66,6 +66,22 @@ class LumberSimpleSerializer(serializers.ModelSerializer):
         fields = ['name', 'lumber_type', 'wood_species', 'id', 'lumber']
 
 
+class RawLumberRecordSchema1Serializer(serializers.Serializer):
+    lumber = serializers.PrimaryKeyRelatedField(queryset=Lumber.objects.all())
+    quantity = serializers.IntegerField()
+    rama_price = serializers.IntegerField()
+    selling_price = serializers.IntegerField()
+    selling_total_cash = serializers.IntegerField()
+
+
+class SaleSchema1CreateSerializer(serializers.ModelSerializer):
+    raw_records = RawLumberRecordSchema1Serializer(many=True)
+
+    class Meta:
+        model = Sale
+        fields = ('date', 'raw_records', 'loader', 'seller', 'kladman', 'delivery_fee',
+         'add_expenses', 'note')
+
 
 class SaleList(viewsets.ModelViewSet):
     queryset = Sale.objects.all()
@@ -80,6 +96,31 @@ class SaleList(viewsets.ModelViewSet):
                 raw_records=serializer.validated_data['raw_records'],
                 cash=serializer.validated_data['cash'],
                 volume=serializer.validated_data['volume'],
+                add_expenses=serializer.validated_data.get('add_expenses', 0),
+                note=serializer.validated_data.get('note'),
+                rama=request.user.account.rama,
+                initiator=request.user,
+                )
+            
+            return Response({
+                'sale': SaleReadSerializer(sale).data,
+                'message': 'Успешно'
+                },
+                 status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['post'], detail=False)
+    def create_sale_schema1(self, request):
+        serializer = SaleSchema1CreateSerializer(data=request.data)
+        if serializer.is_valid():
+            sale = Sale.objects.create_sale_raw_records(
+                date=serializer.validated_data.get('date'),
+                raw_records=serializer.validated_data['raw_records'],
+                loader=serializer.validated_data['loader'],
+                seller=serializer.validated_data['seller'],
+                kladman=serializer.validated_data['kladman'],
+                delivery_fee=serializer.validated_data.get('delivery_fee', 0),
                 add_expenses=serializer.validated_data.get('add_expenses', 0),
                 note=serializer.validated_data.get('note'),
                 rama=request.user.account.rama,

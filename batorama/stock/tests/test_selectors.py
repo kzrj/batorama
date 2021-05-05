@@ -94,4 +94,4 @@ class StockSelectorsTest(TransactionTestCase):
 
         self.assertEqual(doska2.total_income_volume, 1.92)
         self.assertEqual(doska2.total_outcome_volume, 0.96)
-        self.assertEqual(doska2.current_stock, 0.96)
+        self.assertEqual(doska2.current_stock_volume, 0.96)

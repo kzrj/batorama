@@ -9,6 +9,9 @@ from core.models import CoreModel, CoreModelManager
 
 
 class LumberQuerySet(models.QuerySet):
+    # Servises
+
+    # Selectors
     def add_rama_income(self, rama):
         subquery = LumberRecord.objects.calc_total_income_volume_by_rama_by_lumber(
             lumber=OuterRef('pk'), rama=rama)
@@ -77,6 +80,7 @@ class Rama(CoreModel):
 
 
 class ShiftQuerySet(models.QuerySet):
+    # Servises
     def create_shift(self, shift_type, cash, volume, employees, lumber_records, initiator=None,
          date=None, note=None):
         if not date:
@@ -104,6 +108,8 @@ class ShiftQuerySet(models.QuerySet):
         del kwargs['raw_records']
         del kwargs['rama']
         return self.create_shift(**kwargs)
+
+    # Selectors
 
 
 class Shift(CoreModel):
@@ -143,6 +149,7 @@ class Shift(CoreModel):
 
 
 class SaleQuerySet(models.QuerySet):
+    # Servises
     def create_sale(self, lumber_records, volume, cash, initiator, date=None, add_expenses=0, 
             note=None):
         if not date:
@@ -169,6 +176,36 @@ class SaleQuerySet(models.QuerySet):
         del kwargs['rama']
         return self.create_sale(**kwargs)
 
+    def create_sale_schema1(self, raw_records, initiator, seller=None, bonus_kladman=None, 
+      loader=False, delivery_fee=0, add_expenses=0, note=None, date=None):
+        if not date:
+            date = timezone.now()
+
+        sale = self.create(date=date, initiator=initiator, delivery_fee=delivery_fee,
+            rama=initiator.account.rama, add_expenses=add_expenses, note=note, seller=seller,
+            bonus_kladman=bonus_kladman)
+
+        lumber_records = LumberRecord.objects.create_from_list_sale_schema1(
+            records_list=raw_records, rama=initiator.account.rama)
+        lumber_records = LumberRecord.objects.filter(pk__in=(lr.pk for lr in lumber_records))
+        lumber_records.update(sale=sale)
+
+        volume_and_cash = lumber_records.calc_sale_volume_and_cash_schema1()
+        sale.volume = volume_and_cash['total_volume']
+        sale.rama_total_cash = volume_and_cash['rama_cash']
+        sale.selling_total_cash = volume_and_cash['sale_cash']
+
+        sale.calc_seller_fee()
+        sale.calc_kladman_fee()
+        if loader: 
+            sale.calc_loader_fee()
+        sale.calc_net_rama_cash()
+
+        sale.save()
+        return sale
+
+    # Selectors
+
 
 class Sale(CoreModel):
     date = models.DateTimeField(null=True, blank=True)
@@ -177,31 +214,88 @@ class Sale(CoreModel):
 
     initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, 
         related_name='sales')
-    volume = models.FloatField(null=True)
+    volume = models.FloatField(null=True, blank=True)
 
     note = models.TextField(null=True, blank=True)
-    add_expenses = models.IntegerField(null=True, blank=True)
 
-    cash = models.FloatField(null=True)
-    back_calc_volume = models.FloatField(null=True)
-    back_calc_cash = models.FloatField(null=True)
+    cash = models.FloatField(null=True, blank=True)
+    back_calc_volume = models.FloatField(null=True, blank=True)
+    back_calc_cash = models.FloatField(null=True, blank=True)
+
+    rama_total_cash = models.IntegerField(default=0)
+    selling_total_cash = models.IntegerField(default=0)
+    net_rama_cash = models.IntegerField(default=0)
+
+    seller = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, 
+        related_name='sales_as_seller')
+    bonus_kladman = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, 
+        related_name='sales_as_bonus_kladman')
+
+    seller_fee = models.IntegerField(default=0, null=True, blank=True)
+    kladman_fee = models.IntegerField(default=0,null=True, blank=True)
+    loader_fee = models.IntegerField(default=0, null=True, blank=True)
+    delivery_fee = models.IntegerField(default=0, null=True, blank=True)
+
+    add_expenses = models.IntegerField(default=0, null=True, blank=True)
 
     objects = SaleQuerySet.as_manager()
 
+    def calc_seller_fee(self):
+        if self.seller:
+            self.seller_fee = self.selling_total_cash - self.rama_total_cash
+
+    def calc_kladman_fee(self):
+        if self.bonus_kladman:
+            self.kladman_fee = round(self.volume * 100)
+
+    def calc_loader_fee(self):
+        self.loader_fee = round(self.volume * 100)
+
+    def calc_net_rama_cash(self):
+        self.net_rama_cash = self.rama_total_cash - self.kladman_fee - self.loader_fee - self.delivery_fee
+
 
 class LumberRecordQuerySet(models.QuerySet):
+    # Servises
     def create_from_list(self, records_list, rama=None):
         lumber_records = list()
         for record in records_list:
             if record['quantity'] > 0:
                 rate = record.get('rate') or record.get('employee_rate')
                 lumber_records.append(
-                    LumberRecord(lumber=record['lumber'], quantity=record['quantity'],
-                        volume=record['quantity']*record['lumber'].volume, rate=rate,
-                        total_cash=record['cash'], back_total_cash=rate*record['volume_total'],
-                        rama=rama))
+                    LumberRecord(
+                        lumber=record['lumber'],
+                        quantity=record['quantity'],
+                        volume=record['quantity']*record['lumber'].volume, 
+                        rate=rate,
+                        total_cash=record['cash'], 
+                        back_total_cash=rate*record['quantity']*record['lumber'].volume,
+                        rama=rama)
+                )
         return self.bulk_create(lumber_records)
 
+    def create_from_list_sale_schema1(self, records_list, rama=None):
+        lumber_records = list()
+        for record in records_list:
+            if record['quantity'] > 0:               
+                lumber_records.append(
+                    LumberRecord(
+                        lumber=record['lumber'],
+                        quantity=record['quantity'],
+                        volume=record['quantity']*record['lumber'].volume,
+
+                        rama_price=record['rama_price'],
+                        rama_total_cash=record['rama_price']*record['quantity']*record['lumber'].volume,
+
+                        selling_price=record['selling_price'],
+                        selling_total_cash=record['selling_total_cash'],
+
+                        rama=rama
+                    )
+                )
+        return self.bulk_create(lumber_records)
+
+    # Selectors
     def calc_total_volume(self):
         return self.aggregate(total_volume=Sum('volume'))['total_volume']
 
@@ -232,6 +326,21 @@ class LumberRecordQuerySet(models.QuerySet):
             .annotate(total_outcome_quantity=Sum('quantity')) \
             .values('total_outcome_quantity')
 
+    def calc_rama_total_cash(self):
+        return self.aggregate(cash=Sum('rama_total_cash'))['cash']
+
+    def calc_selling_total_cash(self):
+        return self.aggregate(cash=Sum('selling_total_cash'))['cash']
+
+    def calc_rama_and_selling_total_cash(self):
+        return self.aggregate(rama_cash=Sum('rama_total_cash'), sale_cash=Sum('selling_total_cash'))
+
+    def calc_sale_volume_and_cash_schema1(self):
+        return self.aggregate(
+            rama_cash=Sum('rama_total_cash'),
+            sale_cash=Sum('selling_total_cash'),
+            total_volume=Sum('volume'))
+
 
 class LumberRecord(CoreModel):
     lumber = models.ForeignKey(Lumber, on_delete=models.CASCADE, related_name='records')
@@ -240,12 +349,19 @@ class LumberRecord(CoreModel):
     quantity = models.IntegerField(default=0)
     volume = models.FloatField(default=0)
     rate = models.IntegerField(default=0)
+
     total_cash = models.FloatField(default=0)
     back_total_cash = models.FloatField(default=0)
 
-    shift = models.ForeignKey(Shift, on_delete=models.CASCADE, null=True, related_name='lumber_records')
+    rama_price = models.IntegerField(default=0)
+    rama_total_cash = models.FloatField(default=0)
 
-    sale = models.ForeignKey(Sale, on_delete=models.CASCADE, null=True, related_name='lumber_records')
+    selling_price = models.IntegerField(default=0)
+    selling_total_cash = models.FloatField(default=0)
+
+    shift = models.ForeignKey(Shift, on_delete=models.SET_NULL, null=True, related_name='lumber_records')
+
+    sale = models.ForeignKey(Sale, on_delete=models.SET_NULL, null=True, related_name='lumber_records')
 
     objects = LumberRecordQuerySet.as_manager()
 

@@ -68,7 +68,7 @@ class OsnTest(TransactionTestCase):
         ]
 
         shift = Shift.objects.create_shift_raw_records(shift_type='day', employees=employees, 
-            raw_records=data_list, cash=1200, volume=10, initiator=self.ramshik1)
+            raw_records=data_list, cash=1200, volume=10, initiator=self.ramshik1, rama=self.rama)
 
         self.assertEqual(shift.back_calc_volume, 3.4)
         self.assertEqual(shift.back_calc_cash, 2040)
@@ -88,7 +88,7 @@ class OsnTest(TransactionTestCase):
         ]
 
         sale = Sale.objects.create_sale_raw_records(raw_records=data_list, cash=1000, volume=10,
-            initiator=self.ramshik1)
+            initiator=self.ramshik1, rama=self.rama)
 
         self.assertEqual(sale.back_calc_volume, 3.4)
         self.assertEqual(sale.back_calc_cash, 29120)

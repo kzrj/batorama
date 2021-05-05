@@ -3,7 +3,7 @@ import datetime
 from django.test import TestCase, TransactionTestCase
 from django.contrib.auth.models import User
 
-from stock.models import Shift, Lumber, LumberRecord
+from stock.models import Shift, Lumber, LumberRecord, Rama
 from accounts.models import Account, CashRecord
 
 import stock.testing_utils as testing
@@ -22,6 +22,7 @@ class OsnAccountTest(TransactionTestCase):
         self.brus2 = Lumber.objects.filter(name__contains='брус')[1]
         self.doska1 = Lumber.objects.filter(name__contains='доска')[0]
         self.doska2 = Lumber.objects.filter(name__contains='доска')[1]
+        self.rama = Rama.objects.all().first()
 
     def test_create_shift_raw_records(self):
         employees = [self.ramshik1.account, self.ramshik2.account, self.ramshik3.account]
@@ -33,7 +34,7 @@ class OsnAccountTest(TransactionTestCase):
         ]
 
         shift = Shift.objects.create_shift_raw_records(shift_type='day', employees=employees, 
-            raw_records=data_list, initiator=self.ramshik1, cash=1200, volume=10)
+            raw_records=data_list, initiator=self.ramshik1, cash=1200, volume=10, rama=self.rama)
 
         self.assertEqual(shift.volume, 10)
         self.assertEqual(shift.employee_cash, 1200)
