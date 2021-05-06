@@ -125,7 +125,7 @@ class SaleList(viewsets.ModelViewSet):
     def create_sale_schema1(self, request):
         serializer = SaleSchema1CreateSerializer(data=request.data)
         if serializer.is_valid():
-            sale = Sale.objects.create_sale_raw_records(
+            sale = Sale.objects.create_sale_schema1(
                 date=serializer.validated_data.get('date'),
                 raw_records=serializer.validated_data['raw_records'],
                 loader=serializer.validated_data['loader'],
