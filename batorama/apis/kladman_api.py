@@ -78,10 +78,11 @@ class RawLumberRecordSchema1Serializer(serializers.Serializer):
 
 class SaleSchema1CreateSerializer(serializers.ModelSerializer):
     raw_records = RawLumberRecordSchema1Serializer(many=True)
+    loader = serializers.BooleanField()
 
     class Meta:
         model = Sale
-        fields = ('date', 'raw_records', 'loader', 'seller', 'kladman', 'delivery_fee',
+        fields = ('date', 'raw_records', 'loader', 'seller', 'bonus_kladman', 'delivery_fee',
          'add_expenses', 'note')
 
 
@@ -129,7 +130,7 @@ class SaleList(viewsets.ModelViewSet):
                 raw_records=serializer.validated_data['raw_records'],
                 loader=serializer.validated_data['loader'],
                 seller=serializer.validated_data['seller'],
-                kladman=serializer.validated_data['kladman'],
+                bonus_kladman=serializer.validated_data['bonus_kladman'],
                 delivery_fee=serializer.validated_data.get('delivery_fee', 0),
                 add_expenses=serializer.validated_data.get('add_expenses', 0),
                 note=serializer.validated_data.get('note'),
