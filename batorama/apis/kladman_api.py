@@ -159,7 +159,8 @@ class SaleList(viewsets.ModelViewSet):
             'lumbers': LumberSerializer(
                 Lumber.objects.all(), many=True).data,
             'sellers': SellerSerializer(User.objects.filter(account__is_seller=True), many=True).data,
-            'kladman_id': User.objects.filter(account__is_kladman=True, rama=request.user.account.rama).first().pk
+            'kladman_id': User.objects.filter(
+                account__is_kladman=True, account__rama=request.user.account.rama).first().pk
             }, status=status.HTTP_200_OK)
 
     def update(self, request, pk=None):
