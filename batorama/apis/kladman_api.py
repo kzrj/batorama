@@ -83,6 +83,14 @@ class SaleSchema1CreateSerializer(serializers.ModelSerializer):
          'add_expenses', 'note')
 
 
+class SellerSerializer(serializers.ModelSerializer):
+    nickname = serializers.ReadOnlyField(source='account.nickname')
+
+    class Meta:
+        model = User
+        fields = ['id', 'nickname']
+
+
 class SaleList(viewsets.ModelViewSet):
     queryset = Sale.objects.all()
     serializer_class = SaleSerializer
@@ -148,6 +156,8 @@ class SaleList(viewsets.ModelViewSet):
                 Lumber.objects.filter(lumber_type='doska', wood_species='larch'), many=True).data,
             'lumbers': LumberSerializer(
                 Lumber.objects.all(), many=True).data,
+            'sellers': SellerSerializer(User.objects.filter(account__is_seller=True), many=True).data,
+            'kladman_id': User.objects.filter(account__is_kladman=True, rama=request.user.account.rama).first().pk
             }, status=status.HTTP_200_OK)
 
     def update(self, request, pk=None):
