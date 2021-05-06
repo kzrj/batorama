@@ -134,7 +134,6 @@ class SaleList(viewsets.ModelViewSet):
                 delivery_fee=serializer.validated_data.get('delivery_fee', 0),
                 add_expenses=serializer.validated_data.get('add_expenses', 0),
                 note=serializer.validated_data.get('note'),
-                rama=request.user.account.rama,
                 initiator=request.user,
                 )
             
