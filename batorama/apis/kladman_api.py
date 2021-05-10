@@ -62,7 +62,7 @@ class LumberSerializer(serializers.ModelSerializer):
 
 class LumberSimpleSerializer(serializers.ModelSerializer):
     lumber = serializers.ReadOnlyField(source='pk')
-    qnty_in_cube = serializers.ReadOnlyField(source='pk')
+    qnty_in_cube = serializers.ReadOnlyField()
 
     class Meta:
         model = Lumber

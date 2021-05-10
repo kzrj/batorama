@@ -69,7 +69,7 @@ class Lumber(CoreModel):
 
     @property
     def qnty_in_cube(self):
-        return 1 / self.volume
+        return round(1 / self.volume, 3)
 
 
 class RamaQuerySet(models.QuerySet):
