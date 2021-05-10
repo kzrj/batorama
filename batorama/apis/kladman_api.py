@@ -55,6 +55,7 @@ class LumberSerializer(serializers.ModelSerializer):
     rate = serializers.FloatField(default=0)
     lumber = serializers.ReadOnlyField(source='pk')
     qnty_in_cube = serializers.ReadOnlyField()
+    rama_price = serializers.ReadOnlyField(source='market_cost')
 
     class Meta:
         model = Lumber
