@@ -62,10 +62,11 @@ class LumberSerializer(serializers.ModelSerializer):
 
 class LumberSimpleSerializer(serializers.ModelSerializer):
     lumber = serializers.ReadOnlyField(source='pk')
+    qnty_in_cube = serializers.ReadOnlyField(source='pk')
 
     class Meta:
         model = Lumber
-        fields = ['name', 'lumber_type', 'wood_species', 'id', 'lumber']
+        fields = ['name', 'lumber_type', 'wood_species', 'id', 'lumber', 'qnty_in_cube']
 
 
 class RawLumberRecordSchema1Serializer(serializers.Serializer):

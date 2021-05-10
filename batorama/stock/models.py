@@ -67,6 +67,10 @@ class Lumber(CoreModel):
     def stock_total_cash(self):
         return self.current_stock_volume * self.market_cost
 
+    @property
+    def qnty_in_cube(self):
+        return round(1 / self.volume, 3)
+
 
 class RamaQuerySet(models.QuerySet):
     pass

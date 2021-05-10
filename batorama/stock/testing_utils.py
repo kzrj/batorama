@@ -34,6 +34,20 @@ def create_test_lumber():
      employee_rate=600, wood_species='pine', lumber_type='brus', market_cost=14500)
     Lumber.objects.create(name='брус 18*18', width=0.18, height=0.18, length=4, volume=0.1296,
      employee_rate=600, wood_species='pine', lumber_type='brus', market_cost=15500)
+    
+    Lumber.objects.create(name='брус 20*20', width=0.2, height=0.2, length=4, volume=0.16,
+     employee_rate=600, wood_species='pine', lumber_type='brus', market_cost=13500)
+    Lumber.objects.create(name='брус 20*25', width=0.20, height=0.25, length=4, volume=0.2,
+     employee_rate=600, wood_species='pine', lumber_type='brus', market_cost=14500)
+    Lumber.objects.create(name='брус 25*25', width=0.25, height=0.25, length=4, volume=0.25,
+     employee_rate=600, wood_species='pine', lumber_type='brus', market_cost=15500)
+    Lumber.objects.create(name='брус 25*30', width=0.25, height=0.3, length=4, volume=0.3,
+     employee_rate=600, wood_species='pine', lumber_type='brus', market_cost=15500)
+    Lumber.objects.create(name='брус 30*30', width=0.3, height=0.3, length=4, volume=0.36,
+     employee_rate=600, wood_species='pine', lumber_type='brus', market_cost=15500)
+
+    Lumber.objects.create(name='брус 5*5', width=0.05, height=0.05, length=4, volume=0.01,
+     employee_rate=600, wood_species='pine', lumber_type='brus', market_cost=15500)
 
     Lumber.objects.create(name='доска 4*18', width=0.04, height=0.18, length=4, volume=0.0288,
      employee_rate=600, wood_species='pine', lumber_type='doska', market_cost=7500)
