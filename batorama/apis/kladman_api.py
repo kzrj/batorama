@@ -54,6 +54,7 @@ class LumberSerializer(serializers.ModelSerializer):
     cash = serializers.FloatField(default=0)
     rate = serializers.FloatField(default=0)
     lumber = serializers.ReadOnlyField(source='pk')
+    qnty_in_cube = serializers.ReadOnlyField()
 
     class Meta:
         model = Lumber
