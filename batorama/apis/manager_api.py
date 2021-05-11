@@ -130,6 +130,7 @@ class SaleLumberRecordSerializer(serializers.ModelSerializer):
 class SaleReadSerializer(serializers.ModelSerializer):
     lumber_records = SaleLumberRecordSerializer(many=True)
     initiator = serializers.ReadOnlyField(source='initiator.account.nickname')
+    date = serializers.DateTimeField(format='%d/%m', read_only=True)
 
     class Meta:
         model = Sale
