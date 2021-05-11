@@ -11,11 +11,13 @@ from accounts.models import Account
 
 
 class LumberRecordSerializer(serializers.ModelSerializer):
-    lumber = serializers.StringRelatedField()
+    volume_total = serializers.ReadOnlyField(source='volume')
+    name = serializers.ReadOnlyField(source='lumber.name')
+    selling_total_cash = serializers.ReadOnlyField(source='lumber.name')
 
     class Meta:
         model = LumberRecord
-        fields = ('lumber', 'quantity', 'volume', 'rate', 'total_cash', 'back_total_cash')
+        fields = ('name', 'quantity', 'volume_total', 'rate', 'selling_total_cash', 'selling_price')
 
 
 class SaleSerializer(serializers.ModelSerializer):
