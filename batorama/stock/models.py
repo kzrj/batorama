@@ -216,6 +216,9 @@ class Sale(CoreModel):
     rama = models.ForeignKey(Rama, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='sales')
 
+    SALE_TYPES = [('person', 'Физ. лицо'), ('perekup', 'Перекуп'), ('china', 'Китай')]
+    sale_type = models.CharField(max_length=20, choices=SALE_TYPES, null=True, blank=True)
+
     initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, 
         related_name='sales')
     volume = models.FloatField(null=True, blank=True)
