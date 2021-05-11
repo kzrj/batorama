@@ -209,6 +209,18 @@ class SaleQuerySet(models.QuerySet):
         return sale
 
     # Selectors
+    def calc_totals(self):
+        return self.aggregate(
+            total_volume=Sum('volume'),
+            total_selling_cash=Sum('selling_total_cash'),
+            total_rama_cash=Sum('rama_total_cash'),
+            total_net_rama_cash=Sum('net_rama_cash'),
+            total_seller_fee=Sum('seller_fee'),
+            total_loader_fee=Sum('loader_fee'),
+            total_kladman_fee=Sum('kladman_fee'),
+            total_delivery_fee=Sum('delivery_fee'),
+            total_add_expenses=Sum('add_expenses'),
+            )
 
 
 class Sale(CoreModel):

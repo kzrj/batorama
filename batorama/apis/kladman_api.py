@@ -104,6 +104,9 @@ class SaleList(viewsets.ModelViewSet):
     serializer_class = SaleSerializer
     # permission_classes = [IsAdminUser]
 
+    def list(self, request):
+        pass
+
     def create(self, request):
         serializer = SaleCreateSerializer(data=request.data)
         if serializer.is_valid():

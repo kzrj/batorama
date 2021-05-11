@@ -157,3 +157,17 @@ class SaleListView(generics.ListAPIView):
             return self.get_paginated_response(serializer.data)
 
         return super().list(request)
+
+    @action(methods=['get'], detail=False)
+    def total_sales(self, request):
+        data = dict()
+        rama = request.user.account.rama
+        queryset = self.filter_queryset(
+            self.queryset.filter(rama=rama)
+            )
+                
+        serializer = SaleReadSerializer(queryset, many=True)
+        data['sales'] = serializer.data
+        data['totals'] = queryset.calc_totals()
+
+        return Response(data)

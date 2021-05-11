@@ -30,6 +30,7 @@ urlpatterns = [
     path('api/manager/shift_list/', ShiftListView.as_view()),
     path('api/manager/stock/', LumberStockListView.as_view()),
     path('api/manager/sale_list/', SaleListView.as_view()),
+    path('api/manager/total_sales/', SaleListView.as_view({'get': 'total_sales'})),
 
     # ramshik api
     path('api/ramshik/shifts/create/init_data/', ShiftViewSet.as_view({'get': 'shift_create_data'})),
