@@ -181,13 +181,13 @@ class SaleQuerySet(models.QuerySet):
         return self.create_sale(**kwargs)
 
     def create_sale_schema1(self, raw_records, initiator, seller=None, bonus_kladman=None, 
-      loader=False, delivery_fee=0, add_expenses=0, note=None, date=None):
+      loader=False, delivery_fee=0, add_expenses=0, note=None, date=None, sale_type=None):
         if not date:
             date = timezone.now()
 
         sale = self.create(date=date, initiator=initiator, delivery_fee=delivery_fee,
             rama=initiator.account.rama, add_expenses=add_expenses, note=note, seller=seller,
-            bonus_kladman=bonus_kladman)
+            bonus_kladman=bonus_kladman, sale_type=sale_type)
 
         lumber_records = LumberRecord.objects.create_from_list_sale_schema1(
             records_list=raw_records, rama=initiator.account.rama)

@@ -17,7 +17,7 @@ class LumberRecordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LumberRecord
-        fields = ('name', 'quantity', 'volume_total', 'rate', 'selling_total_cash', 'selling_price')
+        fields = ('name', 'quantity', 'volume_total', 'selling_total_cash', 'selling_price')
 
 
 class SaleSerializer(serializers.ModelSerializer):
@@ -88,7 +88,7 @@ class SaleSchema1CreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sale
         fields = ('date', 'raw_records', 'loader', 'seller', 'bonus_kladman', 'delivery_fee',
-         'add_expenses', 'note')
+         'add_expenses', 'note', 'sale_type')
 
 
 class SellerSerializer(serializers.ModelSerializer):
@@ -139,6 +139,7 @@ class SaleList(viewsets.ModelViewSet):
                 delivery_fee=serializer.validated_data.get('delivery_fee', 0),
                 add_expenses=serializer.validated_data.get('add_expenses', 0),
                 note=serializer.validated_data.get('note'),
+                sale_type=serializer.validated_data.get('sale_type'),
                 initiator=request.user,
                 )
             
