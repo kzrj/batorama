@@ -273,6 +273,12 @@ class Sale(CoreModel):
     def calc_net_rama_cash(self):
         self.net_rama_cash = self.rama_total_cash - self.kladman_fee - self.loader_fee - self.delivery_fee
 
+    @property
+    def seller_name(self):
+        if self.seller:
+            return self.seller.account.nickname
+        return None
+    
 
 class LumberRecordQuerySet(models.QuerySet):
     # Servises

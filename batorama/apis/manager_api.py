@@ -132,6 +132,7 @@ class SaleLumberRecordSerializer(serializers.ModelSerializer):
 class SaleReadSerializer(serializers.ModelSerializer):
     lumber_records = SaleLumberRecordSerializer(many=True)
     initiator = serializers.ReadOnlyField(source='initiator.account.nickname')
+    seller_name = serializers.ReadOnlyField()
     date = serializers.DateTimeField(format='%d/%m', read_only=True)
 
     class Meta:
@@ -141,7 +142,7 @@ class SaleReadSerializer(serializers.ModelSerializer):
 
 class SaleFilter(filters.FilterSet):
     date = filters.DateFromToRangeFilter()
-    
+
     class Meta:
         model = Sale
         fields = '__all__'
