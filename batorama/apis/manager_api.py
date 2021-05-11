@@ -6,6 +6,8 @@ from rest_framework.decorators import action
 from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated
 
+from django_filters import rest_framework as filters
+
 from accounts.models import Account, CashRecord
 from stock.models import Shift, LumberRecord, Lumber, Sale
 from core.serializers import AnnotateFieldsModelSerializer
@@ -137,12 +139,19 @@ class SaleReadSerializer(serializers.ModelSerializer):
         exclude = ['created_at', 'modified_at']
 
 
+class SaleFilter(filters.FilterSet):
+    class Meta:
+        model = Sale
+        fields = '__all__'
+        
+
 class SaleListView(generics.ListAPIView):
     queryset = Sale.objects.all() \
         .select_related('initiator__account') \
         .prefetch_related('lumber_records__lumber',)
     serializer_class = SaleReadSerializer
     permission_classes = [IsAuthenticated]
+    filter_class = SaleFilter
 
     def list(self, request):
         data = dict()
