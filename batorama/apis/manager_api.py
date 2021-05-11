@@ -144,22 +144,6 @@ class SaleListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def list(self, request):
-        rama = request.user.account.rama
-        queryset = self.filter_queryset(
-            self.queryset.filter(rama=rama)
-            )
-                
-        serializer = SaleReadSerializer(queryset, many=True)
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = SaleReadSerializer(queryset, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        return super().list(request)
-
-    @action(methods=['get'], detail=False)
-    def total_sales(self, request):
         data = dict()
         rama = request.user.account.rama
         queryset = self.filter_queryset(
@@ -171,3 +155,18 @@ class SaleListView(generics.ListAPIView):
         data['totals'] = queryset.calc_totals()
 
         return Response(data)
+
+    # def list(self, request):
+    #     rama = request.user.account.rama
+    #     queryset = self.filter_queryset(
+    #         self.queryset.filter(rama=rama)
+    #         )
+                
+    #     serializer = SaleReadSerializer(queryset, many=True)
+
+    #     page = self.paginate_queryset(queryset)
+    #     if page is not None:
+    #         serializer = SaleReadSerializer(queryset, many=True)
+    #         return self.get_paginated_response(serializer.data)
+
+    #     return super().list(request)
