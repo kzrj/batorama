@@ -140,10 +140,12 @@ class SaleReadSerializer(serializers.ModelSerializer):
 
 
 class SaleFilter(filters.FilterSet):
+    date = filters.DateFromToRangeFilter()
+    
     class Meta:
         model = Sale
         fields = '__all__'
-        
+
 
 class SaleListView(generics.ListAPIView):
     queryset = Sale.objects.all() \
