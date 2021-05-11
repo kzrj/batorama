@@ -126,7 +126,8 @@ class SaleLumberRecordSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = LumberRecord
-        fields = ['lumber', 'quantity', 'volume', 'rate', 'total_cash', 'back_total_cash']
+        fields = ['lumber', 'quantity', 'volume', 'selling_price', 'selling_total_cash',
+         'rama_price', 'rama_total_cash']
 
 
 class SaleReadSerializer(serializers.ModelSerializer):
