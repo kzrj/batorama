@@ -101,7 +101,7 @@ class SellerSerializer(serializers.ModelSerializer):
 
 class LumberChinaSerializer(serializers.ModelSerializer):
     china_name = serializers.ReadOnlyField()
-    
+
     class Meta:
         model = Lumber
         exclude = ['created_at', 'modified_at', 'employee_rate']
@@ -183,7 +183,7 @@ class SaleList(viewsets.ModelViewSet):
     @action(methods=['get'], detail=False)
     def sale_china_create_data(self, request):
         lumbers = Lumber.objects.filter(lumber_type='brus', wood_species='pine') \
-                                .filter(Q(name='брус 18*18') | Q(name='брус 15*15'))
+                                .filter(Q(name='брус 18*18') | Q(name='брус 15*18'))
 
         return Response({
             'lumbers': LumberChinaSerializer(lumbers, many=True).data,
