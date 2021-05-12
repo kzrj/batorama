@@ -15,10 +15,12 @@ class LumberRecordSerializer(serializers.ModelSerializer):
     volume_total = serializers.ReadOnlyField(source='volume')
     name = serializers.ReadOnlyField(source='lumber.name')
     selling_total_cash = serializers.ReadOnlyField(source='lumber.name')
+    china_name = serializers.ReadOnlyField()
 
     class Meta:
         model = LumberRecord
-        fields = ('name', 'quantity', 'volume_total', 'selling_total_cash', 'selling_price')
+        fields = ('name', 'quantity', 'volume_total', 'selling_total_cash', 'selling_price',
+         'china_name')
 
 
 class SaleSerializer(serializers.ModelSerializer):
@@ -90,6 +92,15 @@ class SaleSchema1CreateSerializer(serializers.ModelSerializer):
         model = Sale
         fields = ('date', 'raw_records', 'loader', 'seller', 'bonus_kladman', 'delivery_fee',
          'add_expenses', 'note', 'sale_type')
+
+
+class SaleChinaCreateSerializer(serializers.ModelSerializer):
+    raw_records = RawLumberRecordSchema1Serializer(many=True)
+    loader = serializers.BooleanField()
+
+    class Meta:
+        model = Sale
+        fields = ('date', 'raw_records', 'loader', 'delivery_fee', 'add_expenses', 'note' )
 
 
 class SellerSerializer(serializers.ModelSerializer):
@@ -182,6 +193,27 @@ class SaleList(viewsets.ModelViewSet):
                 account__is_kladman=True, account__rama=request.user.account.rama).first().pk
             }, status=status.HTTP_200_OK)
 
+    @action(methods=['post'], detail=False)
+    def create_sale_china(self, request):
+        serializer = SaleChinaCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            sale = Sale.objects.create_sale_china(
+                date=serializer.validated_data.get('date'),
+                raw_records=serializer.validated_data['raw_records'],
+                loader=serializer.validated_data['loader'],
+                delivery_fee=serializer.validated_data.get('delivery_fee', 0),
+                add_expenses=serializer.validated_data.get('add_expenses', 0),
+                note=serializer.validated_data.get('note'),
+                initiator=request.user,
+                )
+            
+            return Response({
+                'sale': SaleReadSerializer(sale).data,
+                'message': 'Успешно'
+                },
+                 status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     @action(methods=['get'], detail=False)
     def sale_china_create_data(self, request):
         lumbers = Lumber.objects.filter(lumber_type='brus', wood_species='pine') \

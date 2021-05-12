@@ -217,6 +217,31 @@ class SaleQuerySet(models.QuerySet):
         sale.save()
         return sale
 
+    def create_sale_china(self, raw_records, initiator, loader=False, delivery_fee=0, add_expenses=0,
+         note=None, date=None):
+        if not date:
+            date = timezone.now()
+
+        sale = self.create(date=date, initiator=initiator, delivery_fee=delivery_fee,
+            rama=initiator.account.rama, add_expenses=add_expenses, note=note, sale_type='china')
+
+        lumber_records = LumberRecord.objects.create_from_list_sale_china(
+            records_list=raw_records, rama=initiator.account.rama)
+        lumber_records = LumberRecord.objects.filter(pk__in=(lr.pk for lr in lumber_records))
+        lumber_records.update(sale=sale)
+
+        volume_and_cash = lumber_records.calc_sale_volume_and_cash_schema1()
+        sale.volume = volume_and_cash['total_volume']
+        sale.rama_total_cash = volume_and_cash['rama_cash']
+        sale.selling_total_cash = volume_and_cash['sale_cash']
+
+        if loader: 
+            sale.calc_loader_fee()
+        sale.calc_net_rama_cash()
+
+        sale.save()
+        return sale
+
     # Selectors
     def calc_totals(self):
         return self.aggregate(
@@ -320,6 +345,28 @@ class LumberRecordQuerySet(models.QuerySet):
 
                         rama_price=record['rama_price'],
                         rama_total_cash=record['rama_price']*record['quantity']*record['lumber'].volume,
+
+                        selling_price=record['selling_price'],
+                        selling_total_cash=record['selling_total_cash'],
+
+                        rama=rama
+                    )
+                )
+        return self.bulk_create(lumber_records)
+
+    def create_from_list_sale_china(self, records_list, rama=None):
+        lumber_records = list()
+        for record in records_list:
+            if record['quantity'] > 0:
+                lumber_records.append(
+                    LumberRecord(
+                        lumber=record['lumber'],
+                        quantity=record['quantity'],
+                        volume=record['quantity']*record['lumber'].china_volume,
+
+                        rama_price=record['rama_price'],
+                        rama_total_cash=record['rama_price']*record['quantity'] \
+                            *record['lumber'].china_volume,
 
                         selling_price=record['selling_price'],
                         selling_total_cash=record['selling_total_cash'],

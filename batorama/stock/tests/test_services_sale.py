@@ -21,6 +21,11 @@ class SaleServisesTest(TransactionTestCase):
         self.doska1 = Lumber.objects.filter(name__contains='доска')[0]
         self.doska2 = Lumber.objects.filter(name__contains='доска')[1]
 
+        self.china_brus1 = Lumber.objects.filter(name='брус 18*18', wood_species='pine',
+         china_volume__isnull=False).first()
+        self.china_brus2 = Lumber.objects.filter(name='брус 15*18', wood_species='pine',
+         china_volume__isnull=False).first()
+
         self.rama = Rama.objects.all().first()
 
     def test_create_sale_schema1(self):
@@ -168,6 +173,45 @@ class SaleServisesTest(TransactionTestCase):
         self.assertEqual(sale.seller_fee, 0)
         self.assertEqual(sale.kladman_fee, 0)
         self.assertEqual(sale.loader_fee, round((0.6 + 0.6 + 2.016 + 1.32) * 100))
+
+        self.assertEqual(sale.net_rama_cash,
+         sale.rama_total_cash - sale.kladman_fee - sale.loader_fee - sale.delivery_fee)
+
+    def test_create_sale_china(self):
+        data_list = {
+            'lumbers': [
+                {'lumber': self.china_brus1, 'quantity': 10, 'rama_price': 15000,
+                 'selling_price': 15000, 'selling_total_cash': 19010},
+                {'lumber': self.china_brus2, 'quantity': 15, 'rama_price': 15000,
+                 'selling_price': 15000, 'selling_total_cash': 23709},
+            ],
+            'loader': False,
+            'delivery_fee': 500,
+            'add_expenses': 0,
+            'note': 'China'
+        }
+            
+        sale = Sale.objects.create_sale_china(
+            raw_records=data_list['lumbers'],
+            initiator=self.kladman,
+            loader=data_list['loader'],
+            delivery_fee=data_list['delivery_fee'],
+            add_expenses=data_list['add_expenses'],
+            note=data_list['note'],
+            )
+
+        self.assertEqual(sale.volume, round(1.26736 + 1.58064, 4))
+        self.assertEqual(sale.seller, None)
+        self.assertEqual(sale.bonus_kladman, None)
+        self.assertEqual(sale.delivery_fee, 500)
+        self.assertEqual(sale.add_expenses, 0)
+        self.assertEqual(sale.note, 'China')
+        self.assertEqual(sale.rama_total_cash, 19010 + 23710)
+        self.assertEqual(sale.selling_total_cash, 19010 + 23709)
+
+        self.assertEqual(sale.seller_fee, 0)
+        self.assertEqual(sale.kladman_fee, 0)
+        self.assertEqual(sale.loader_fee, 0)
 
         self.assertEqual(sale.net_rama_cash,
          sale.rama_total_cash - sale.kladman_fee - sale.loader_fee - sale.delivery_fee)

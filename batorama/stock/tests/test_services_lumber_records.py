@@ -21,6 +21,11 @@ class LumberRecordsServisesTest(TransactionTestCase):
         self.doska1 = Lumber.objects.filter(name__contains='доска')[0]
         self.doska2 = Lumber.objects.filter(name__contains='доска')[1]
 
+        self.china_brus1 = Lumber.objects.filter(name='брус 18*18', wood_species='pine',
+         china_volume__isnull=False).first()
+        self.china_brus2 = Lumber.objects.filter(name='брус 15*18', wood_species='pine',
+         china_volume__isnull=False).first()
+
         self.rama = Rama.objects.all().first()
 
     def test_create_sale_schema1(self):
@@ -47,3 +52,24 @@ class LumberRecordsServisesTest(TransactionTestCase):
         self.assertEqual(lr1.rama_total_cash, lr1.rama_price*lr1.quantity*lr1.lumber.volume)
         self.assertEqual(lr1.selling_price, 12500)
         self.assertEqual(lr1.selling_total_cash, 12510)
+
+    def test_create_sale_china(self):
+        data_list = [
+                {'lumber': self.china_brus1, 'quantity': 10, 'rama_price': 15000,
+                 'selling_price': 15000, 'selling_total_cash': 19010},
+                {'lumber': self.china_brus2, 'quantity': 15, 'rama_price': 15000,
+                 'selling_price': 15000, 'selling_total_cash': 23709},
+            ]
+        lumber_records = LumberRecord.objects.create_from_list_sale_china(
+            records_list=data_list, rama=self.rama)
+
+        self.assertEqual(LumberRecord.objects.all().count(), 2)
+
+        lr1 = LumberRecord.objects.filter(lumber=self.china_brus1).first()
+        self.assertEqual(lr1.quantity, 10)
+        self.assertEqual(lr1.volume, 1.26736)
+        self.assertEqual(lr1.rama_price, 15000)
+        self.assertEqual(lr1.rama_total_cash,
+         round(lr1.rama_price*lr1.quantity*lr1.lumber.china_volume, 1))
+        self.assertEqual(lr1.selling_price, 15000)
+        self.assertEqual(lr1.selling_total_cash, 19010)

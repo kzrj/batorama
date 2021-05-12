@@ -43,6 +43,7 @@ urlpatterns = [
     path('api/kladman/sales/create/init_data_china/', SaleList.as_view({'get': 'sale_china_create_data'})),
     path('api/kladman/sales/create/', SaleList.as_view({'post': 'create'})),
     path('api/kladman/sales/create_schema1/', SaleList.as_view({'post': 'create_sale_schema1'})),
+    path('api/kladman/sales/create_china/', SaleList.as_view({'post': 'create_sale_china'})),
 
 
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
