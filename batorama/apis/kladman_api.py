@@ -102,6 +102,7 @@ class SellerSerializer(serializers.ModelSerializer):
 
 class LumberChinaSerializer(serializers.ModelSerializer):
     china_name = serializers.ReadOnlyField()
+    lumber = serializers.ReadOnlyField(source='pk')
 
     class Meta:
         model = Lumber
