@@ -1,5 +1,6 @@
 # # -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
+from django.db.models import Q
 
 from rest_framework import status, generics, viewsets
 from rest_framework.response import Response
