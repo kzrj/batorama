@@ -52,6 +52,11 @@ class Lumber(CoreModel):
     employee_rate = models.IntegerField(default=0)
     market_cost = models.IntegerField(default=0)
 
+    china_width = models.FloatField(null=True, blank=True)
+    china_length = models.FloatField(null=True, blank=True)
+    china_height = models.FloatField(null=True, blank=True)
+    china_volume = models.FloatField(null=True, blank=True)
+
     SPECIES = [('pine', 'Сосна'), ('larch', 'Лиственница')]
     wood_species = models.CharField(max_length=20, choices=SPECIES)
 
@@ -70,6 +75,10 @@ class Lumber(CoreModel):
     @property
     def qnty_in_cube(self):
         return round(1 / self.volume, 3)
+
+    @property
+    def china_name(self):
+        return f'брус Китай {self.china_width}*{self.china_height}'
 
 
 class RamaQuerySet(models.QuerySet):

@@ -99,6 +99,14 @@ class SellerSerializer(serializers.ModelSerializer):
         fields = ['id', 'nickname']
 
 
+class LumberChinaSerializer(serializers.ModelSerializer):
+    china_name = serializers.ReadOnlyField()
+    
+    class Meta:
+        model = Lumber
+        exclude = ['created_at', 'modified_at', 'employee_rate']
+
+
 class SaleList(viewsets.ModelViewSet):
     queryset = Sale.objects.all()
     serializer_class = SaleSerializer
@@ -170,6 +178,15 @@ class SaleList(viewsets.ModelViewSet):
             'sellers': SellerSerializer(User.objects.filter(account__is_seller=True), many=True).data,
             'kladman_id': User.objects.filter(
                 account__is_kladman=True, account__rama=request.user.account.rama).first().pk
+            }, status=status.HTTP_200_OK)
+
+    @action(methods=['get'], detail=False)
+    def sale_china_create_data(self, request):
+        lumbers = Lumber.objects.filter(lumber_type='brus', wood_species='pine') \
+                                .filter(Q(name='брус 18*18') | Q(name='брус 15*15'))
+
+        return Response({
+            'lumbers': LumberChinaSerializer(lumbers, many=True).data,
             }, status=status.HTTP_200_OK)
 
     def update(self, request, pk=None):
