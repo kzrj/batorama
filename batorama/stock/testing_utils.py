@@ -32,7 +32,7 @@ def create_test_lumber():
      employee_rate=600, wood_species='pine', lumber_type='brus', market_cost=13500)
     Lumber.objects.create(name='брус 15*18', width=0.15, height=0.18, length=4, volume=0.108,
      employee_rate=600, wood_species='pine', lumber_type='brus', market_cost=14500,
-     china_width=0.148, china_height=0.148, china_length=4, china_volume=0.087616)
+     china_width=0.148, china_height=0.178, china_length=4, china_volume=0.105376)
     Lumber.objects.create(name='брус 18*18', width=0.18, height=0.18, length=4, volume=0.1296,
      employee_rate=600, wood_species='pine', lumber_type='brus', market_cost=15500,
      china_width=0.178, china_height=0.178, china_length=4, china_volume=0.126736)
