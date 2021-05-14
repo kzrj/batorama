@@ -454,25 +454,25 @@ class LumberRecord(CoreModel):
         return f'{self.lumber} {self.quantity}'
 
 
-class ReSawQuerySet(models.QuerySet):
-    def create_resaw(self, resaw_lumber_in, resaw_lumber_out, rama, employees=None):
-        lumber_in = LumberRecord.objects.create_for_resaw(
-            lumber=resaw_lumber_in['lumber'], quantity=resaw_lumber_in['quantity'], rama=rama)
-        lumber_out = LumberRecord.objects.create_for_resaw(
-            lumber=resaw_lumber_out['lumber'], quantity=resaw_lumber_out['quantity'], rama=rama)
-        resaw = self.create(lumber_in=lumber_in, lumber_out=lumber_out)
-        # add employees, employee_cash
+# class ReSawQuerySet(models.QuerySet):
+#     def create_resaw(self, resaw_lumber_in, resaw_lumber_out, rama, employees=None):
+#         lumber_in = LumberRecord.objects.create_for_resaw(
+#             lumber=resaw_lumber_in['lumber'], quantity=resaw_lumber_in['quantity'], rama=rama)
+#         lumber_out = LumberRecord.objects.create_for_resaw(
+#             lumber=resaw_lumber_out['lumber'], quantity=resaw_lumber_out['quantity'], rama=rama)
+#         resaw = self.create(lumber_in=lumber_in, lumber_out=lumber_out)
+#         # add employees, employee_cash
 
-        return resaw
+#         return resaw
         
 
-class ReSaw(CoreModel):
-    employee_cash = models.IntegerField(default=0)
-    employees = models.ManyToManyField('accounts.Account')
-    lumber_in = models.OneToOneField(LumberRecord, on_delete=models.SET_NULL, null=True, blank=True, 
-        related_name='re_saw_in')
-    lumber_out = models.OneToOneField(LumberRecord, on_delete=models.SET_NULL, null=True, blank=True, 
-        related_name='re_saw_out')
+# class ReSaw(CoreModel):
+#     employee_cash = models.IntegerField(default=0)
+#     employees = models.ManyToManyField('accounts.Account')
+#     lumber_in = models.OneToOneField(LumberRecord, on_delete=models.SET_NULL, null=True, blank=True, 
+#         related_name='re_saw_in')
+#     lumber_out = models.OneToOneField(LumberRecord, on_delete=models.SET_NULL, null=True, blank=True, 
+#         related_name='re_saw_out')
 
-    def __str__(self):
-        # return f'Перепил {self.lumber} {self.quantity}'
+#     def __str__(self):
+#         # return f'Перепил {self.lumber} {self.quantity}'
