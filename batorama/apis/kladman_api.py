@@ -229,6 +229,8 @@ class SaleList(viewsets.ModelViewSet):
                 Lumber.objects.filter(lumber_type='brus', wood_species='pine'), many=True).data,
             'pine_doska_lumbers': LumberSimpleSerializer(
                 Lumber.objects.filter(lumber_type='doska', wood_species='pine'), many=True).data,
+            'lumbers': LumberSerializer(
+                Lumber.objects.all(), many=True).data,
             }, status=status.HTTP_200_OK)
 
     def update(self, request, pk=None):
