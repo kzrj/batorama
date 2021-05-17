@@ -57,6 +57,8 @@ class Lumber(CoreModel):
     china_height = models.FloatField(null=True, blank=True)
     china_volume = models.FloatField(null=True, blank=True)
 
+    round_volume = models.FloatField(default=0)
+
     SPECIES = [('pine', 'Сосна'), ('larch', 'Лиственница')]
     wood_species = models.CharField(max_length=20, choices=SPECIES)
 
