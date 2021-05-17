@@ -222,6 +222,17 @@ class SaleList(viewsets.ModelViewSet):
             'lumbers': LumberChinaSerializer(lumbers, many=True).data,
             }, status=status.HTTP_200_OK)
 
+    @action(methods=['get'], detail=False)
+    def sale_calc_data(self, request):
+        return Response({
+            'pine_brus_lumbers': LumberSimpleSerializer(
+                Lumber.objects.filter(lumber_type='brus', wood_species='pine'), many=True).data,
+            'larch_brus_lumbers': LumberSimpleSerializer(
+                Lumber.objects.filter(lumber_type='brus', wood_species='larch'), many=True).data,
+            'pine_doska_lumbers': LumberSimpleSerializer(
+                Lumber.objects.filter(lumber_type='doska', wood_species='pine'), many=True).data,
+            }, status=status.HTTP_200_OK)
+
     def update(self, request, pk=None):
         pass
 
