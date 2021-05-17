@@ -79,13 +79,15 @@ def create_test_lumber():
      round_volume=0.0181)
 
     Lumber.objects.create(name='брус 10*15', width=0.1, height=0.15, length=4, volume=0.06,
-     employee_rate=600, wood_species='larch', lumber_type='brus', market_cost=12500)
+     employee_rate=600, wood_species='larch', lumber_type='brus', market_cost=12500,
+     round_volume=0.0625)
     Lumber.objects.create(name='брус 10*10', width=0.1, height=0.1, length=4, volume=0.04,
      employee_rate=600, wood_species='larch', lumber_type='brus', market_cost=12500)
     Lumber.objects.create(name='брус 10*18', width=0.1, height=0.18, length=4, volume=0.072,
      employee_rate=600, wood_species='larch', lumber_type='brus', market_cost=12500)
     Lumber.objects.create(name='брус 15*18', width=0.15, height=0.18, length=4, volume=0.108,
-     employee_rate=600, wood_species='larch', lumber_type='brus', market_cost=12500)
+     employee_rate=600, wood_species='larch', lumber_type='brus', market_cost=12500,
+     round_volume=0.1111)
     Lumber.objects.create(name='брус 18*18', width=0.18, height=0.18, length=4, volume=0.1296,
      employee_rate=600, wood_species='larch', lumber_type='brus', market_cost=12500)
 
