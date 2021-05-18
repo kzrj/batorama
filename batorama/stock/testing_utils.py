@@ -34,7 +34,7 @@ def create_test_lumber():
     Lumber.objects.create(name='брус 15*18', width=0.15, height=0.18, length=4, volume=0.108,
      employee_rate=600, wood_species='pine', lumber_type='brus', market_cost=14500,
      china_width=0.148, china_height=0.178, china_length=4, china_volume=0.105376,
-     round_volume=0.1111)
+     round_volume=0.1111111112)
     Lumber.objects.create(name='брус 18*18', width=0.18, height=0.18, length=4, volume=0.1296,
      employee_rate=600, wood_species='pine', lumber_type='brus', market_cost=15500,
      china_width=0.178, china_height=0.178, china_length=4, china_volume=0.126736)
@@ -55,28 +55,28 @@ def create_test_lumber():
 
     Lumber.objects.create(name='доска 4*18', width=0.04, height=0.18, length=4, volume=0.0288,
      employee_rate=600, wood_species='pine', lumber_type='doska', market_cost=7500,
-     round_volume=0.0294)
+     round_volume=0.0294117648)
     Lumber.objects.create(name='доска 4*15', width=0.04, height=0.15, length=4, volume=0.024,
      employee_rate=600, wood_species='pine', lumber_type='doska', market_cost=7500,
-     round_volume=0.0243)
+     round_volume=0.024390244)
     Lumber.objects.create(name='доска 5*18', width=0.05, height=0.18, length=4, volume=0.036,
      employee_rate=600, wood_species='pine', lumber_type='doska', market_cost=7500,
-     round_volume=0.0370)
+     round_volume=0.037037038)
     Lumber.objects.create(name='доска 5*15', width=0.05, height=0.15, length=4, volume=0.03,
      employee_rate=600, wood_species='pine', lumber_type='doska', market_cost=7500,
-     round_volume=0.0303)
+     round_volume=0.0303030304)
     Lumber.objects.create(name='доска 2.5*15', width=0.025, height=0.15, length=4, volume=0.015,
      employee_rate=600, wood_species='pine', lumber_type='doska', market_cost=7500,
-     round_volume=0.0151)
+     round_volume=0.0151515152)
     Lumber.objects.create(name='доска 2.5*18', width=0.025, height=0.18, length=4, volume=0.018,
      employee_rate=600, wood_species='pine', lumber_type='doska', market_cost=7500,
-     round_volume=0.0181)
+     round_volume=0.0181818182)
 
     Lumber.objects.create(name='доска 5*10', width=0.05, height=0.1, length=4, volume=0.02,
      employee_rate=800, wood_species='pine', lumber_type='doska', market_cost=7500)
     Lumber.objects.create(name='заборка 2.5*18', width=0.025, height=0.18, length=4, volume=0.018,
      employee_rate=300, wood_species='pine', lumber_type='doska', market_cost=7500,
-     round_volume=0.0181)
+     round_volume=0.0181818182)
 
     Lumber.objects.create(name='брус 10*15', width=0.1, height=0.15, length=4, volume=0.06,
      employee_rate=600, wood_species='larch', lumber_type='brus', market_cost=12500,
@@ -87,7 +87,7 @@ def create_test_lumber():
      employee_rate=600, wood_species='larch', lumber_type='brus', market_cost=12500)
     Lumber.objects.create(name='брус 15*18', width=0.15, height=0.18, length=4, volume=0.108,
      employee_rate=600, wood_species='larch', lumber_type='brus', market_cost=12500,
-     round_volume=0.1111)
+     round_volume=0.1111111112)
     Lumber.objects.create(name='брус 18*18', width=0.18, height=0.18, length=4, volume=0.1296,
      employee_rate=600, wood_species='larch', lumber_type='brus', market_cost=12500)
 

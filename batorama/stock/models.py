@@ -165,81 +165,29 @@ class Shift(CoreModel):
 
 class SaleQuerySet(models.QuerySet):
     # Servises
-    def create_sale(self, lumber_records, volume, cash, initiator, date=None, add_expenses=0, 
-            note=None):
-        if not date:
-            date = timezone.now()
-        sale = self.create(date=date, volume=volume, cash=cash, initiator=initiator, 
-            rama=initiator.account.rama, add_expenses=add_expenses, note=note)
-        lumber_records.update(sale=sale)
-
-        sale.back_calc_volume = lumber_records.calc_total_volume()
-        sale.back_calc_cash = lumber_records.calc_total_cash() + add_expenses
-        sale.save()
-
-        sale.cash_records.create_adding_cash_from_sale(
-            amount=cash, sale=sale, initiator=initiator, manager_account=initiator.account
-            )
-
-        return sale
-
-    def create_sale_raw_records(self, **kwargs):
-        lumber_records = LumberRecord.objects.create_from_list(records_list=kwargs['raw_records'],
-            rama=kwargs['rama'])
-        kwargs['lumber_records'] = LumberRecord.objects.filter(pk__in=(lr.pk for lr in lumber_records))
-        del kwargs['raw_records']
-        del kwargs['rama']
-        return self.create_sale(**kwargs)
-
-    def create_sale_schema1(self, raw_records, initiator, seller=None, bonus_kladman=None, 
-      loader=False, delivery_fee=0, add_expenses=0, note=None, date=None, sale_type=None):
+    def create_sale_common(self, raw_records, initiator, seller=None, bonus_kladman=None,
+        loader=False, delivery_fee=0, add_expenses=0, note=None, date=None, client=None):
         if not date:
             date = timezone.now()
 
         sale = self.create(date=date, initiator=initiator, delivery_fee=delivery_fee,
-            rama=initiator.account.rama, add_expenses=add_expenses, note=note, seller=seller,
-            bonus_kladman=bonus_kladman, sale_type=sale_type)
+            seller=seller, bonus_kladman=bonus_kladman,
+            rama=initiator.account.rama, add_expenses=add_expenses, note=note, client=client)
 
-        lumber_records = LumberRecord.objects.create_from_list_sale_schema1(
+        lumber_records = LumberRecord.objects.create_from_raw_for_common_sale(
             records_list=raw_records, rama=initiator.account.rama)
         lumber_records = LumberRecord.objects.filter(pk__in=(lr.pk for lr in lumber_records))
         lumber_records.update(sale=sale)
 
-        volume_and_cash = lumber_records.calc_sale_volume_and_cash_schema1()
+        volume_and_cash = lumber_records.calc_sale_volume_and_cash()
         sale.volume = volume_and_cash['total_volume']
-        sale.rama_total_cash = volume_and_cash['rama_cash']
-        sale.selling_total_cash = volume_and_cash['sale_cash']
+        sale.rama_total_cash = round(volume_and_cash['rama_cash'])
+        sale.selling_total_cash = round(volume_and_cash['sale_cash'])
 
         sale.calc_seller_fee()
         sale.calc_kladman_fee()
         if loader: 
             sale.calc_loader_fee()
-        sale.calc_net_rama_cash()
-
-        sale.save()
-        return sale
-
-    def create_sale_china(self, raw_records, initiator, loader=False, delivery_fee=0, add_expenses=0,
-         note=None, date=None):
-        if not date:
-            date = timezone.now()
-
-        sale = self.create(date=date, initiator=initiator, delivery_fee=delivery_fee,
-            rama=initiator.account.rama, add_expenses=add_expenses, note=note, sale_type='china')
-
-        lumber_records = LumberRecord.objects.create_from_list_sale_china(
-            records_list=raw_records, rama=initiator.account.rama)
-        lumber_records = LumberRecord.objects.filter(pk__in=(lr.pk for lr in lumber_records))
-        lumber_records.update(sale=sale)
-
-        volume_and_cash = lumber_records.calc_sale_volume_and_cash_schema1()
-        sale.volume = volume_and_cash['total_volume']
-        sale.rama_total_cash = volume_and_cash['rama_cash']
-        sale.selling_total_cash = volume_and_cash['sale_cash']
-
-        if loader: 
-            sale.calc_loader_fee()
-        sale.calc_net_rama_cash()
 
         sale.save()
         return sale
@@ -250,7 +198,6 @@ class SaleQuerySet(models.QuerySet):
             total_volume=Sum('volume'),
             total_selling_cash=Sum('selling_total_cash'),
             total_rama_cash=Sum('rama_total_cash'),
-            total_net_rama_cash=Sum('net_rama_cash'),
             total_seller_fee=Sum('seller_fee'),
             total_loader_fee=Sum('loader_fee'),
             total_kladman_fee=Sum('kladman_fee'),
@@ -267,19 +214,16 @@ class Sale(CoreModel):
     SALE_TYPES = [('person', 'Физ. лицо'), ('perekup', 'Перекуп'), ('china', 'Китай')]
     sale_type = models.CharField(max_length=20, choices=SALE_TYPES, null=True, blank=True)
 
+    client = models.CharField(max_length=20, null=True, blank=True)
+
     initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, 
         related_name='sales')
     volume = models.FloatField(null=True, blank=True)
 
     note = models.TextField(null=True, blank=True)
 
-    cash = models.FloatField(null=True, blank=True)
-    back_calc_volume = models.FloatField(null=True, blank=True)
-    back_calc_cash = models.FloatField(null=True, blank=True)
-
     rama_total_cash = models.IntegerField(default=0)
     selling_total_cash = models.IntegerField(default=0)
-    net_rama_cash = models.IntegerField(default=0)
 
     seller = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, 
         related_name='sales_as_seller')
@@ -297,7 +241,7 @@ class Sale(CoreModel):
 
     def calc_seller_fee(self):
         if self.seller:
-            self.seller_fee = self.selling_total_cash - self.rama_total_cash
+            self.seller_fee = round(self.selling_total_cash - self.rama_total_cash)
 
     def calc_kladman_fee(self):
         if self.bonus_kladman:
@@ -305,9 +249,6 @@ class Sale(CoreModel):
 
     def calc_loader_fee(self):
         self.loader_fee = round(self.volume * 100)
-
-    def calc_net_rama_cash(self):
-        self.net_rama_cash = self.rama_total_cash - self.kladman_fee - self.loader_fee - self.delivery_fee
 
     @property
     def seller_name(self):
@@ -335,10 +276,15 @@ class LumberRecordQuerySet(models.QuerySet):
                 )
         return self.bulk_create(lumber_records)
 
-    def create_from_list_sale_schema1(self, records_list, rama=None):
+    def create_from_raw_for_common_sale(self, records_list, rama=None):
         lumber_records = list()
         for record in records_list:
-            if record['quantity'] > 0:               
+            if record['quantity'] > 0:
+                selling_calc_type = record.get('calc_type', None)
+                rama_total_cash = record['rama_price']*record['quantity']*record['lumber'].volume
+                if selling_calc_type == 'china':
+                    rama_total_cash = record['rama_price']*record['quantity']*record['lumber'].china_volume                   
+
                 lumber_records.append(
                     LumberRecord(
                         lumber=record['lumber'],
@@ -346,41 +292,16 @@ class LumberRecordQuerySet(models.QuerySet):
                         volume=record['quantity']*record['lumber'].volume,
 
                         rama_price=record['rama_price'],
-                        rama_total_cash=record['rama_price']*record['quantity']*record['lumber'].volume,
+                        rama_total_cash=rama_total_cash,
 
                         selling_price=record['selling_price'],
                         selling_total_cash=record['selling_total_cash'],
 
+                        selling_calc_type=selling_calc_type,
                         rama=rama
                     )
                 )
         return self.bulk_create(lumber_records)
-
-    def create_from_list_sale_china(self, records_list, rama=None):
-        lumber_records = list()
-        for record in records_list:
-            if record['quantity'] > 0:
-                lumber_records.append(
-                    LumberRecord(
-                        lumber=record['lumber'],
-                        quantity=record['quantity'],
-                        volume=record['quantity']*record['lumber'].china_volume,
-
-                        rama_price=record['rama_price'],
-                        rama_total_cash=record['rama_price']*record['quantity'] \
-                            *record['lumber'].china_volume,
-
-                        selling_price=record['selling_price'],
-                        selling_total_cash=record['selling_total_cash'],
-
-                        rama=rama
-                    )
-                )
-        return self.bulk_create(lumber_records)
-
-    def create_for_resaw(self, lumber, quantity, rama=None):
-        return self.create(lumber=lumber, quantity=quantity, volume=lumber.volume*quantity,
-            rama=rama)
 
     # Selectors
     def calc_total_volume(self):
@@ -422,7 +343,7 @@ class LumberRecordQuerySet(models.QuerySet):
     def calc_rama_and_selling_total_cash(self):
         return self.aggregate(rama_cash=Sum('rama_total_cash'), sale_cash=Sum('selling_total_cash'))
 
-    def calc_sale_volume_and_cash_schema1(self):
+    def calc_sale_volume_and_cash(self):
         return self.aggregate(
             rama_cash=Sum('rama_total_cash'),
             sale_cash=Sum('selling_total_cash'),
@@ -445,6 +366,8 @@ class LumberRecord(CoreModel):
 
     selling_price = models.IntegerField(default=0)
     selling_total_cash = models.FloatField(default=0)
+
+    selling_calc_type = models.CharField(max_length=10, null=True, blank=True)
 
     shift = models.ForeignKey(Shift, on_delete=models.SET_NULL, null=True, related_name='lumber_records')
 

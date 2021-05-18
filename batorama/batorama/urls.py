@@ -10,7 +10,7 @@ from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify
 
 from apis.manager_api import RamshikiPaymentViewSet, ShiftListView, LumberStockListView, SaleListView
 from apis.ramshik_api import ShiftViewSet, InitTestDataView, RamshikPayoutViewSet
-from apis.kladman_api import SaleList
+from apis.kladman_api import SaleView
 
 # router = routers.DefaultRouter()
 # router.register(r'shifts', ShiftViewSet, basename='shifts')
@@ -39,12 +39,9 @@ urlpatterns = [
     path('api/ramshik/payouts/', RamshikPayoutViewSet.as_view({'get': 'get_data'})),
 
     # kladman api
-    path('api/kladman/sales/create/init_data/', SaleList.as_view({'get': 'sale_create_data'})),
-    path('api/kladman/sales/create/init_data_china/', SaleList.as_view({'get': 'sale_china_create_data'})),
-    path('api/kladman/sales/create/', SaleList.as_view({'post': 'create'})),
-    path('api/kladman/sales/create_schema1/', SaleList.as_view({'post': 'create_sale_schema1'})),
-    path('api/kladman/sales/create_china/', SaleList.as_view({'post': 'create_sale_china'})),
-    path('api/kladman/sales/calc_data/', SaleList.as_view({'get': 'sale_calc_data'})),
+    path('api/kladman/sales/create/init_data/', SaleView.as_view({'get': 'sale_create_data'})),
+    path('api/kladman/sales/create/', SaleView.as_view({'post': 'create'})),
+    path('api/kladman/sales/calc_data/', SaleView.as_view({'get': 'sale_calc_data'})),
 
 
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
