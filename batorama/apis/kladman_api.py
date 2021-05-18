@@ -61,7 +61,7 @@ class LumberSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lumber
-        exclude = ['created_at', 'modified_at', 'employee_rate', 'rate', 'market_cost']
+        exclude = ['created_at', 'modified_at', 'employee_rate', 'market_cost']
 
 
 class LumberSimpleSerializer(serializers.ModelSerializer):
