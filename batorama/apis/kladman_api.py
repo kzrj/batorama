@@ -46,8 +46,8 @@ class SaleCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Sale
-        fields = ('date', 'raw_records', 'seller', 'bonus_kladman', 'add_expenses', 'note',
-            'client', 'loader', 'delivery_fee', )
+        fields = ('date', 'raw_records', 'seller', 'bonus_kladman', 'client', 'loader',
+         'delivery_fee', )
 
 
 class LumberSerializer(serializers.ModelSerializer):
@@ -96,8 +96,8 @@ class SaleView(viewsets.ModelViewSet):
                 raw_records=serializer.validated_data['raw_records'],
                 loader=serializer.validated_data['loader'],
                 delivery_fee=serializer.validated_data['delivery_fee'],
-                add_expenses=serializer.validated_data['add_expenses'],
-                note=serializer.validated_data['note'],
+                # add_expenses=serializer.validated_data['add_expenses'],
+                # note=serializer.validated_data['note'],
                 client=serializer.validated_data['client'],
                 seller=serializer.validated_data['seller'],
                 bonus_kladman=serializer.validated_data['bonus_kladman'],
