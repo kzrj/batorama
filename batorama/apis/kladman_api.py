@@ -53,15 +53,15 @@ class SaleCreateSerializer(serializers.ModelSerializer):
 class LumberSerializer(serializers.ModelSerializer):
     quantity = serializers.IntegerField(default=0)
     volume_total = serializers.FloatField(default=0)
-    cash = serializers.FloatField(default=0)
-    rate = serializers.FloatField(default=0)
     lumber = serializers.ReadOnlyField(source='pk')
-    qnty_in_cube = serializers.ReadOnlyField()
     rama_price = serializers.ReadOnlyField(source='market_cost')
+    selling_price = serializers.ReadOnlyField(source='market_cost')
+    selling_total_cash = serializers.ReadOnlyField(source='market_cost')
+    calc_type = serializers.CharField(default='exact')
 
     class Meta:
         model = Lumber
-        exclude = ['created_at', 'modified_at', 'employee_rate']
+        exclude = ['created_at', 'modified_at', 'employee_rate', 'rate', 'market_cost']
 
 
 class LumberSimpleSerializer(serializers.ModelSerializer):
