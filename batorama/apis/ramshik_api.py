@@ -7,7 +7,8 @@ from rest_framework import serializers
 
 from stock.models import Shift, LumberRecord, Lumber
 from stock.testing_utils import create_init_data
-from accounts.models import Account, CashRecord
+from accounts.models import Account
+from cash.models import CashRecord
 
 
 class InitTestDataView(APIView):

@@ -8,7 +8,8 @@ from rest_framework.permissions import IsAuthenticated
 
 from django_filters import rest_framework as filters
 
-from accounts.models import Account, CashRecord
+from accounts.models import Account
+from cash.models import CashRecord
 from stock.models import Shift, LumberRecord, Lumber, Sale
 from core.serializers import AnnotateFieldsModelSerializer
 

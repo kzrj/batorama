@@ -78,20 +78,3 @@ class OsnTest(TransactionTestCase):
         self.assertEqual(shift.volume, 10)
         self.assertEqual(shift.rama, self.rama)
 
-    def test_create_sale_raw_records(self):
-        employees = [self.ramshik1.account, self.ramshik2.account, self.ramshik3.account]
-        data_list = [
-            {'lumber': self.brus1, 'quantity': 10, 'volume_total': 0.6, 'rate': 12000, 'cash': 7200 },
-            {'lumber': self.brus2, 'quantity': 10, 'volume_total': 0.4, 'rate': 11000, 'cash': 4400 },
-            {'lumber': self.doska1, 'quantity': 50, 'volume_total': 1.44, 'rate': 7500, 'cash': 10800 },
-            {'lumber': self.doska2, 'quantity': 40, 'volume_total': 0.96, 'rate': 7000, 'cash': 6720 },
-        ]
-
-        sale = Sale.objects.create_sale_raw_records(raw_records=data_list, cash=1000, volume=10,
-            initiator=self.ramshik1, rama=self.rama)
-
-        self.assertEqual(sale.back_calc_volume, 3.4)
-        self.assertEqual(sale.back_calc_cash, 29120)
-        self.assertEqual(sale.cash, 1000)
-        self.assertEqual(sale.volume, 10)
-        self.assertEqual(sale.rama, self.rama)

@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class QuotasConfig(AppConfig):
+class CashConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'quotas'
+    name = 'cash'
