@@ -24,18 +24,18 @@ services:
     depends_on:
       - db
       - nginx
-    command: bash -c "cd batorama &&
-                      python manage.py migrate &&
-                      python manage.py makemigrations --no-input &&
-                      python manage.py test"
+    # command: bash -c "cd batorama &&
+    #                   python manage.py migrate &&
+    #                   python manage.py makemigrations --no-input &&
+    #                   python manage.py test"
                       # python manage.py test apis.tests.test_kladman_sale"
 
-    # restart: unless-stopped
-    # command: bash -c "cd batorama && 
-    #                   python manage.py makemigrations --no-input &&
-    #                   python manage.py migrate &&
-    #                   python manage.py collectstatic --no-input &&
-    #                   gunicorn batorama.wsgi -b 0.0.0.0:8000"
+    restart: unless-stopped
+    command: bash -c "cd batorama && 
+                      python manage.py makemigrations --no-input &&
+                      python manage.py migrate &&
+                      python manage.py collectstatic --no-input &&
+                      gunicorn batorama.wsgi -b 0.0.0.0:8000"
    
     volumes:
       - .:/code
