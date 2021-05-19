@@ -179,6 +179,21 @@ class CashRecordsView(viewsets.ModelViewSet):
     filter_class = ExpensesFilter
     # permission_classes = [IsAdminUser]
 
+    # def list(self, request):
+    #     rama = request.user.account.rama
+    #     queryset = self.filter_queryset(
+    #         self.queryset.add_rama_current_stock(rama=rama)
+    #         )
+                
+    #     serializer = LumberStockReadSerializer(queryset, many=True)
+
+    #     page = self.paginate_queryset(queryset)
+    #     if page is not None:
+    #         serializer = LumberStockReadSerializer(queryset, many=True)
+    #         return self.get_paginated_response(serializer.data)
+
+    #     return super().list(request)
+
     @action(methods=['post'], detail=False)
     def create_expense(self, request, serializer_class=CashRecordCreateExpenseSerializer):
         serializer = CashRecordCreateExpenseSerializer(data=request.data)
@@ -190,12 +205,12 @@ class CashRecordsView(viewsets.ModelViewSet):
                 initiator=request.user
                 )
 
+            expenses = CashRecord.objects.filter(created_at__date=timezone.now())
+
             return Response({
                 'expense': CashRecordSerializer(cash_record).data,
-                'expenses': CashRecordSerializer(
-                    CashRecord.objects.filter(
-                        created_at__date=timezone.now()),
-                        many=True).data,
+                'expenses': CashRecordSerializer(expenses, many=True).data,
+                'total': expenses.calc_sum()
                 'message': 'Успешно'
                 },
                  status=status.HTTP_200_OK)

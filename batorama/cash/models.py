@@ -34,6 +34,8 @@ class CashRecordQuerySet(models.QuerySet):
             record_type='rama_expenses')
 
     # Selectors
+    def calc_sum(self):
+        return self.aggregate(total=Sum('amount'))['total']
 
 
 class CashRecord(CoreModel):
