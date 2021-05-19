@@ -179,7 +179,7 @@ class CashRecordsView(viewsets.ModelViewSet):
                 )
 
             return Response({
-                'cash_record': CashRecordSerializer(cash_record).data,
+                'expense': CashRecordSerializer(cash_record).data,
                 'message': 'Успешно'
                 },
                  status=status.HTTP_200_OK)
