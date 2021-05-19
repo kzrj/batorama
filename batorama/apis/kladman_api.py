@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import serializers
 
+from django_filters import rest_framework as filters
+
 from stock.models import Sale, LumberRecord, Lumber
 from accounts.models import Account
 from cash.models import CashRecord
@@ -163,9 +165,18 @@ class CashRecordCreateExpenseSerializer(serializers.ModelSerializer):
         fields = ['amount', 'note']
 
 
+class ExpensesFilter(filters.FilterSet):
+    date = filters.DateFromToRangeFilter()
+
+    class Meta:
+        model = CashRecord
+        fields = '__all__'
+
+
 class CashRecordsView(viewsets.ModelViewSet):
     queryset = CashRecord.objects.all()
     serializer_class = CashRecordSerializer
+    filter_class = ExpensesFilter
     # permission_classes = [IsAdminUser]
 
     @action(methods=['post'], detail=False)

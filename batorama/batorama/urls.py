@@ -43,6 +43,7 @@ urlpatterns = [
     path('api/kladman/sales/create/', SaleView.as_view({'post': 'create'})),
     path('api/kladman/sales/calc_data/', SaleView.as_view({'get': 'sale_calc_data'})),
     path('api/kladman/cash_records/create_expense/', CashRecordsView.as_view({'post': 'create_expense'})),
+    path('api/kladman/cash_records/list/', CashRecordsView.as_view({'get': 'list'})),
 
 
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
