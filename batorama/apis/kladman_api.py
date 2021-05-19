@@ -9,7 +9,9 @@ from rest_framework import serializers
 
 from stock.models import Sale, LumberRecord, Lumber
 from accounts.models import Account
+from cash.models import CashRecord
 
+# Create sale kladman
 
 class LumberRecordSerializer(serializers.ModelSerializer):
     volume_total = serializers.ReadOnlyField(source='volume')
@@ -144,3 +146,42 @@ class SaleView(viewsets.ModelViewSet):
 
     def destroy(self, request, pk=None):
         pass
+
+
+# Create cash_records
+
+class CashRecordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CashRecord
+        fields = ['created_at', 'amount', 'note', 'record_type']
+
+
+class CashRecordCreateExpenseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CashRecord
+        fields = ['amount', 'note']
+
+
+class CashRecordsView(viewsets.ModelViewSet):
+    queryset = CashRecord.objects.all()
+    serializer_class = CashRecordSerializer
+    # permission_classes = [IsAdminUser]
+
+    @action(methods=['post'], detail=False)
+    def create_expense(self, request, serializer_class=CashRecordCreateExpenseSerializer):
+        serializer = CashRecordCreateExpenseSerializer(data=request.data)
+        if serializer.is_valid():
+            cash_record = CashRecord.objects.create_rama_expense(
+                amount=serializer.validated_data['amount'],
+                note=serializer.validated_data['note'],
+                rama=request.user.account.rama,
+                initiator=request.user
+                )
+
+            return Response({
+                'cash_record': CashRecordSerializer(cash_record).data,
+                'message': 'Успешно'
+                },
+                 status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
