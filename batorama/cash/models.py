@@ -65,5 +65,8 @@ class CashRecord(CoreModel):
 
     objects = CashRecordQuerySet.as_manager()
 
+    class Meta:
+        order = ['-created_at']
+
     def __str__(self):
         return self.amount
