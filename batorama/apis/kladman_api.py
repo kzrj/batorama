@@ -166,7 +166,7 @@ class CashRecordCreateExpenseSerializer(serializers.ModelSerializer):
 
 
 class ExpensesFilter(filters.FilterSet):
-    date = filters.DateFromToRangeFilter()
+    created_at = filters.DateFromToRangeFilter()
 
     class Meta:
         model = CashRecord
