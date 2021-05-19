@@ -182,7 +182,7 @@ class CashRecordsView(viewsets.ModelViewSet):
             return Response({
                 'expense': CashRecordSerializer(cash_record).data,
                 'expenses': CashRecordSerializer(
-                    CashRecord.objects.filter(created_at__date=timezone.now.date()), many=True).data,
+                    CashRecord.objects.filter(created_at__date=timezone.localdate()), many=True).data,
                 'message': 'Успешно'
                 },
                  status=status.HTTP_200_OK)
