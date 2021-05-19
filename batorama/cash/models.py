@@ -71,4 +71,4 @@ class CashRecord(CoreModel):
         ordering = ['-created_at']
 
     def __str__(self):
-        return self.amount
+        return str(self.amount)
