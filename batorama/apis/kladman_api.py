@@ -174,7 +174,7 @@ class ExpensesFilter(filters.FilterSet):
 
 
 class CashRecordsView(viewsets.ModelViewSet):
-    queryset = CashRecord.objects.all()
+    queryset = CashRecord.objects.all().order_by('-created_at')
     serializer_class = CashRecordSerializer
     filter_class = ExpensesFilter
     # permission_classes = [IsAdminUser]
