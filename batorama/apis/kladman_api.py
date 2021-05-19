@@ -210,7 +210,7 @@ class CashRecordsView(viewsets.ModelViewSet):
             return Response({
                 'expense': CashRecordSerializer(cash_record).data,
                 'expenses': CashRecordSerializer(expenses, many=True).data,
-                'total': expenses.calc_sum()
+                'total': expenses.calc_sum(),
                 'message': 'Успешно'
                 },
                  status=status.HTTP_200_OK)
