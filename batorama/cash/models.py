@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
-from django.db.models import Q, Subquery, OuterRef, Count, Prefetch, F, Sum
+from django.db.models import Q, Subquery, OuterRef, Count, Prefetch, F, Sum, Value 
 from django.db.models.functions import Coalesce
 from django.contrib.auth.models import User
 from django.utils import timezone
