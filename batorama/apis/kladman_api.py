@@ -212,7 +212,7 @@ class CashRecordsView(viewsets.ModelViewSet):
             return Response({
                 'expense': CashRecordSerializer(cash_record).data,
                 'records': CashRecordSerializer(records, many=True).data,
-                # 'total': records.calc_sum(),
+                'total': records.calc_sum_incomes_expenses(),
                 'message': 'Успешно'
                 },
                  status=status.HTTP_200_OK)
@@ -235,4 +235,5 @@ class DailyReport(APIView):
         data['expense_records'] = CashRecordSerializer(records.filter(record_type='rama_expenses'),
              many=True).data
         data['expense_records_total'] = records.filter(record_type='rama_expenses').calc_sum()
+        data['records_total'] = records.calc_sum_incomes_expenses()
         return Response(data)

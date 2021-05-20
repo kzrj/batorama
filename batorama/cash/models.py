@@ -35,6 +35,10 @@ class CashRecordQuerySet(models.QuerySet):
     def calc_sum(self):
         return self.aggregate(total=Sum('amount'))['total']
 
+    def calc_sum_incomes_expenses(self):
+        return self.aggregate(total=Sum('amount', filter=Q(record_type='sale_income'))
+            - Sum('amount', filter=Q(record_type='rama_expenses')))['total']
+
 
 class CashRecord(CoreModel):
     amount = models.IntegerField()
