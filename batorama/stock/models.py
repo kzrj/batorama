@@ -184,7 +184,7 @@ class SaleQuerySet(models.QuerySet):
         sale.rama_total_cash = round(volume_and_cash['rama_cash'])
         sale.selling_total_cash = round(volume_and_cash['sale_cash'])
 
-        sale.cash_records.objects.create_income_from_sale(amount=sale.selling_total_cash,
+        sale.cash_records.create_income_from_sale(amount=sale.selling_total_cash,
             note=f'приход с продажи {sale.client}', initiator=initiator, rama=initiator.account.rama)
 
         sale.calc_seller_fee()
@@ -245,20 +245,20 @@ class Sale(CoreModel):
     def calc_seller_fee(self):
         if self.seller:
             self.seller_fee = round(self.selling_total_cash - self.rama_total_cash)
-            sale.cash_records.objects.create_rama_expense(
+            sale.cash_records.create_rama_expense(
                 amount=self.seller_fee, note=f'Вознаграждение продавца с продажи {self.client}',
                 initiator=self.initiator, rama=self.rama)
 
     def calc_kladman_fee(self):
         if self.bonus_kladman:
             self.kladman_fee = round(self.volume * 100)
-            sale.cash_records.objects.create_rama_expense(
+            sale.cash_records.create_rama_expense(
                 amount=self.seller_fee, note=f'Вознаграждение кладмэна с продажи {self.client}',
                 initiator=self.initiator, rama=self.rama)
 
     def calc_loader_fee(self):
         self.loader_fee = round(self.volume * 100)
-        sale.cash_records.objects.create_rama_expense(
+        sale.cash_records.create_rama_expense(
                 amount=self.seller_fee, note=f'Вознаграждение грузчика с продажи {self.client}',
                 initiator=self.initiator, rama=self.rama)
 
