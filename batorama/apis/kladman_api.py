@@ -228,11 +228,11 @@ class DailyReport(APIView):
     def get(self, request, format=None):
         data = dict()
         records = CashRecord.objects.filter(created_at__date=timezone.now())
-        data['records'] = CashRecordSerializer(records, many=True)
+        data['records'] = CashRecordSerializer(records, many=True).data
         data['income_records'] = CashRecordSerializer(records.filter(record_type='sale_income'),
-             many=True)
+             many=True).data
         data['income_records_total'] = records.filter(record_type='sale_income').calc_sum()
         data['expense_records'] = CashRecordSerializer(records.filter(record_type='rama_expenses'),
-             many=True)
+             many=True).data
         data['expense_records_total'] = records.filter(record_type='rama_expenses').calc_sum()
         return Response(data)
