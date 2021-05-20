@@ -19,19 +19,17 @@ class CashRecordQuerySet(models.QuerySet):
             initiator=initiator, rama=rama)
         employee.remove_cash(amount)
 
-    def create_adding_cash_from_sale(self, manager_account, amount, sale, initiator=None, rama=None):
-        self.create(amount=amount, account=manager_account, record_type='add_cash_for_sale_to_manager', 
-            initiator=initiator, sale=sale, rama=rama)
-        manager_account.add_cash(amount)
-
     def create_withdraw_cash_from_manager(self, manager_account, amount, initiator=None, rama=None):
-        self.create(amount=amount, account=manager_account, record_type='withdraw_cash_from_manager', 
-            initiator=initiator, rama=rama)
-        manager_account.remove_cash(amount)
+        return self.create(amount=amount, account=manager_account, 
+            record_type='withdraw_cash_from_manager', initiator=initiator, rama=rama)
 
     def create_rama_expense(self, amount, note, initiator, rama):
         return self.create(amount=amount, note=note, rama=rama, initiator=initiator,
             record_type='rama_expenses')
+
+    def create_income_from_sale(self, amount, note, initiator, rama, sale):
+        return self.create(amount=amount, note=note, rama=rama, initiator=initiator,
+            sale=sale, record_type='sale_income')
 
     # Selectors
     def calc_sum(self):
@@ -43,9 +41,9 @@ class CashRecord(CoreModel):
     RECORD_TYPES = [
         ('payout_to_employee_from_shift', 'Начисление работникам'),
         ('withdraw_employee', 'Обналичивание работникам'),
-        ('add_cash_for_sale_to_manager', 'Начисление кладмэну/менеджеру за продажу'),
         ('withdraw_cash_from_manager', 'Вывод средств от кладмэна/менеджера'),
         ('rama_expenses', 'Расходы рамы'),
+        ('sale_income', 'Приход с продажи'),
     ]
     record_type = models.CharField(max_length=50, choices=RECORD_TYPES)
 
