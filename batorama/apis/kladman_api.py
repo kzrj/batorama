@@ -3,10 +3,12 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.utils import timezone
 
+from rest_framework.views import APIView
 from rest_framework import status, generics, viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import serializers
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from django_filters import rest_framework as filters
 
@@ -216,3 +218,21 @@ class CashRecordsView(viewsets.ModelViewSet):
                  status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class DailyReport(APIView):
+    # authentication_classes = [JSONWebTokenAuthentication]
+    # permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request, format=None):
+        data = dict()
+        records = CashRecord.objects.filter(created_at__date=timezone.now())
+        data['records'] = CashRecordSerializer(records, many=True)
+        data['income_records'] = CashRecordSerializer(records.filter(record_type='sale_income'),
+             many=True)
+        data['income_records_total'] = records.filter(record_type='sale_income').calc_sum()
+        data['expense_records'] = CashRecordSerializer(records.filter(record_type='rama_expenses'),
+             many=True)
+        data['expense_records_total'] = records.filter(record_type='rama_expenses').calc_sum()
+        return Response(data)
