@@ -254,13 +254,13 @@ class Sale(CoreModel):
         if self.bonus_kladman:
             self.kladman_fee = round(self.volume * 100)
             self.cash_records.create_rama_expense(
-                amount=self.seller_fee, note=f'Вознаграждение кладмэна с продажи {self.client}',
+                amount=self.kladman_fee, note=f'Вознаграждение кладмэна с продажи {self.client}',
                 initiator=self.initiator, rama=self.rama)
 
     def calc_loader_fee(self):
         self.loader_fee = round(self.volume * 100)
         self.cash_records.create_rama_expense(
-                amount=self.seller_fee, note=f'Вознаграждение грузчика с продажи {self.client}',
+                amount=self.loader_fee, note=f'Вознаграждение грузчика с продажи {self.client}',
                 initiator=self.initiator, rama=self.rama)
 
     @property
