@@ -64,7 +64,8 @@ class LumberSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lumber
-        exclude = ['created_at', 'modified_at']
+        exclude = ['created_at', 'modified_at', 'china_height', 'china_length', 'china_volume',
+         'china_width', 'round_volume', 'height', 'width', 'length', 'lumber_type']
 
 
 class RamshikSerializer(serializers.ModelSerializer):
@@ -112,8 +113,9 @@ class ShiftViewSet(viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=False)
     def shift_create_data(self, request):
+        lumbers = Lumber.objects.exclude(lumber_type='doska', wood_species='larch')
         return Response({
-            'lumbers': LumberSerializer(Lumber.objects.all(), many=True).data,
+            'lumbers': LumberSerializer(lumbers, many=True).data,
             'employees': RamshikSerializer(Account.objects.filter(is_ramshik=True), many=True).data,
             }, status=status.HTTP_200_OK)
 
