@@ -208,7 +208,7 @@ class CashRecordsView(viewsets.ModelViewSet):
                 )
 
             records = CashRecord.objects.filter(created_at__date=timezone.now(),
-                record_type='rama_expenses')
+                Q(Q(record_type='rama_expenses') | Q(record_type='withdraw_employee')))
 
             return Response({
                 'expense': CashRecordSerializer(cash_record).data,
