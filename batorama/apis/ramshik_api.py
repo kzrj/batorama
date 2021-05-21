@@ -33,7 +33,8 @@ class ShiftSerializer(serializers.ModelSerializer):
 
 class ShiftReadSerializer(serializers.ModelSerializer):
     lumber_records = LumberRecordSerializer(many=True)
-    employees = serializers.StringRelatedField(read_only=True,many=True)
+    employees = serializers.StringRelatedField(read_only=True, many=True)
+    date = serializers.DateTimeField(format='%d/%m', read_only=True)
 
     class Meta:
         model = Shift
