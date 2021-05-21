@@ -222,7 +222,7 @@ class CashRecordsView(viewsets.ModelViewSet):
 
 
 class SaleSimpleCashSerializer(serializers.ModelSerializer):
-    seller = serializers.StringRelatedField()
+    seller_name = serializers.ReadOnlyField()
 
     class Meta:
         model = Sale
