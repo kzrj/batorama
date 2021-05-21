@@ -221,7 +221,7 @@ class CashRecordsView(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class SaleSimpleCashSerializer(serializer.ModelSerializer):
+class SaleSimpleCashSerializer(serializers.ModelSerializer):
     seller = serializer.StringRelatedField()
 
     class Meta:
