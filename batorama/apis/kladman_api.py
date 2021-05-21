@@ -250,9 +250,11 @@ class DailyReport(APIView):
         data['sales'] = SaleSimpleCashSerializer(sales, many=True).data
         data['sales_totals'] = sales.calc_totals()
 
-        data['sales_seller_sergei'] = sales.filter(seller__account__nickname='Сергей') \
-            .aggregate(sum_seller_fee=Sum('seller_fee'))['sum_seller_fee']
-        data['sales_seller_darima'] = sales.filter(seller__account__nickname='Дарима') \
-            .aggregate(sum_seller_fee=Sum('seller_fee'))['sum_seller_fee']
+        data['sales_sellers_fee'] = [
+            {'name': 'Сергей', 'total': sales.filter(seller__account__nickname='Сергей') \
+            .aggregate(sum_seller_fee=Sum('seller_fee'))['sum_seller_fee']},
+            {'name': 'Дарима', 'total': sales.filter(seller__account__nickname='Дарима') \
+            .aggregate(sum_seller_fee=Sum('seller_fee'))['sum_seller_fee']}
+        ]
 
         return Response(data)
