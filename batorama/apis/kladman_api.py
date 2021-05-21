@@ -207,12 +207,13 @@ class CashRecordsView(viewsets.ModelViewSet):
                 initiator=request.user
                 )
 
-            records = CashRecord.objects.filter(created_at__date=timezone.now())
+            records = CashRecord.objects.filter(created_at__date=timezone.now(),
+                record_type='rama_expenses')
 
             return Response({
                 'expense': CashRecordSerializer(cash_record).data,
                 'records': CashRecordSerializer(records, many=True).data,
-                'total': records.calc_sum_incomes_expenses(),
+                'total': records.calc_sum(),
                 'message': 'Успешно'
                 },
                  status=status.HTTP_200_OK)
