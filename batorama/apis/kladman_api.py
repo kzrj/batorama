@@ -221,6 +221,14 @@ class CashRecordsView(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class SaleSimpleCashSerializer(serializer.ModelSerializer):
+    seller = serializer.StringRelatedField()
+
+    class Meta:
+        model = Sale
+        fields = ['client', 'selling_total_cash', 'seller', 'seller_fee', 'kladman_fee', 'loader_fee',
+            'delivery_fee']
+
 
 class DailyReport(APIView):
     # authentication_classes = [JSONWebTokenAuthentication]
@@ -237,4 +245,14 @@ class DailyReport(APIView):
              many=True).data
         data['expense_records_total'] = records.filter(record_type='rama_expenses').calc_sum()
         data['records_total'] = records.calc_sum_incomes_expenses()
+
+        sales = Sale.objects.filter(date__date=timezone.now())
+        data['sales'] = SaleSimpleCashSerializer(sales, many=True).data
+        data['sales_totals'] = sales.calc_totals()
+
+        data['sales_seller_sergei'] = sales.filter(seller__account__nickname='Сергей') \
+            .aggregate(sum_seller_fee=Sum('seller_fee'))['sum_seller_fee']
+        data['sales_seller_darima'] = sales.filter(seller__account__nickname='Дарима') \
+            .aggregate(sum_seller_fee=Sum('seller_fee'))['sum_seller_fee']
+
         return Response(data)
