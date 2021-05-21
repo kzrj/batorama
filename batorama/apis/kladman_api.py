@@ -207,8 +207,8 @@ class CashRecordsView(viewsets.ModelViewSet):
                 initiator=request.user
                 )
 
-            records = CashRecord.objects.filter(created_at__date=timezone.now(),
-                Q(Q(record_type='rama_expenses') | Q(record_type='withdraw_employee')))
+            records = CashRecord.objects.filter(created_at__date=timezone.now()) \
+                filter(Q(record_type='rama_expenses') | Q(record_type='withdraw_employee'))
 
             return Response({
                 'expense': CashRecordSerializer(cash_record).data,
