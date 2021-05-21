@@ -226,7 +226,7 @@ class SaleSimpleCashSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Sale
-        fields = ['client', 'selling_total_cash', 'seller', 'seller_fee', 'kladman_fee', 'loader_fee',
+        fields = ['client', 'selling_total_cash', 'seller_name', 'seller_fee', 'kladman_fee', 'loader_fee',
             'delivery_fee']
 
 
