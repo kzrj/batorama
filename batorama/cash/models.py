@@ -39,7 +39,9 @@ class CashRecordQuerySet(models.QuerySet):
     def calc_sum_incomes_expenses(self):
         return self.aggregate(total=
             Coalesce(Sum('amount', filter=Q(record_type='sale_income')), Value(0))
-            - Coalesce(Sum('amount', filter=Q(record_type='rama_expenses')), Value(0)))['total']
+            - Coalesce(Sum('amount', filter=Q(record_type='rama_expenses')), Value(0))
+            - Coalesce(Sum('amount', filter=Q(record_type='withdraw_employee')), Value(0))
+        )['total']
 
 
 class CashRecord(CoreModel):

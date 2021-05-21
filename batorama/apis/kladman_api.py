@@ -241,9 +241,11 @@ class DailyReport(APIView):
         data['income_records'] = CashRecordSerializer(records.filter(record_type='sale_income'),
              many=True).data
         data['income_records_total'] = records.filter(record_type='sale_income').calc_sum()
-        data['expense_records'] = CashRecordSerializer(records.filter(record_type='rama_expenses'),
+        data['expense_records'] = CashRecordSerializer(
+            records.filter(Q(record_type='rama_expenses') | Q(record_type='withdraw_employee')),
              many=True).data
-        data['expense_records_total'] = records.filter(record_type='rama_expenses').calc_sum()
+        data['expense_records_total'] = records.filter(
+            Q(record_type='rama_expenses') | Q(record_type='withdraw_employee')).calc_sum()
         data['records_total'] = records.calc_sum_incomes_expenses()
 
         sales = Sale.objects.filter(date__date=timezone.now())
