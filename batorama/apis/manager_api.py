@@ -51,6 +51,7 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
             CashRecord.objects.create_withdraw_employee(
                 employee=serializer.validated_data['employee'],
                 amount=serializer.validated_data['amount'],
+                note=f'выдача зп рамщику {serializer.validated_data['employee'].nickname}',
                 initiator=request.user
                 )
             return Response({

@@ -112,7 +112,8 @@ class ShiftQuerySet(models.QuerySet):
 
         for emp in employees:
             emp.cash_records.create_payout_from_shift(employee=emp, shift=shift,
-             amount=shift.cash_per_employee, initiator=initiator)
+             amount=shift.cash_per_employee, initiator=initiator,
+              note=f'Начисление рамщику {emp.nickname} за смену #{shift.pk}')
 
         return shift
 
