@@ -30,7 +30,9 @@ class Account(CoreModel):
     objects = AccountQuerySet.as_manager()
 
     def __str__(self):
-        return self.user.username
+    	if self.user:
+        	return self.user.username
+        return self.nickname
 
     def add_cash(self, amount):
         self.cash += amount
