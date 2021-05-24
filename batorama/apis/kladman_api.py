@@ -102,7 +102,7 @@ class SaleView(viewsets.ModelViewSet):
     # permission_classes = [IsAdminUser]
 
     class SaleReadSerializer(serializers.ModelSerializer):
-        lumber_records = self.SaleLumberRecordSerializer(many=True)
+        lumber_records = SaleLumberRecordSerializer(many=True)
         initiator = serializers.ReadOnlyField(source='initiator.account.nickname')
         seller_name = serializers.ReadOnlyField()
         date = serializers.DateTimeField(format='%d/%m', read_only=True)
