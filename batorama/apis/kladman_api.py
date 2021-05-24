@@ -92,8 +92,16 @@ class SaleView(viewsets.ModelViewSet):
     serializer_class = SaleReadSerializer
     # permission_classes = [IsAdminUser]
 
+    class SaleLumberRecordSerializer(serializers.ModelSerializer):
+        lumber = serializers.StringRelatedField()
+        
+        class Meta:
+            model = LumberRecord
+            fields = ['lumber', 'quantity', 'volume', 'selling_price', 'selling_total_cash',
+             'rama_price', 'rama_total_cash']
+
     class SaleReadSerializer(serializers.ModelSerializer):
-        lumber_records = SaleLumberRecordSerializer(many=True)
+        lumber_records = self.SaleLumberRecordSerializer(many=True)
         initiator = serializers.ReadOnlyField(source='initiator.account.nickname')
         seller_name = serializers.ReadOnlyField()
         date = serializers.DateTimeField(format='%d/%m', read_only=True)
