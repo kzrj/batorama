@@ -171,8 +171,11 @@ class SaleView(viewsets.ModelViewSet):
     def destroy(self, request, pk=None):
         sale = self.get_object()
         sale.delete()
-        return Response({'sales': self.SaleReadSerializer(
-            Sale.objects.filter(rama=request.user.account.rama), many=True).data},
+        queryset = Sale.objects.filter(rama=request.user.account.rama)
+        return Response({
+            'sales': self.SaleReadSerializer(queryset, many=True).data,
+            'totals': queryset.calc_totals()
+            },
             status=status.HTTP_204_OK)
 
 
