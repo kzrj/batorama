@@ -195,7 +195,7 @@ class SetLumberMarketPriceView(APIView):
     # permission_classes = [permissions.IsAdminUser]
 
     class SetLumberMarketPriceSerializer(serializers.Serializer):
-        lumber = serializers.PrimaryKeyRelatedField(quaeryset=Lumber.objects.all())
+        lumber = serializers.PrimaryKeyRelatedField(queryset=Lumber.objects.all())
         market_cost = serializers.IntegerField()
 
     def post(self, request, format=None):
