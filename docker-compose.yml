@@ -27,8 +27,7 @@ services:
     # command: bash -c "cd batorama &&
     #                   python manage.py migrate &&
     #                   python manage.py makemigrations --no-input &&
-    #                   python manage.py test"
-                      # python manage.py test apis.tests.test_kladman_sale"
+    #                   python manage.py test apis.tests.test_manager"
 
     restart: unless-stopped
     command: bash -c "cd batorama && 
