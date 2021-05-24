@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from django_filters import rest_framework as filters
 
+from core.serializers import ChoiceField
 from accounts.models import Account
 from cash.models import CashRecord
 from stock.models import Shift, LumberRecord, Lumber, Sale
