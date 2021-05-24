@@ -67,6 +67,9 @@ class Lumber(CoreModel):
 
     objects = LumberQuerySet.as_manager()
 
+    class Meta:
+        ordering = ['lumber_type', 'wood_species']
+
     def __str__(self):
         return self.name
 
