@@ -187,3 +187,30 @@ class SaleListView(generics.ListAPIView):
     #         return self.get_paginated_response(serializer.data)
 
     #     return super().list(request)
+
+
+
+class SetLumberMarketPriceView(APIView):
+    # authentication_classes = [JSONWebTokenAuthentication]
+    # permission_classes = [permissions.IsAdminUser]
+
+    class SetLumberMarketPriceSerializer(serializer.Serializer):
+        lumber = serializers.PrimaryKeyRelatedField(quaeryset=Lumber.objects.all())
+        market_cost = serializers.IntegerField()
+
+    def post(self, request, format=None):
+        serializer = SetLumberMarketPriceSerializer(request.POST)
+
+        if serializer.is_valid():
+            lumber = serializer.validated_data['lumber']
+            lumber.market_cost = serializer.validated_data['market_cost']
+            lumber.save()
+
+            return Response({
+                'lumber': lumber.pk,
+                'market_cost': lumber.market_cost,
+                'message': 'Успешно изменено',
+                },
+                status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
