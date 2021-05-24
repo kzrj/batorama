@@ -92,6 +92,16 @@ class SaleView(viewsets.ModelViewSet):
     serializer_class = SaleReadSerializer
     # permission_classes = [IsAdminUser]
 
+    class SaleReadSerializer(serializers.ModelSerializer):
+        lumber_records = SaleLumberRecordSerializer(many=True)
+        initiator = serializers.ReadOnlyField(source='initiator.account.nickname')
+        seller_name = serializers.ReadOnlyField()
+        date = serializers.DateTimeField(format='%d/%m', read_only=True)
+
+        class Meta:
+            model = Sale
+            exclude = ['created_at', 'modified_at']
+
     def list(self, request):
         pass
 
@@ -152,7 +162,9 @@ class SaleView(viewsets.ModelViewSet):
     def destroy(self, request, pk=None):
         sale = self.get_object()
         sale.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({'sales': self.SaleReadSerializer(
+            Sale.objects.filter(rama=request.user.account.rama), many=True).data},
+            status=status.HTTP_204_OK)
 
 
 # Create cash_records
