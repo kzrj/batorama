@@ -199,7 +199,7 @@ class SetLumberMarketPriceView(APIView):
         market_cost = serializers.IntegerField()
 
     def post(self, request, format=None):
-        serializer = self.SetLumberMarketPriceSerializer(request.POST)
+        serializer = self.SetLumberMarketPriceSerializer(data=request.POST)
 
         if serializer.is_valid():
             lumber = serializer.validated_data['lumber']
