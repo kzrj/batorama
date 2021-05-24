@@ -44,6 +44,7 @@ urlpatterns = [
     path('api/kladman/sales/create/init_data/', SaleView.as_view({'get': 'sale_create_data'})),
     path('api/kladman/sales/create/', SaleView.as_view({'post': 'create'})),
     path('api/kladman/sales/calc_data/', SaleView.as_view({'get': 'sale_calc_data'})),
+    path('api/kladman/sales/<int:pk>/', SaleView.as_view({'delete': 'destroy'})),
     path('api/kladman/cash_records/create_expense/', CashRecordsView.as_view({'post': 'create_expense'})),
     path('api/kladman/cash_records/list/', CashRecordsView.as_view({'get': 'list'})),
     path('api/kladman/daily_report/', DailyReport.as_view()),

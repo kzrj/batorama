@@ -150,7 +150,9 @@ class SaleView(viewsets.ModelViewSet):
         pass
 
     def destroy(self, request, pk=None):
-        pass
+        sale = self.get_object()
+        sale.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # Create cash_records
