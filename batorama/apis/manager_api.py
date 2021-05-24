@@ -194,7 +194,7 @@ class SetLumberMarketPriceView(APIView):
     # authentication_classes = [JSONWebTokenAuthentication]
     # permission_classes = [permissions.IsAdminUser]
 
-    class SetLumberMarketPriceSerializer(serializer.Serializer):
+    class SetLumberMarketPriceSerializer(serializers.Serializer):
         lumber = serializers.PrimaryKeyRelatedField(quaeryset=Lumber.objects.all())
         market_cost = serializers.IntegerField()
 
