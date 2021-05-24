@@ -126,11 +126,12 @@ class LumberStockListView(generics.ListAPIView):
 
 class SaleLumberRecordSerializer(serializers.ModelSerializer):
     lumber = serializers.StringRelatedField()
+    wood_species = ChoiceField(source='lumber.wood_species', read_only=True, choices=Lumber.SPECIES)
     
     class Meta:
         model = LumberRecord
         fields = ['lumber', 'quantity', 'volume', 'selling_price', 'selling_total_cash',
-         'rama_price', 'rama_total_cash']
+         'rama_price', 'rama_total_cash', 'wood_species']
 
 
 class SaleReadSerializer(serializers.ModelSerializer):
