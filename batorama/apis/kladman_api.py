@@ -176,7 +176,7 @@ class SaleView(viewsets.ModelViewSet):
             'sales': self.SaleReadSerializer(queryset, many=True).data,
             'totals': queryset.calc_totals()
             },
-            status=status.HTTP_204_OK)
+            status=status.HTTP_200_OK)
 
 
 # Create cash_records
