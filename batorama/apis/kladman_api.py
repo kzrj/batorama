@@ -12,6 +12,7 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from django_filters import rest_framework as filters
 
+from core.serializers import ChoiceField
 from stock.models import Sale, LumberRecord, Lumber
 from accounts.models import Account
 from cash.models import CashRecord
@@ -88,12 +89,13 @@ class SellerSerializer(serializers.ModelSerializer):
 
 
 class SaleLumberRecordSerializer(serializers.ModelSerializer):
-        lumber = serializers.StringRelatedField()
-        
-        class Meta:
-            model = LumberRecord
-            fields = ['lumber', 'quantity', 'volume', 'selling_price', 'selling_total_cash',
-             'rama_price', 'rama_total_cash']
+    lumber = serializers.StringRelatedField()
+    wood_species = ChoiceField(source='lumber.wood_species', read_only=True, choices=Lumber.SPECIES)
+    
+    class Meta:
+        model = LumberRecord
+        fields = ['lumber', 'quantity', 'volume', 'selling_price', 'selling_total_cash',
+         'rama_price', 'rama_total_cash', 'wood_species']
 
 
 class SaleView(viewsets.ModelViewSet):
