@@ -13,7 +13,7 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from django_filters import rest_framework as filters
 
 from core.serializers import ChoiceField
-from stock.models import Sale, LumberRecord, Lumber
+from stock.models import Sale, LumberRecord, Lumber, ReSaw
 from accounts.models import Account
 from cash.models import CashRecord
 
@@ -288,3 +288,56 @@ class DailyReport(APIView):
         ]
 
         return Response(data)
+
+
+# resaw
+class ReSawSerializer(serializers.ModelSerializer):
+    lumber_in = serializers.ReadOnlyField(source='lumber_in.lumber.name')
+    lumber_in_quantity = serializers.ReadOnlyField(source='lumber_in.quantity')
+
+    lumber_out = serializers.ReadOnlyField(source='lumber_out.lumber.name')
+    lumber_in_quantity = serializers.ReadOnlyField(source='lumber_out.quantity')
+
+    class Meta:
+        model = ReSaw
+        fields = ['id', 'created_at', 'lumber_in', 'lumber_in_quantity', 'lumber_out', 
+            'lumber_out_quantity']
+
+
+class CreateReSawSerializer(serializers.Serializer):
+    lumber_in = serializers.PrimaryKeyRelatedField(queryset=Lumber.objects.all())
+    lumber_in_quantity = serializers.IntegerField()
+
+    lumber_out = serializers.PrimaryKeyRelatedField(queryset=Lumber.objects.all())
+    lumber_out_quantity = serializers.IntegerField()
+
+    class Meta:
+        model = ReSaw
+        fields = ['id', 'created_at', 'lumber_in', 'lumber_in_quantity', 'lumber_out', 
+            'lumber_out_quantity']
+
+
+class ReSawViewSet(viewsets.ModelViewSet):
+    queryset = ReSaw.objects.all()
+    serializer_class = ReSawSerializer
+
+    def create(self, request, serializer_class=CreateReSawSerializer):
+        serializer = CreateReSawSerializer(data=request.data)
+        if serializer.is_valid():
+            resaw = ReSaw.objects.create_resaw(
+                resaw_lumber_in={'lumber_in': serializer.validated_data['lumber_in'],
+                    'quantity': serializer.validated_data['lumber_in_quantity']},
+                resaw_lumber_out={'lumber_in': serializer.validated_data['lumber_out'],
+                    'quantity': serializer.validated_data['lumber_out_quantity']},
+                rama=request.user.account.rama,
+                initiator=request.user
+                )
+            # resaws = ReSaw.objects.filter()
+            return Response({
+                'created': ReSawSerializer(resaw).data,
+                # 'records': ReSawSerializer(records, many=True).data,
+                'message': 'Успешно'
+                },
+                 status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -320,6 +320,10 @@ class LumberRecordQuerySet(models.QuerySet):
                 )
         return self.bulk_create(lumber_records)
 
+    def create_for_resaw(self, lumber, quantity, rama):
+        return self.create(lumber=lumber, quantity=quantity, rama=rama, record_type='resaw_record',
+            volume=lumber.volume * quantity)
+
     # Selectors
     def calc_total_volume(self):
         return self.aggregate(total_volume=Sum('volume'))['total_volume']
@@ -328,25 +332,29 @@ class LumberRecordQuerySet(models.QuerySet):
         return self.aggregate(cash=Sum('total_cash'))['cash']
 
     def calc_total_income_volume_by_rama_by_lumber(self, lumber, rama):
-        return self.filter(lumber=lumber, rama=rama, shift__isnull=False) \
+        return self.filter(lumber=lumber, rama=rama) \
+            .filter(Q(shift__isnull=False) | Q(re_saw_out__isnull=False)) \
             .values('rama') \
             .annotate(total_income_volume=Sum('volume')) \
             .values('total_income_volume')
 
     def calc_total_outcome_volume_by_rama_by_lumber(self, lumber, rama):
-        return self.filter(lumber=lumber, rama=rama, sale__isnull=False) \
+        return self.filter(lumber=lumber, rama=rama) \
+            .filter(Q(sale__isnull=False) | Q(re_saw_in__isnull=False)) \
             .values('rama') \
             .annotate(total_outcome_volume=Sum('volume')) \
             .values('total_outcome_volume')
 
     def calc_total_income_quantity_by_rama_by_lumber(self, lumber, rama):
-        return self.filter(lumber=lumber, rama=rama, shift__isnull=False) \
+        return self.filter(lumber=lumber, rama=rama) \
+            .filter(Q(shift__isnull=False) | Q(re_saw_out__isnull=False)) \
             .values('rama') \
             .annotate(total_income_quantity=Sum('quantity')) \
             .values('total_income_quantity')
 
     def calc_total_outcome_quantity_by_rama_by_lumber(self, lumber, rama):
-        return self.filter(lumber=lumber, rama=rama, sale__isnull=False) \
+        return self.filter(lumber=lumber, rama=rama) \
+            .filter(Q(sale__isnull=False) | Q(re_saw_in__isnull=False)) \
             .values('rama') \
             .annotate(total_outcome_quantity=Sum('quantity')) \
             .values('total_outcome_quantity')
@@ -368,6 +376,10 @@ class LumberRecordQuerySet(models.QuerySet):
 
 
 class LumberRecord(CoreModel):
+    RECORD_TYPES = [('shift_record', 'shift_record'), ('sale_record', 'sale_record'),
+     ('resaw_record', 'resaw_record')]
+    record_type = models.CharField(max_length=50, choices=RECORD_TYPES, null=True, blank=True)
+
     lumber = models.ForeignKey(Lumber, on_delete=models.CASCADE, related_name='records')
     rama = models.ForeignKey(Rama, on_delete=models.SET_NULL, null=True, blank=True, 
         related_name='lumber_records')
@@ -396,25 +408,32 @@ class LumberRecord(CoreModel):
         return f'{self.lumber} {self.quantity}'
 
 
-# class ReSawQuerySet(models.QuerySet):
-#     def create_resaw(self, resaw_lumber_in, resaw_lumber_out, rama, employees=None):
-#         lumber_in = LumberRecord.objects.create_for_resaw(
-#             lumber=resaw_lumber_in['lumber'], quantity=resaw_lumber_in['quantity'], rama=rama)
-#         lumber_out = LumberRecord.objects.create_for_resaw(
-#             lumber=resaw_lumber_out['lumber'], quantity=resaw_lumber_out['quantity'], rama=rama)
-#         resaw = self.create(lumber_in=lumber_in, lumber_out=lumber_out)
-#         # add employees, employee_cash
+class ReSawQuerySet(models.QuerySet):
+    def create_resaw(self, resaw_lumber_in, resaw_lumber_out, rama, employees=None, employee_cash=None,
+        initiator=None):
+        lumber_in = LumberRecord.objects.create_for_resaw(
+            lumber=resaw_lumber_in['lumber'], quantity=resaw_lumber_in['quantity'], rama=rama)
+        lumber_out = LumberRecord.objects.create_for_resaw(
+            lumber=resaw_lumber_out['lumber'], quantity=resaw_lumber_out['quantity'], rama=rama)
+        resaw = self.create(lumber_in=lumber_in, lumber_out=lumber_out, employee_cash=employee_cash,
+            initiator=initiator)
+        # add employees, employee_cash
 
-#         return resaw
+        return resaw
         
 
-# class ReSaw(CoreModel):
-#     employee_cash = models.IntegerField(default=0)
-#     employees = models.ManyToManyField('accounts.Account')
-#     lumber_in = models.OneToOneField(LumberRecord, on_delete=models.SET_NULL, null=True, blank=True, 
-#         related_name='re_saw_in')
-#     lumber_out = models.OneToOneField(LumberRecord, on_delete=models.SET_NULL, null=True, blank=True, 
-#         related_name='re_saw_out')
+class ReSaw(CoreModel):
+    employee_cash = models.IntegerField(default=0)
+    employees = models.ManyToManyField('accounts.Account')
+    lumber_in = models.OneToOneField(LumberRecord, on_delete=models.SET_NULL, null=True, blank=True, 
+        related_name='re_saw_in')
+    lumber_out = models.OneToOneField(LumberRecord, on_delete=models.SET_NULL, null=True, blank=True, 
+        related_name='re_saw_out')
 
-#     def __str__(self):
-#         # return f'Перепил {self.lumber} {self.quantity}'
+    initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, 
+        related_name='resaws')
+
+    objects = ReSawQuerySet.as_manager()
+
+    def __str__(self):
+        return f'Перепил {self.pk}'

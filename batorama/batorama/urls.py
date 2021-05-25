@@ -11,7 +11,7 @@ from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify
 from apis.manager_api import ( RamshikiPaymentViewSet, ShiftListView, LumberStockListView,
  SaleListView, SetLumberMarketPriceView)
 from apis.ramshik_api import ShiftViewSet, InitTestDataView, RamshikPayoutViewSet
-from apis.kladman_api import SaleView, CashRecordsView, DailyReport
+from apis.kladman_api import SaleView, CashRecordsView, DailyReport, ReSawViewSet
 
 # router = routers.DefaultRouter()
 # router.register(r'shifts', ShiftViewSet, basename='shifts')
@@ -48,6 +48,7 @@ urlpatterns = [
     path('api/kladman/cash_records/create_expense/', CashRecordsView.as_view({'post': 'create_expense'})),
     path('api/kladman/cash_records/list/', CashRecordsView.as_view({'get': 'list'})),
     path('api/kladman/daily_report/', DailyReport.as_view()),
-
+    path('api/kladman/resaws/create/', ReSawViewSet.as_view('post': 'create')),
+    path('api/kladman/resaws/list/', ReSawViewSet.as_view('get': 'list')),
 
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
