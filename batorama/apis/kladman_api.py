@@ -327,7 +327,7 @@ class ReSawViewSet(viewsets.ModelViewSet):
             resaw = ReSaw.objects.create_resaw(
                 resaw_lumber_in={'lumber_in': serializer.validated_data['lumber_in'],
                     'quantity': serializer.validated_data['lumber_in_quantity']},
-                resaw_lumber_out={'lumber_in': serializer.validated_data['lumber_out'],
+                resaw_lumber_out={'lumber_out': serializer.validated_data['lumber_out'],
                     'quantity': serializer.validated_data['lumber_out_quantity']},
                 rama=request.user.account.rama,
                 initiator=request.user
