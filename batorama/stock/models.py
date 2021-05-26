@@ -423,7 +423,7 @@ class ReSawQuerySet(models.QuerySet):
         
 
 class ReSaw(CoreModel):
-    employee_cash = models.IntegerField(default=0)
+    employee_cash = models.IntegerField(null=True, blank=True)
     employees = models.ManyToManyField('accounts.Account')
     lumber_in = models.OneToOneField(LumberRecord, on_delete=models.CASCADE, related_name='re_saw_in')
     lumber_out = models.OneToOneField(LumberRecord, on_delete=models.CASCADE, related_name='re_saw_out')
