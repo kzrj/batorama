@@ -324,6 +324,10 @@ class LumberRecordQuerySet(models.QuerySet):
         return self.create(lumber=lumber, quantity=quantity, rama=rama, record_type='resaw_record',
             volume=lumber.volume * quantity)
 
+    def create_for_refuse(self, lumber, quantity, rama):
+        return self.create(lumber=lumber, quantity=quantity, rama=rama, record_type='refuse_record',
+            volume=lumber.volume * quantity)
+
     # Selectors
     def calc_total_volume(self):
         return self.aggregate(total_volume=Sum('volume'))['total_volume']
@@ -340,7 +344,7 @@ class LumberRecordQuerySet(models.QuerySet):
 
     def calc_total_outcome_volume_by_rama_by_lumber(self, lumber, rama):
         return self.filter(lumber=lumber, rama=rama) \
-            .filter(Q(sale__isnull=False) | Q(re_saw_in__isnull=False)) \
+            .filter(Q(sale__isnull=False) | Q(re_saw_in__isnull=False) | Q(refuse__isnull=False)) \
             .values('rama') \
             .annotate(total_outcome_volume=Sum('volume')) \
             .values('total_outcome_volume')
@@ -354,7 +358,7 @@ class LumberRecordQuerySet(models.QuerySet):
 
     def calc_total_outcome_quantity_by_rama_by_lumber(self, lumber, rama):
         return self.filter(lumber=lumber, rama=rama) \
-            .filter(Q(sale__isnull=False) | Q(re_saw_in__isnull=False)) \
+            .filter(Q(sale__isnull=False) | Q(re_saw_in__isnull=False) | Q(refuse__isnull=False)) \
             .values('rama') \
             .annotate(total_outcome_quantity=Sum('quantity')) \
             .values('total_outcome_quantity')
@@ -377,7 +381,7 @@ class LumberRecordQuerySet(models.QuerySet):
 
 class LumberRecord(CoreModel):
     RECORD_TYPES = [('shift_record', 'shift_record'), ('sale_record', 'sale_record'),
-     ('resaw_record', 'resaw_record')]
+     ('resaw_record', 'resaw_record'), ('refuse_record', 'refuse_record')]
     record_type = models.CharField(max_length=50, choices=RECORD_TYPES, null=True, blank=True)
 
     lumber = models.ForeignKey(Lumber, on_delete=models.CASCADE, related_name='records')
@@ -435,3 +439,25 @@ class ReSaw(CoreModel):
 
     def __str__(self):
         return f'Перепил {self.pk}'
+
+
+class RefuseLumberQuerySet(models.QuerySet):
+    def create_refuse(self, lumber, quantity, rama, initiator=None):
+        lumber = LumberRecord.objects.create_for_refuse(
+            lumber=lumber, quantity=quantity, rama=rama)
+        
+        resaw = self.create(lumber=lumber, initiator=initiator)
+
+        return resaw
+        
+
+class RefuseLumber(CoreModel):
+    lumber = models.OneToOneField(LumberRecord, on_delete=models.CASCADE, related_name='refuse')
+
+    initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, 
+        related_name='refuses')
+
+    objects = RefuseLumberQuerySet.as_manager()
+
+    def __str__(self):
+        return f'Брак {self.pk}'

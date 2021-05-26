@@ -3,7 +3,7 @@ import datetime
 from django.test import TestCase, TransactionTestCase
 from django.contrib.auth.models import User
 
-from stock.models import Shift, Lumber, LumberRecord, Sale, Rama, ReSaw
+from stock.models import Shift, Lumber, LumberRecord, Sale, Rama, ReSaw, RefuseLumber
 from accounts.models import Account
 
 import stock.testing_utils as testing
@@ -124,6 +124,9 @@ class LumberRecordsSelectorsStockTest(TransactionTestCase):
             rama=self.rama
            )
 
+        self.refuse = RefuseLumber.objects.create_refuse(
+            lumber=self.brus1, quantity=2, rama=self.rama)
+
     def test_calc_total_income_outcome_quantity_by_rama_by_lumber(self):
         income_lumber_records_brus1 = LumberRecord.objects.calc_total_income_quantity_by_rama_by_lumber(
             lumber=self.brus1, rama=self.rama)
@@ -131,7 +134,7 @@ class LumberRecordsSelectorsStockTest(TransactionTestCase):
             lumber=self.brus1, rama=self.rama)
         
         self.assertEqual(income_lumber_records_brus1[0]['total_income_quantity'], 50)
-        self.assertEqual(outcome_lumber_records_brus1[0]['total_outcome_quantity'], 20)
+        self.assertEqual(outcome_lumber_records_brus1[0]['total_outcome_quantity'], 22)
 
         income_lumber_records_doska1 = LumberRecord.objects.calc_total_income_quantity_by_rama_by_lumber(
             lumber=self.doska1, rama=self.rama)
@@ -148,7 +151,7 @@ class LumberRecordsSelectorsStockTest(TransactionTestCase):
             lumber=self.brus1, rama=self.rama)
         
         self.assertEqual(income_lumber_records_brus1[0]['total_income_volume'], 3)
-        self.assertEqual(outcome_lumber_records_brus1[0]['total_outcome_volume'], 1.2)
+        self.assertEqual(outcome_lumber_records_brus1[0]['total_outcome_volume'], 1.32)
 
         income_lumber_records_doska1 = LumberRecord.objects.calc_total_income_volume_by_rama_by_lumber(
             lumber=self.doska1, rama=self.rama)

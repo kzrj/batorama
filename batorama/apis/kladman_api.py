@@ -13,7 +13,7 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from django_filters import rest_framework as filters
 
 from core.serializers import ChoiceField
-from stock.models import Sale, LumberRecord, Lumber, ReSaw
+from stock.models import Sale, LumberRecord, Lumber, ReSaw, RefuseLumber
 from accounts.models import Account
 from cash.models import CashRecord
 
@@ -341,3 +341,39 @@ class ReSawViewSet(viewsets.ModelViewSet):
                  status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+# refuse
+# class RefuseLumberSerializer(serializers.ModelSerializer):
+#     lumber_name = serializers.ReadOnlyField(source='lumber.name')
+
+#     class Meta:
+#         model = ReSaw
+#         fields = ['id', 'created_at', 'lumber', 'lumber_name', 'initiator' ]
+
+
+# class RefuseLumberViewSet(viewsets.ModelViewSet):
+#     queryset = ReSaw.objects.all()
+#     serializer_class = RefuseLumberSerializer
+
+#     def create(self, request):
+#         serializer = RefuseLumberSerializer(data=request.data)
+#         if serializer.is_valid():
+#             refuse = RefuseLumber.objects.create_resaw(
+#                 resaw_lumber_in={'lumber': serializer.validated_data['lumber_in'],
+#                     'quantity': serializer.validated_data['lumber_in_quantity']},
+#                 resaw_lumber_out={'lumber': serializer.validated_data['lumber_out'],
+#                     'quantity': serializer.validated_data['lumber_out_quantity']},
+#                 rama=request.user.account.rama,
+#                 initiator=request.user
+#                 )
+#             # resaws = ReSaw.objects.filter()
+#             return Response({
+#                 'created': ReSawSerializer(resaw).data,
+#                 # 'records': ReSawSerializer(records, many=True).data,
+#                 'message': 'Успешно'
+#                 },
+#                  status=status.HTTP_200_OK)
+#         else:
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
