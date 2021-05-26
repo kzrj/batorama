@@ -398,7 +398,7 @@ class LumberRecord(CoreModel):
 
     selling_calc_type = models.CharField(max_length=10, null=True, blank=True)
 
-    shift = models.ForeignKey(Shift, on_delete=models.SET_NULL, null=True, related_name='lumber_records')
+    shift = models.ForeignKey(Shift, on_delete=models.CASCADE, null=True, related_name='lumber_records')
 
     sale = models.ForeignKey(Sale, on_delete=models.CASCADE, null=True, related_name='lumber_records')
 
