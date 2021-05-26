@@ -296,7 +296,7 @@ class ReSawSerializer(serializers.ModelSerializer):
     lumber_in_quantity = serializers.ReadOnlyField(source='lumber_in.quantity')
 
     lumber_out = serializers.ReadOnlyField(source='lumber_out.lumber.name')
-    lumber_in_quantity = serializers.ReadOnlyField(source='lumber_out.quantity')
+    lumber_out_quantity = serializers.ReadOnlyField(source='lumber_out.quantity')
 
     class Meta:
         model = ReSaw
