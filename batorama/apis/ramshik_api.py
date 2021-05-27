@@ -114,7 +114,8 @@ class ShiftViewSet(viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=False)
     def shift_create_data(self, request):
-        lumbers = Lumber.objects.exclude(lumber_type='doska', wood_species='larch')
+        # lumbers = Lumber.objects.exclude(lumber_type='doska', wood_species='larch')
+        lumbers = Lumber.objects.all()
         return Response({
             'lumbers': LumberSerializer(lumbers, many=True).data,
             'employees': RamshikSerializer(Account.objects.filter(is_ramshik=True), many=True).data,
