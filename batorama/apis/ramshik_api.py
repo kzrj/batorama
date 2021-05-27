@@ -66,7 +66,7 @@ class LumberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lumber
         exclude = ['created_at', 'modified_at', 'china_height', 'china_length', 'china_volume',
-         'china_width', 'round_volume', 'height', 'width', 'length', 'lumber_type']
+         'china_width', 'round_volume', 'height', 'width', 'length']
 
 
 class RamshikSerializer(serializers.ModelSerializer):
