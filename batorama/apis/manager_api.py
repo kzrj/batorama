@@ -123,12 +123,12 @@ class LumberStockListView(generics.ListAPIView):
             self.queryset.add_rama_current_stock(rama=rama)
             )
                 
-        # serializer = LumberStockReadSerializer(queryset, many=True)
+        serializer = LumberStockReadSerializer(queryset, many=True)
 
-        # page = self.paginate_queryset(queryset)
-        # if page is not None:
-        #     serializer = LumberStockReadSerializer(queryset, many=True)
-        #     return self.get_paginated_response(serializer.data)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = LumberStockReadSerializer(queryset, many=True)
+            return self.get_paginated_response(serializer.data)
 
         return super().list(request)
 
