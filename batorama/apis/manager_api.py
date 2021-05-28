@@ -94,6 +94,14 @@ class ShiftListView(generics.ListAPIView):
     serializer_class = ShiftSerializer
     permission_classes = [IsAuthenticated]
 
+    def list(self, request):
+        data = dict()
+        rama = request.user.account.rama
+        queryset = self.filter_queryset(
+            self.queryset.filter(rama=rama)
+            )
+        return super().list(request)
+
 
 class LumberStockReadSerializer(AnnotateFieldsModelSerializer):
     stock_total_cash = serializers.ReadOnlyField()
@@ -115,12 +123,12 @@ class LumberStockListView(generics.ListAPIView):
             self.queryset.add_rama_current_stock(rama=rama)
             )
                 
-        serializer = LumberStockReadSerializer(queryset, many=True)
+        # serializer = LumberStockReadSerializer(queryset, many=True)
 
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = LumberStockReadSerializer(queryset, many=True)
-            return self.get_paginated_response(serializer.data)
+        # page = self.paginate_queryset(queryset)
+        # if page is not None:
+        #     serializer = LumberStockReadSerializer(queryset, many=True)
+        #     return self.get_paginated_response(serializer.data)
 
         return super().list(request)
 
