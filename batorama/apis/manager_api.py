@@ -90,7 +90,7 @@ class ShiftSerializer(serializers.ModelSerializer):
 class ShiftListView(generics.ListAPIView):
     class ShiftFilter(filters.FilterSet):
         date = filters.DateFromToRangeFilter()
-        rama = filters.CharFilter(lookup_expr='exact', field_name='rama.name')
+        rama = filters.CharFilter(lookup_expr='exact', field_name='rama__name')
 
         class Meta:
             model = Shift
