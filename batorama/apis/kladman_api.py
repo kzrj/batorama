@@ -153,6 +153,8 @@ class SaleView(viewsets.ModelViewSet):
                 Lumber.objects.filter(lumber_type='brus', wood_species='larch'), many=True).data,
             'pine_doska_lumbers': LumberSimpleSerializer(
                 Lumber.objects.filter(lumber_type='doska', wood_species='pine'), many=True).data,
+            'larch_doska_lumbers': LumberSimpleSerializer(
+                Lumber.objects.filter(lumber_type='doska', wood_species='larch'), many=True).data,
             'lumbers': LumberSerializer(
                 Lumber.objects.all(), many=True).data,
             'sellers': SellerSerializer(User.objects.filter(account__is_seller=True), many=True).data,
