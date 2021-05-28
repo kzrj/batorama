@@ -42,7 +42,9 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
                 Account.objects.filter(is_ramshik=True, rama=request.user.account.rama)\
                     .order_by('nickname'), many=True).data,
             'last_payouts': LastPayoutsSerializer(
-                CashRecord.objects.all().order_by('-created_at')[:10], many=True).data
+                CashRecord.objects.filter(Q(record_type='payout_to_employee_from_shift') |
+                    Q(record_type='withdraw_employee')).filter(rama=request.user.account.rama) \
+                    .order_by('-created_at')[:10], many=True).data
             },
                 status=status.HTTP_200_OK)
 
@@ -62,7 +64,9 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
                         .order_by('nickname'),
                     many=True).data,
                 'last_payouts': LastPayoutsSerializer(
-                    CashRecord.objects.all().order_by('-created_at')[:10], many=True).data,
+                    CashRecord.objects.filter(Q(record_type='payout_to_employee_from_shift') |
+                    Q(record_type='withdraw_employee')).filter(rama=request.user.account.rama) \
+                        .order_by('-created_at')[:10], many=True).data,
                 'message': 'Успешно',
                 },
                 status=status.HTTP_200_OK)
