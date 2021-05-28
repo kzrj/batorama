@@ -24,6 +24,7 @@ class Account(CoreModel):
     is_manager = models.BooleanField(default=False)
     is_kladman = models.BooleanField(default=False)
     is_seller = models.BooleanField(default=False)
+    is_boss = models.BooleanField(default=False)
 
     cash = models.IntegerField(default=0)
 

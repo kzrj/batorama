@@ -142,6 +142,10 @@ class SaleView(viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=False)
     def sale_create_data(self, request):
+        kladman = User.objects.filter(account__is_kladman=True,
+             account__rama=request.user.account.rama).first()
+        kladman_id = kladman.pk if kladman else None
+
         return Response({
             'pine_brus_lumbers': LumberSimpleSerializer(
                 Lumber.objects.filter(lumber_type='brus', wood_species='pine'), many=True).data,
@@ -152,8 +156,7 @@ class SaleView(viewsets.ModelViewSet):
             'lumbers': LumberSerializer(
                 Lumber.objects.all(), many=True).data,
             'sellers': SellerSerializer(User.objects.filter(account__is_seller=True), many=True).data,
-            'kladman_id': User.objects.filter(
-                account__is_kladman=True, account__rama=request.user.account.rama).first().pk
+            'kladman_id': kladman_id
             }, status=status.HTTP_200_OK)
 
     @action(methods=['get'], detail=False)
