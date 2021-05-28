@@ -58,7 +58,8 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
                 employee=serializer.validated_data['employee'],
                 amount=serializer.validated_data['amount'],
                 note=f'выдача зп рамщику {serializer.validated_data["employee"].nickname}',
-                initiator=request.user
+                initiator=request.user,
+                rama=request.user.account.rama
                 )
             return Response({
                 'employees': RamshikWithCashSerializer(
