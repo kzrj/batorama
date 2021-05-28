@@ -101,7 +101,7 @@ class ShiftListView(generics.ListAPIView):
         .prefetch_related('lumber_records__lumber', 'employees',)
     serializer_class = ShiftSerializer
     permission_classes = [IsAuthenticated]
-    filter_class = self.ShiftFilter
+    filter_class = ShiftFilter
 
     def list(self, request):
         data = dict()
