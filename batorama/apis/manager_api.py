@@ -88,11 +88,20 @@ class ShiftSerializer(serializers.ModelSerializer):
 
 
 class ShiftListView(generics.ListAPIView):
+    class ShiftFilter(filters.FilterSet):
+        date = filters.DateFromToRangeFilter()
+        rama = filters.CharFilter(lookup_expr='exact', field_name='rama.name')
+
+        class Meta:
+            model = Shift
+            fields = '__all__'
+
     queryset = Shift.objects.all() \
         .select_related('initiator__account') \
         .prefetch_related('lumber_records__lumber', 'employees',)
     serializer_class = ShiftSerializer
     permission_classes = [IsAuthenticated]
+    filter_class = self.ShiftFilter
 
     def list(self, request):
         data = dict()
