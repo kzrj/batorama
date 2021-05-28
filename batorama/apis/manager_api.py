@@ -1,4 +1,6 @@
 # # -*- coding: utf-8 -*-
+from django.db.models import Q
+
 from rest_framework import status, viewsets, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
