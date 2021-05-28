@@ -118,7 +118,8 @@ class ShiftViewSet(viewsets.ModelViewSet):
         lumbers = Lumber.objects.all()
         return Response({
             'lumbers': LumberSerializer(lumbers, many=True).data,
-            'employees': RamshikSerializer(Account.objects.filter(is_ramshik=True), many=True).data,
+            'employees': RamshikSerializer(Account.objects.filter(is_ramshik=True,
+                rama=request.user.account.rama), many=True).data,
             }, status=status.HTTP_200_OK)
 
     def update(self, request, pk=None):
