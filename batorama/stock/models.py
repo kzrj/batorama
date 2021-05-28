@@ -93,6 +93,9 @@ class RamaQuerySet(models.QuerySet):
 class Rama(CoreModel):
     name = models.CharField(max_length=50)
 
+    STOCK_TYPES = [('mixed', 'Смешанный'), ('sorted', 'Сортированный')]
+    stock_type = models.CharField(max_length=50, choices=STOCK_TYPES, null=True, blank=True)
+
     def __str__(self):
         return self.name    
 
