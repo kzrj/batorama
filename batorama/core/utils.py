@@ -55,13 +55,13 @@ def custom_exception_handler(exc, context):
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
-	user = serializers.StringRelatedField()
+    user = serializers.StringRelatedField()
     rama = serializers.StringRelatedField()
     rama_type = serializers.ReadOnlyField(source='rama.stock_type')
 
-	class Meta:
-		model = Account
-		exclude = ('created_at', 'modified_at')
+    class Meta:
+        model = Account
+        exclude = ('created_at', 'modified_at')
 
 
 def jwt_response_payload_handler(token, user=None, request=None):
