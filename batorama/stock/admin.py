@@ -1,6 +1,11 @@
 from django.contrib import admin
 
-from stock.models import (Lumber, Shift, LumberRecord, Sale, ReSaw)
+from stock.models import (Lumber, Shift, LumberRecord, Sale, ReSaw, Rama)
+
+
+@admin.register(Rama)
+class RamaAdmin(admin.ModelAdmin):
+    list_display = [f.name for f in Rama._meta.fields]
 
 
 @admin.register(Lumber)
