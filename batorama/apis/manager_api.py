@@ -245,6 +245,14 @@ class SetLumberMarketPriceView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class ReadTimberSerializer(serializers.ModelSerializer):
+    timber = serializers.ReadOnlyField(source='pk')
+
+    class Meta:
+        model = Timber
+        fields = ['id', 'wood_species', 'diameter', 'volume', 'timber']
+
+
 class IncomeTimberSerializer(serializers.ModelSerializer):
     class Meta:
         model = IncomeTimber
@@ -265,6 +273,13 @@ class IncomeTimberViewSet(viewsets.ModelViewSet):
     queryset = IncomeTimber.objects.all()
     serializer_class = IncomeTimberSerializer
     # permission_classes = [IsAdminUser]
+
+    @action(detail=False, methods=['get'])
+    def init_data(self, request, pk=None):
+        return Response({
+            'timbers': ReadTimberSerializer(
+                Timber.objects.all().order_by('diameter'), many=True).data,
+            }, status=status.HTTP_200_OK)
 
     def create(self, request, serializer_class=CreateIncomeTimberSerializer):
         serializer = CreateIncomeTimberSerializer(data=request.data)
