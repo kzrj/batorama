@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'cash.apps.CashConfig',
     'apis.apps.ApisConfig',
+    'rawstock.apps.RawstockConfig',
 
     'corsheaders',
     'rest_framework',

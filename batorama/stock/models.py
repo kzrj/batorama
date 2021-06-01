@@ -102,15 +102,16 @@ class Rama(CoreModel):
 
 class ShiftQuerySet(models.QuerySet):
     # Servises
-    def create_shift(self, shift_type, cash, volume, employees, lumber_records, initiator=None,
+    def create_shift(self, shift_type, cash, employees, lumber_records, initiator=None,
          date=None, note=None):
         if not date:
             date = timezone.now()
-        shift = self.create(shift_type=shift_type, date=date, employee_cash=cash, volume=volume,
+        shift = self.create(shift_type=shift_type, date=date, employee_cash=cash, 
             initiator=initiator, rama=initiator.account.rama, note=note)
         shift.employees.add(*employees)
         lumber_records.update(shift=shift)
         shift.back_calc_volume = lumber_records.calc_total_volume()
+        shift.volume = shift.back_calc_volume
         shift.back_calc_cash = lumber_records.calc_total_cash()
         shift.back_calc_cash_per_employee = shift.back_calc_cash / len(employees)
         shift.cash_per_employee = shift.employee_cash / len(employees)
@@ -131,7 +132,33 @@ class ShiftQuerySet(models.QuerySet):
         del kwargs['rama']
         return self.create_shift(**kwargs)
 
+    def create_shift_with_quota_calc(self, quota, **kwargs):
+        shift = self.create_shift_raw_records(**kwargs)
+        shift.quota = quota
+        shift.save()
+
+        return shift
+
     # Selectors
+    def add_only_brus_volume(self):
+        subquery = LumberRecord.objects.filter(shift__pk=OuterRef('pk'), lumber__lumber_type='brus') \
+                        .values('shift') \
+                        .annotate(brus_volume=Sum('volume')) \
+                        .values('brus_volume')
+
+        return self.annotate(brus_volume=Coalesce(Subquery(subquery), 0.0))
+
+    def add_only_doska_volume(self):
+        subquery = LumberRecord.objects.filter(shift__pk=OuterRef('pk'), lumber__lumber_type='doska') \
+                        .values('shift') \
+                        .annotate(doska_volume=Sum('volume')) \
+                        .values('doska_volume')
+
+        return self.annotate(doska_volume=Coalesce(Subquery(subquery), 0.0))
+
+    def calc_created_volume(self):
+        return self.add_only_brus_volume().add_only_doska_volume() \
+            .aggregate(total_brus_volume=Sum('brus_volume'), total_doska_volume=Sum('doska_volume'))
 
 
 class Shift(CoreModel):
@@ -156,6 +183,9 @@ class Shift(CoreModel):
     back_calc_cash_per_employee = models.FloatField(null=True)
 
     note = models.TextField(null=True, blank=True)
+
+    quota = models.ForeignKey('rawstock.Quota', on_delete=models.SET_NULL, null=True,
+     blank=True, related_name='shifts')
 
     objects = ShiftQuerySet.as_manager()
 
@@ -380,6 +410,12 @@ class LumberRecordQuerySet(models.QuerySet):
             rama_cash=Sum('rama_total_cash'),
             sale_cash=Sum('selling_total_cash'),
             total_volume=Sum('volume'))
+
+    # def calc_brus_and_doska_volume(self):
+    #     return self.aggregate(
+    #         rama_cash=Sum('rama_total_cash', filter=()),
+    #         sale_cash=Sum('selling_total_cash'),
+    #         total_volume=Sum('volume'))
 
 
 class LumberRecord(CoreModel):

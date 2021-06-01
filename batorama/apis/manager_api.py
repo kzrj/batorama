@@ -14,6 +14,8 @@ from core.serializers import ChoiceField
 from accounts.models import Account
 from cash.models import CashRecord
 from stock.models import Shift, LumberRecord, Lumber, Sale
+from rawstock.models import IncomeTimber, Timber, TimberRecord, Quota
+
 from core.serializers import AnnotateFieldsModelSerializer
 
 
@@ -217,7 +219,6 @@ class SaleListView(generics.ListAPIView):
     #     return super().list(request)
 
 
-
 class SetLumberMarketPriceView(APIView):
     # authentication_classes = [JSONWebTokenAuthentication]
     # permission_classes = [permissions.IsAdminUser]
@@ -240,5 +241,46 @@ class SetLumberMarketPriceView(APIView):
                 'message': 'Успешно изменено',
                 },
                 status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class IncomeTimberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IncomeTimber
+        fields = ['pk', 'quantity', 'volume', 'rama', 'created_at']
+
+
+class RawTimberRecordSerializer(serializers.Serializer):
+    timber = serializers.PrimaryKeyRelatedField(queryset=Timber.objects.all())
+    quantity = serializers.IntegerField()
+
+
+class CreateIncomeTimberSerializer(serializers.Serializer):
+    raw_timber_records = RawTimberRecordSerializer(many=True)
+    note = serializers.CharField(required=False)
+
+
+class IncomeTimberViewSet(viewsets.ModelViewSet):
+    queryset = IncomeTimber.objects.all()
+    serializer_class = IncomeTimberSerializer
+    # permission_classes = [IsAdminUser]
+
+    def create(self, request, serializer_class=CreateIncomeTimberSerializer):
+        serializer = CreateIncomeTimberSerializer(data=request.data)
+        if serializer.is_valid():
+            income_timber = IncomeTimber.objects.create_income_timber(
+                raw_timber_records=serializer.validated_data['raw_timber_records'],
+                note=serializer.validated_data.get('note'),
+                initiator=request.user,
+                rama=request.user.account.rama
+                )
+            Quota.objects.create_quota(income_timber=income_timber)
+            
+            return Response({
+                'income_timber': IncomeTimberSerializer(income_timber).data,
+                'message': 'Успешно'
+                },
+                 status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

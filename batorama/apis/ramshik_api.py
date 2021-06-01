@@ -55,7 +55,7 @@ class ShiftCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Shift
-        fields = ('date', 'shift_type', 'employees', 'raw_records', 'employee_cash', 'volume', 'note')
+        fields = ('date', 'shift_type', 'employees', 'raw_records', 'employee_cash', 'note')
 
 
 class LumberSerializer(serializers.ModelSerializer):
@@ -102,7 +102,7 @@ class ShiftViewSet(viewsets.ModelViewSet):
                 employees=serializer.validated_data['employees'],
                 raw_records=serializer.validated_data['raw_records'],
                 cash=serializer.validated_data['employee_cash'],
-                volume=serializer.validated_data['volume'],
+                # volume=serializer.validated_data['volume'],
                 note=serializer.validated_data.get('note'),
                 rama=request.user.account.rama,
                 initiator=request.user,
