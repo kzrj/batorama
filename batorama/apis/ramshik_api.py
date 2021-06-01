@@ -7,13 +7,15 @@ from rest_framework import serializers
 
 from stock.models import Shift, LumberRecord, Lumber
 from stock.testing_utils import create_init_data
+from rawstock.testing_utils import create_test_timber
 from accounts.models import Account
 from cash.models import CashRecord
 
 
 class InitTestDataView(APIView):
     def get(self, request, format=None):
-        create_init_data()
+        # create_init_data()
+        create_test_timber()
         return Response({'msg': 'Done.'})
 
 
