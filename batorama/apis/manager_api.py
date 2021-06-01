@@ -278,7 +278,7 @@ class IncomeTimberViewSet(viewsets.ModelViewSet):
     def init_data(self, request, pk=None):
         return Response({
             'timbers': ReadTimberSerializer(
-                Timber.objects.all().order_by('diameter'), many=True).data,
+                Timber.objects.all().order_by('wood_species', 'diameter'), many=True).data,
             }, status=status.HTTP_200_OK)
 
     def create(self, request, serializer_class=CreateIncomeTimberSerializer):
