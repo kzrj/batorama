@@ -247,7 +247,7 @@ class SetLumberMarketPriceView(APIView):
 class ReadTimberSerializer(serializers.ModelSerializer):
     timber = serializers.ReadOnlyField(source='pk')
     wood_species = ChoiceField(read_only=True, choices=Timber.SPECIES)
-    quantity = models.IntegerField(default=0, read_only=True)
+    quantity = serializers.IntegerField(default=0, read_only=True)
 
     class Meta:
         model = Timber
