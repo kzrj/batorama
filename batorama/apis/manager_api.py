@@ -255,9 +255,11 @@ class ReadTimberSerializer(serializers.ModelSerializer):
 
 
 class IncomeTimberSerializer(serializers.ModelSerializer):
+    timber_records = ReadTimberSerializer(many=True, read_only=True)
+
     class Meta:
         model = IncomeTimber
-        fields = ['pk', 'quantity', 'volume', 'rama', 'created_at']
+        fields = ['pk', 'quantity', 'volume', 'rama', 'created_at', 'timber_records']
 
 
 class RawTimberRecordSerializer(serializers.Serializer):

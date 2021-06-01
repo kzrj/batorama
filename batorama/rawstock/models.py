@@ -59,7 +59,7 @@ class TimberRecord(CoreModel):
     volume = models.FloatField()
 
     income_timber = models.ForeignKey('rawstock.IncomeTimber', on_delete=models.SET_NULL, null=True,
-     blank=True, related_name='records')
+     blank=True, related_name='timber_records')
 
     objects = TimberRecordQuerySet.as_manager()
 
