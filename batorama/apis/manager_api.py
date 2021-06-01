@@ -254,8 +254,17 @@ class ReadTimberSerializer(serializers.ModelSerializer):
         fields = ['id', 'wood_species', 'diameter', 'volume', 'timber', 'quantity']
 
 
+class ReadTimberRecordSerializer(serializers.ModelSerializer):
+    diameter = serializers.ReadOnlyField(source='timber.diameter')
+    wood_species = serializers.ReadOnlyField(source='timber.wood_species')
+
+    class Meta:
+        model = TimberRecord
+        fields = ['quantity', 'diameter', 'wood_species']
+
+
 class IncomeTimberSerializer(serializers.ModelSerializer):
-    timber_records = ReadTimberSerializer(many=True, read_only=True)
+    timber_records = ReadTimberRecordSerializer(many=True, read_only=True)
 
     class Meta:
         model = IncomeTimber
