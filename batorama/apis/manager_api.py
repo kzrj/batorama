@@ -10,13 +10,12 @@ from rest_framework.permissions import IsAuthenticated
 
 from django_filters import rest_framework as filters
 
-from core.serializers import ChoiceField
 from accounts.models import Account
 from cash.models import CashRecord
 from stock.models import Shift, LumberRecord, Lumber, Sale
 from rawstock.models import IncomeTimber, Timber, TimberRecord, Quota
 
-from core.serializers import AnnotateFieldsModelSerializer
+from core.serializers import AnnotateFieldsModelSerializer, ChoiceField
 
 
 class RamshikWithCashSerializer(serializers.ModelSerializer):
@@ -247,6 +246,7 @@ class SetLumberMarketPriceView(APIView):
 
 class ReadTimberSerializer(serializers.ModelSerializer):
     timber = serializers.ReadOnlyField(source='pk')
+    wood_species = ChoiceField(source='wood_species', read_only=True, choices=Timber.SPECIES)
 
     class Meta:
         model = Timber
