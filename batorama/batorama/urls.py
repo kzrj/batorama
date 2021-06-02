@@ -9,7 +9,7 @@ from django.conf import settings
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
 
 from apis.manager_api import ( RamshikiPaymentViewSet, ShiftListView, LumberStockListView,
- SaleListView, SetLumberMarketPriceView, IncomeTimberViewSet)
+ SaleListView, SetLumberMarketPriceView, IncomeTimberViewSet, QuotasPageView)
 from apis.ramshik_api import ShiftViewSet, InitTestDataView, RamshikPayoutViewSet
 from apis.kladman_api import SaleView, CashRecordsView, DailyReport, ReSawViewSet
 
