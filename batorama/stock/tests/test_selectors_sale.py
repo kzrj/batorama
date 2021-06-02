@@ -3,29 +3,18 @@ import datetime
 from django.test import TestCase, TransactionTestCase
 from django.contrib.auth.models import User
 
-from stock.models import Rama, Shift, Lumber, Sale
-from rawstock.models import Timber, TimberRecord, IncomeTimber, Quota
+from stock.models import Shift, Lumber, LumberRecord, Sale, Rama
+from accounts.models import Account
 
-import stock.testing_utils as lumber_testing
-import rawstock.testing_utils as timber_testing
+import stock.testing_utils as testing
 
 
-class LumberRecordsServisesTest(TransactionTestCase):
+class SaleServisesTest(TransactionTestCase):
     def setUp(self):
-        lumber_testing.create_init_data()
-        timber_testing.create_test_timber()
+        testing.create_init_data()
 
         self.seller1 = User.objects.get(username='seller1')
         self.kladman = User.objects.get(username='kladman')
-
-        self.ramshik1 = User.objects.get(username='ramshik1')
-        self.ramshik2 = User.objects.get(username='ramshik2')
-        self.ramshik3 = User.objects.get(username='ramshik3')
-        self.ramshik4 = User.objects.get(username='ramshik4')
-
-        self.pine_timber20 = Timber.objects.get(diameter=20, wood_species='pine')
-        self.pine_timber22 = Timber.objects.get(diameter=22, wood_species='pine')
-        self.pine_timber28 = Timber.objects.get(diameter=28, wood_species='pine')
 
         self.brus1 = Lumber.objects.filter(name__contains='брус')[0]
         self.brus2 = Lumber.objects.filter(name__contains='брус')[1]
@@ -42,16 +31,7 @@ class LumberRecordsServisesTest(TransactionTestCase):
 
         self.rama = Rama.objects.all().first()
 
-        data_list = [
-            {'timber': self.pine_timber20, 'quantity': 20 },
-            {'timber': self.pine_timber22, 'quantity': 25 },
-            {'timber': self.pine_timber28, 'quantity': 30 },
-        ]
-
-        self.income_timber = IncomeTimber.objects.create_income_timber(
-            raw_timber_records=data_list, initiator=self.kladman, rama=self.rama)
-
-        data_list2 = {
+        data_list = {
             'lumbers': [
                 {'lumber': self.brus1, 'quantity': 10, 'rama_price': 12000, 'selling_price': 12500,
                     'selling_total_cash': 7500, 'calc_type': 'exact'},
@@ -70,18 +50,18 @@ class LumberRecordsServisesTest(TransactionTestCase):
         }
 
         self.sale1 = Sale.objects.create_sale_common(
-            raw_records=data_list2['lumbers'],
+            raw_records=data_list['lumbers'],
             initiator=self.kladman,
-            loader=data_list2['loader'],
-            delivery_fee=data_list2['delivery_fee'],
-            add_expenses=data_list2['add_expenses'],
-            note=data_list2['note'],
-            client=data_list2['client'],
-            seller=data_list2['seller'],
-            bonus_kladman=data_list2['bonus_kladman']
+            loader=data_list['loader'],
+            delivery_fee=data_list['delivery_fee'],
+            add_expenses=data_list['add_expenses'],
+            note=data_list['note'],
+            client=data_list['client'],
+            seller=data_list['seller'],
+            bonus_kladman=data_list['bonus_kladman']
             )
 
-        data_list3 = {
+        data_list2 = {
             'lumbers': [
                 {'lumber': self.brus1, 'quantity': 13, 'rama_price': 12000, 'selling_price': 12500,
                     'selling_total_cash': 7500, 'calc_type': 'exact'},
@@ -100,25 +80,29 @@ class LumberRecordsServisesTest(TransactionTestCase):
         }
 
         self.sale2 = Sale.objects.create_sale_common(
-            raw_records=data_list3['lumbers'],
+            raw_records=data_list2['lumbers'],
             initiator=self.kladman,
-            loader=data_list3['loader'],
-            delivery_fee=data_list3['delivery_fee'],
-            add_expenses=data_list3['add_expenses'],
-            note=data_list3['note'],
-            client=data_list3['client'],
-            seller=data_list3['seller'],
-            bonus_kladman=data_list3['bonus_kladman']
+            loader=data_list2['loader'],
+            delivery_fee=data_list2['delivery_fee'],
+            add_expenses=data_list2['add_expenses'],
+            note=data_list2['note'],
+            client=data_list2['client'],
+            seller=data_list2['seller'],
+            bonus_kladman=data_list2['bonus_kladman']
             )
 
-    def test_current_quota(self):
-        quota = Quota.objects.create_quota(income_timber=self.income_timber)
-        
-        self.assertEqual(quota.volume_quota_brus, 8.045)
-        self.assertEqual(quota.volume_quota_doska, 3.218)
+    def test_calc_sold_volume_for_quota_calc(self):
+        s1 = Sale.objects.all().add_only_brus_volume().add_only_doska_volume_exclude_2_5() \
+            .get(pk=self.sale1.pk)
+        s2 = Sale.objects.all().add_only_brus_volume().add_only_doska_volume_exclude_2_5() \
+            .get(pk=self.sale2.pk)
 
-        sold_volumes = Sale.objects.calc_sold_volume_for_quota_calc()
-        self.assertEqual(sold_volumes['total_brus_volume'], 3.324)
-        self.assertEqual(sold_volumes['total_doska_volume'], 2.016)
+        self.assertEqual(s1.brus_volume, 1.896)
+        self.assertEqual(s1.doska_volume, 2.016)
 
-        self.assertEqual(quota.current_quota(), (8.045 - 3.324, 3.218 - 2.016))
+        self.assertEqual(s2.brus_volume, 1.428)
+        self.assertEqual(s2.doska_volume, 0.0)
+
+        total_sold_volume = Sale.objects.all().calc_sold_volume_for_quota_calc()
+        self.assertEqual(total_sold_volume['total_brus_volume'], 1.896 + 1.428)
+        self.assertEqual(total_sold_volume['total_doska_volume'], 2.016)

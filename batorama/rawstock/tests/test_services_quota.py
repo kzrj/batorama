@@ -12,7 +12,7 @@ import rawstock.testing_utils as timber_testing
 
 class LumberRecordsServisesTest(TransactionTestCase):
     def setUp(self):
-        lumber_testing.create_test_data()
+        lumber_testing.create_init_data()
         timber_testing.create_test_timber()
 
         self.seller1 = User.objects.get(username='seller1')

@@ -140,8 +140,8 @@ class Quota(CoreModel):
         return f'{self.diameter} {self.wood_species}'
 
     def current_quota(self):
-        created_volume = self.shifts.calc_created_volume()
-
-        return round(self.volume_quota_brus - created_volume['total_brus_volume'], 3), \
-               round(self.volume_quota_doska - created_volume['total_doska_volume'], 3), 
+        sold_volume = self.rama.sales.calc_sold_volume_for_quota_calc()
+        
+        return round(self.volume_quota_brus - sold_volume['total_brus_volume'], 3), \
+               round(self.volume_quota_doska - sold_volume['total_doska_volume'], 3), 
 

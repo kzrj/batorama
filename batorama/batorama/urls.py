@@ -35,6 +35,7 @@ urlpatterns = [
     path('api/manager/stock/set_price/', SetLumberMarketPriceView.as_view()),
     path('api/manager/rawstock/timber/create_income/', IncomeTimberViewSet.as_view({'post': 'create'})),
     path('api/manager/rawstock/timber/create_income/init_data/', IncomeTimberViewSet.as_view({'get': 'init_data'})),
+    path('api/manager/quota/overview/', QuotasPageView.as_view()),
 
     # ramshik api
     path('api/ramshik/shifts/create/init_data/', ShiftViewSet.as_view({'get': 'shift_create_data'})),

@@ -11,7 +11,7 @@ import stock.testing_utils as testing
 
 class SaleServisesTest(TransactionTestCase):
     def setUp(self):
-        testing.create_test_data()
+        testing.create_init_data()
 
         self.seller1 = User.objects.get(username='seller1')
         self.kladman = User.objects.get(username='kladman')

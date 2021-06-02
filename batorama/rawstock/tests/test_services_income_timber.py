@@ -12,7 +12,7 @@ import rawstock.testing_utils as timber_testing
 
 class LumberRecordsServisesTest(TransactionTestCase):
     def setUp(self):
-        lumber_testing.create_test_data()
+        lumber_testing.create_init_data()
         timber_testing.create_test_timber()
 
         self.seller1 = User.objects.get(username='seller1')
@@ -32,10 +32,10 @@ class LumberRecordsServisesTest(TransactionTestCase):
         ]
 
         income_timber = IncomeTimber.objects.create_income_timber(raw_timber_records=data_list,
-            initiator=self.kladman)
+            initiator=self.kladman, rama=self.rama)
 
         self.assertEqual(income_timber.quantity, 45)
         self.assertEqual(income_timber.volume, 9.94)
         self.assertEqual(income_timber.rama, self.rama)
         self.assertEqual(income_timber.initiator, self.kladman)
-        self.assertEqual(income_timber.records.all().count(), 3)
+        self.assertEqual(income_timber.timber_records.all().count(), 3)

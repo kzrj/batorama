@@ -132,33 +132,7 @@ class ShiftQuerySet(models.QuerySet):
         del kwargs['rama']
         return self.create_shift(**kwargs)
 
-    def create_shift_with_quota_calc(self, quota, **kwargs):
-        shift = self.create_shift_raw_records(**kwargs)
-        shift.quota = quota
-        shift.save()
-
-        return shift
-
     # Selectors
-    def add_only_brus_volume(self):
-        subquery = LumberRecord.objects.filter(shift__pk=OuterRef('pk'), lumber__lumber_type='brus') \
-                        .values('shift') \
-                        .annotate(brus_volume=Sum('volume')) \
-                        .values('brus_volume')
-
-        return self.annotate(brus_volume=Coalesce(Subquery(subquery), 0.0))
-
-    def add_only_doska_volume(self):
-        subquery = LumberRecord.objects.filter(shift__pk=OuterRef('pk'), lumber__lumber_type='doska') \
-                        .values('shift') \
-                        .annotate(doska_volume=Sum('volume')) \
-                        .values('doska_volume')
-
-        return self.annotate(doska_volume=Coalesce(Subquery(subquery), 0.0))
-
-    def calc_created_volume(self):
-        return self.add_only_brus_volume().add_only_doska_volume() \
-            .aggregate(total_brus_volume=Sum('brus_volume'), total_doska_volume=Sum('doska_volume'))
 
 
 class Shift(CoreModel):
@@ -183,9 +157,6 @@ class Shift(CoreModel):
     back_calc_cash_per_employee = models.FloatField(null=True)
 
     note = models.TextField(null=True, blank=True)
-
-    quota = models.ForeignKey('rawstock.Quota', on_delete=models.SET_NULL, null=True,
-     blank=True, related_name='shifts')
 
     objects = ShiftQuerySet.as_manager()
 
@@ -245,6 +216,27 @@ class SaleQuerySet(models.QuerySet):
             total_delivery_fee=Sum('delivery_fee'),
             total_add_expenses=Sum('add_expenses'),
             )
+
+    def add_only_brus_volume(self):
+        subquery = LumberRecord.objects.filter(sale__pk=OuterRef('pk'), lumber__lumber_type='brus') \
+                        .values('shift') \
+                        .annotate(brus_volume=Sum('volume')) \
+                        .values('brus_volume')
+
+        return self.annotate(brus_volume=Coalesce(Subquery(subquery), 0.0))
+
+    def add_only_doska_volume_exclude_2_5(self):
+        subquery = LumberRecord.objects.filter(sale__pk=OuterRef('pk'), lumber__lumber_type='doska') \
+                        .exclude(lumber__width=0.025) \
+                        .values('shift') \
+                        .annotate(doska_volume=Sum('volume')) \
+                        .values('doska_volume')
+
+        return self.annotate(doska_volume=Coalesce(Subquery(subquery), 0.0))
+
+    def calc_sold_volume_for_quota_calc(self):
+        return self.add_only_brus_volume().add_only_doska_volume_exclude_2_5() \
+            .aggregate(total_brus_volume=Sum('brus_volume'), total_doska_volume=Sum('doska_volume'))
 
 
 class Sale(CoreModel):

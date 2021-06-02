@@ -118,6 +118,7 @@ def create_test_lumber():
      round_volume=0.0181818182)
 
 def create_test_data():
+    rama1 = Rama.objects.create(name='batorama')
     create_test_users()
     create_test_lumber()
 
