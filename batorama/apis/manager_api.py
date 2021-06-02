@@ -12,7 +12,7 @@ from django_filters import rest_framework as filters
 
 from accounts.models import Account
 from cash.models import CashRecord
-from stock.models import Shift, LumberRecord, Lumber, Sale
+from stock.models import Shift, LumberRecord, Lumber, Sale, Rama
 from rawstock.models import IncomeTimber, Timber, TimberRecord, Quota
 
 from core.serializers import AnnotateFieldsModelSerializer, ChoiceField
