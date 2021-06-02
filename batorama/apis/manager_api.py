@@ -324,5 +324,9 @@ class QuotasPageView(APIView):
         data['total_volume_quota_doska'] = quotas_volumes['total_volume_quota_doska']
         data['total_volume_sold_brus'] = sold_volumes['total_brus_volume']
         data['total_volume_sold_doska'] = sold_volumes['total_doska_volume']
+        data['brus_balance'] = quotas_volumes['total_volume_quota_brus'] - \
+            sold_volumes['total_brus_volume']
+        data['doska_balance'] = quotas_volumes['total_volume_quota_doska'] - \
+            sold_volumes['total_doska_volume']
 
         return Response(data, status=status.HTTP_200_OK)
