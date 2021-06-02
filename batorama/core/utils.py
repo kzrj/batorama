@@ -57,7 +57,7 @@ def custom_exception_handler(exc, context):
 class EmployeeSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField()
     rama = serializers.StringRelatedField()
-    rama_id = serializers.PrimaryKeyRelatedField()
+    rama_id = serializers.ReadOnlyField(source='rama.pk')
     rama_type = serializers.ReadOnlyField(source='rama.stock_type')
 
     class Meta:
