@@ -439,6 +439,9 @@ class LumberRecord(CoreModel):
 
     objects = LumberRecordQuerySet.as_manager()
 
+    class Meta:
+        ordering = ['lumber__wood_species', 'lumber__lumber_type']
+
     def __str__(self):
         return f'{self.lumber} {self.quantity}'
 
