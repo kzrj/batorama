@@ -21,10 +21,11 @@ class InitTestDataView(APIView):
 
 class LumberRecordSerializer(serializers.ModelSerializer):
     lumber = serializers.StringRelatedField()
+    wood_species = serializers.ReadOnlyField(source='lumber.wood_species')
 
     class Meta:
         model = LumberRecord
-        fields = ('lumber', 'quantity', 'volume', 'rate', 'total_cash', 'back_total_cash')
+        fields = ('lumber', 'quantity', 'volume', 'rate', 'total_cash', 'back_total_cash',)
 
 
 class ShiftSerializer(serializers.ModelSerializer):
