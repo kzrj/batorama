@@ -108,7 +108,7 @@ class ShiftListView(generics.ListAPIView):
 
     queryset = Shift.objects.all() \
         .select_related('initiator__account') \
-        .prefetch_related('lumber_records__lumber', 'employees',)
+        .prefetch_related('lumber_records__lumber', 'employees',).order_by('-created_at')
     serializer_class = ShiftSerializer
     permission_classes = [IsAuthenticated]
     filter_class = ShiftFilter

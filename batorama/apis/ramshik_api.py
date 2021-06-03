@@ -89,7 +89,7 @@ class ShiftViewSet(viewsets.ModelViewSet):
         queryset = self.filter_queryset(request.user.account.shift_set.all() \
             .select_related('initiator__account') \
             .prefetch_related('lumber_records__lumber', 'employees',) \
-            .order_by('created_at'))
+            .order_by('-created_at'))
                 
         serializer = ShiftReadSerializer(queryset, many=True)
 
