@@ -268,6 +268,8 @@ class Sale(CoreModel):
     loader_fee = models.IntegerField(default=0, null=True, blank=True)
     delivery_fee = models.IntegerField(default=0, null=True, blank=True)
 
+    system_fee = models.IntegerField(default=0, null=True, blank=True)
+
     add_expenses = models.IntegerField(default=0, null=True, blank=True)
 
     objects = SaleQuerySet.as_manager()
@@ -281,7 +283,7 @@ class Sale(CoreModel):
 
     def calc_kladman_fee(self):
         if self.bonus_kladman:
-            self.kladman_fee = round(self.volume * 100)
+            self.kladman_fee = self.system_fee = round(self.volume * 100)
             # self.cash_records.create_rama_expense(
             #     amount=self.kladman_fee, note=f'Вознаграждение кладмэна с продажи {self.client}',
             #     initiator=self.initiator, rama=self.rama)
