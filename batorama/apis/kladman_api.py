@@ -236,7 +236,6 @@ class CashRecordsView(viewsets.ModelViewSet):
             cash_record = CashRecord.objects.create_rama_expense(
                 amount=serializer.validated_data['amount'],
                 note=serializer.validated_data['note'],
-                rama=request.user.account.rama,
                 initiator=request.user
                 )
 
