@@ -82,5 +82,5 @@ class SaleViewSetTest(APITestCase):
         sale = Sale.objects.all().first()
 
         response = self.client.delete(f'/api/kladman/sales/{sale.pk}/')
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(Sale.objects.all().count(), 0)

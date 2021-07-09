@@ -193,8 +193,7 @@ class SaleQuerySet(models.QuerySet):
         sale.selling_total_cash = round(volume_and_cash['sale_cash'])
 
         sale.cash_records.create_income_from_sale(amount=sale.selling_total_cash,
-            note=f'приход с продажи {sale.client}', initiator=initiator, rama=initiator.account.rama,
-            sale=sale)
+            note=f'приход с продажи {sale.client}', initiator=initiator, sale=sale)
 
         sale.calc_seller_fee()
         sale.calc_kladman_fee()

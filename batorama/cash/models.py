@@ -10,28 +10,26 @@ from core.models import CoreModel, CoreModelManager
 
 class CashRecordQuerySet(models.QuerySet):
     # Servises
-    def create_payout_from_shift(self, employee, shift, amount, note=None, initiator=None,
-         rama=None):
+    def create_payout_from_shift(self, employee, shift, amount, note=None, initiator=None):
         self.create(amount=amount, account=employee, shift=shift, record_type='payout_to_employee_from_shift',
-            initiator=initiator, rama=rama, note=note)
+            initiator=initiator, rama=initiator.account.rama, note=note)
         employee.add_cash(amount)
 
-    def create_withdraw_employee(self, employee, amount, initiator=None, rama=None, note=None):
+    def create_withdraw_employee(self, employee, amount, initiator=None, note=None):
         self.create(amount=amount, account=employee, record_type='withdraw_employee', 
-            initiator=initiator, rama=rama, note=note)
+            initiator=initiator, rama=initiator.account.rama, note=note)
         employee.remove_cash(amount)
 
-    def create_withdraw_cash_from_manager(self, manager_account, amount, initiator=None,
-         rama=None):
+    def create_withdraw_cash_from_manager(self, manager_account, amount, initiator=None):
         return self.create(amount=amount, account=manager_account, 
-            record_type='withdraw_cash_from_manager', initiator=initiator, rama=rama)
+            record_type='withdraw_cash_from_manager', initiator=initiator, rama=initiator.account.rama)
 
-    def create_rama_expense(self, amount, note, initiator, rama):
-        return self.create(amount=amount, note=note, rama=rama, initiator=initiator,
+    def create_rama_expense(self, amount, note, initiator):
+        return self.create(amount=amount, note=note, rama=initiator.account.rama, initiator=initiator,
             record_type='rama_expenses')
 
-    def create_income_from_sale(self, amount, note, initiator, rama, sale):
-        return self.create(amount=amount, note=note, rama=rama, initiator=initiator,
+    def create_income_from_sale(self, amount, note, initiator, sale):
+        return self.create(amount=amount, note=note, rama=initiator.account.rama, initiator=initiator,
             sale=sale, record_type='sale_income')
 
     # Selectors

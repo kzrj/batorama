@@ -6,8 +6,10 @@ from accounts.models import Account
 
 
 def create_test_employee(name, is_ramshik=False, is_senior_ramshik=False, is_manager=False, 
-        is_kladman=False, is_seller=False):
-    rama = Rama.objects.all().first()
+        is_kladman=False, is_seller=False, is_capo=False, rama=None):
+    if not rama:
+        rama = Rama.objects.all().first()
+
     user = User.objects.create_user(username=name, password='123')
     emp = Account.objects.create(user=user, is_ramshik=is_ramshik, nickname=name, rama=rama,
         is_senior_ramshik=is_senior_ramshik, is_manager=is_manager, is_kladman=is_kladman,
@@ -22,7 +24,16 @@ def create_test_users():
     ramshik4 = create_test_employee(name='ramshik4', is_ramshik=True)
     kladman = create_test_employee(name='kladman', is_kladman=True, is_seller=True)
     seller = create_test_employee(name='sergei', is_seller=True)
-    seller = create_test_employee(name='seller1', is_seller=True)
+    seller1 = create_test_employee(name='seller1', is_seller=True)
+
+    rama2 = Rama.objects.filter(name='rama2').first()
+    rama1 = Rama.objects.filter(name='batorama').first()
+
+    create_test_employee(name='manager1', is_manager=True, rama=rama1)
+    create_test_employee(name='manager2', is_manager=True, rama=rama2)
+
+    create_test_employee(name='capo1', is_manager=True, rama=rama1)
+    create_test_employee(name='capo2', is_manager=True, rama=rama2)
     
 def create_test_lumber():
     Lumber.objects.create(name='брус 10*15', width=0.1, height=0.15, length=4, volume=0.06,
@@ -119,6 +130,7 @@ def create_test_lumber():
 
 def create_test_data():
     rama1 = Rama.objects.create(name='batorama')
+    Rama.objects.create(name='rama2')
     create_test_users()
     create_test_lumber()
 

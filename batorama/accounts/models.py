@@ -25,6 +25,12 @@ class Account(CoreModel):
     is_kladman = models.BooleanField(default=False)
     is_seller = models.BooleanField(default=False)
     is_boss = models.BooleanField(default=False)
+    is_capo = models.BooleanField(default=False)
+
+    can_see_rama_stock = models.ManyToManyField('stock.Rama', related_name='accounts_can_see_stock')
+    can_see_rama_shift = models.ManyToManyField('stock.Rama', related_name='accounts_can_see_shift')
+    can_see_rama_sales = models.ManyToManyField('stock.Rama', related_name='accounts_can_see_sales')
+    can_see_rama_cash = models.ManyToManyField('stock.Rama', related_name='accounts_can_see_cash')
 
     cash = models.IntegerField(default=0)
 
