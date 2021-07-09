@@ -54,11 +54,18 @@ def custom_exception_handler(exc, context):
     return drf_exception_handler(exc, context)
 
 
+class RamaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rama
+        fileds = ('id', 'name')
+
+
 class EmployeeSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField()
     rama = serializers.StringRelatedField()
     rama_id = serializers.ReadOnlyField(source='rama.pk')
     rama_type = serializers.ReadOnlyField(source='rama.stock_type')
+    can_see_rama_stock = RamaSerializer(many=True, read_only=True)
 
     class Meta:
         model = Account

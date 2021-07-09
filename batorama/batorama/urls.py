@@ -57,4 +57,4 @@ urlpatterns = [
     path('api/kladman/resaws/create/', kladman_api.ReSawViewSet.as_view({'post': 'create'})),
     path('api/kladman/resaws/list/', kladman_api.ReSawViewSet.as_view({'get': 'list'})),
 
-]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
