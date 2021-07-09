@@ -14,6 +14,7 @@ from django.core.mail import send_mail
 from django.db.utils import IntegrityError as DjangoIntegrityError
 
 from accounts.models import Account
+from stock.models import Rama
 
 
 class CustomValidation(exceptions.APIException):
