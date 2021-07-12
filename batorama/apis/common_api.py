@@ -215,7 +215,7 @@ class DailyReport(APIView):
 
     class DateSerializer(serializers.Serializer):
         date = serializers.DateField(format="%Y-%m-%d")
-        rama = serializers.PrimaryKeyRelatedField(source=Rama.objects.all())
+        rama = serializers.PrimaryKeyRelatedField(queryset=Rama.objects.all())
 
 
     class CashRecordSerializer(serializers.ModelSerializer):
