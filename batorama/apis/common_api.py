@@ -246,7 +246,7 @@ class DailyReport(APIView):
 
     def get(self, request, format=None):
         data = dict()
-        serializer = self.DateSerializer request.GET.get(date='date')
+        serializer = self.DateSerializer(data={'date': request.GET.get(date='date')})
         if serializer.is_valid():
             records = CashRecord.objects.filter(created_at__date=date)
             data['records'] = CashRecordSerializer(records, many=True).data
