@@ -7,6 +7,7 @@ from rest_framework import serializers
 from rest_framework import permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from django_filters import rest_framework as filters
 
