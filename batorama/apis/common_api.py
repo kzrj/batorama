@@ -254,11 +254,11 @@ class DailyReport(APIView):
         if serializer.is_valid():
             records = CashRecord.objects.filter(created_at__date=serializer.validated_data['date'],
              rama=serializer.validated_data['rama'])
-            data['records'] = CashRecordSerializer(records, many=True).data
-            data['income_records'] = CashRecordSerializer(records.filter(record_type='sale_income'),
+            data['records'] = self.CashRecordSerializer(records, many=True).data
+            data['income_records'] = self.CashRecordSerializer(records.filter(record_type='sale_income'),
                  many=True).data
             data['income_records_total'] = records.filter(record_type='sale_income').calc_sum()
-            data['expense_records'] = CashRecordSerializer(
+            data['expense_records'] = self.CashRecordSerializer(
                 records.filter(Q(record_type='rama_expenses') | Q(record_type='withdraw_employee')),
                  many=True).data
             data['expense_records_total'] = records.filter(
@@ -267,7 +267,7 @@ class DailyReport(APIView):
 
             sales = Sale.objects.filter(date__date=serializer.validated_data['date'],
                 rama=serializer.validated_data['rama'])
-            data['sales'] = SaleSimpleCashSerializer(sales, many=True).data
+            data['sales'] = self.SaleSimpleCashSerializer(sales, many=True).data
             data['sales_totals'] = sales.calc_totals()
 
             data['sales_sellers_fee'] = [
