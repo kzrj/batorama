@@ -27,6 +27,7 @@ urlpatterns = [
     path('api/common/shifts/', common_api.ShiftListView.as_view()),
     path('api/common/sales/', common_api.SalesListView.as_view()),
     path('api/common/cash/', common_api.CashRecordsListView.as_view()),
+    path('api/common/daily_report/', common_api.DailyReport.as_view()),
 
     # manager api
     path('api/manager/ramshik_payments/init_data/', manager_api.RamshikiPaymentViewSet.as_view({'get': 'init_data'})),

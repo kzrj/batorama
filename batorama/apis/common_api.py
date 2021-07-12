@@ -17,12 +17,14 @@ from core.serializers import AnnotateFieldsModelSerializer, ChoiceField
 
 # rama stock
 class LumberStockListView(generics.ListAPIView):
+
     class LumberStockReadSerializer(AnnotateFieldsModelSerializer):
         stock_total_cash = serializers.ReadOnlyField()
         
         class Meta:
             model = Lumber
             fields = '__all__'
+
 
     class LumberStockFilter(filters.FilterSet):
         rama = filters.NumberFilter(method='filter_rama')
@@ -36,6 +38,7 @@ class LumberStockListView(generics.ListAPIView):
         class Meta:
             model = Lumber
             fields = '__all__'
+
 
     class CanSeeRamaStockPermissions(permissions.BasePermission):
         def has_permission(self, request, view):
@@ -74,12 +77,14 @@ class ShiftListView(generics.ListAPIView):
             model = Shift
             fields = '__all__'
 
+
     class ShiftFilter(filters.FilterSet):
         date = filters.DateFromToRangeFilter()
 
         class Meta:
             model = Shift
             fields = ['rama', 'date']
+
 
     class CanSeeRamaShiftPermissions(permissions.BasePermission):
         def has_permission(self, request, view):
@@ -120,12 +125,14 @@ class SalesListView(generics.ListAPIView):
             model = Sale
             exclude = ['created_at', 'modified_at']
 
+
     class SaleFilter(filters.FilterSet):
         date = filters.DateFromToRangeFilter()
 
         class Meta:
             model = Sale
             fields = ['rama', 'date', 'seller']
+
 
     class CanSeeRamaSalePermissions(permissions.BasePermission):
         def has_permission(self, request, view):
@@ -175,12 +182,14 @@ class CashRecordsListView(generics.ListAPIView):
             model = CashRecord
             fields = ['created_at', 'amount', 'note', 'record_type']
 
+
     class ExpensesFilter(filters.FilterSet):
         created_at = filters.DateFromToRangeFilter()
 
         class Meta:
             model = CashRecord
             fields = ['created_at', 'rama']
+
 
     class CanSeeRamaCashPermissions(permissions.BasePermission):
         def has_permission(self, request, view):
@@ -197,3 +206,71 @@ class CashRecordsListView(generics.ListAPIView):
     serializer_class = CashRecordSerializer
     permission_classes = [IsAuthenticated, CanSeeRamaCashPermissions]
     filter_class = ExpensesFilter
+
+
+# daily reports
+class DailyReport(APIView):
+
+    class DateSerializer(serializers.Serializer):
+        date = serializers.DateField(format="%Y-%m-%d")
+
+
+    class CashRecordSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = CashRecord
+            fields = ['created_at', 'amount', 'note', 'record_type']
+
+
+    class SaleSimpleCashSerializer(serializers.ModelSerializer):
+        seller_name = serializers.ReadOnlyField()
+
+        class Meta:
+            model = Sale
+            fields = ['client', 'selling_total_cash', 'seller_name', 'seller_fee', 'kladman_fee', 
+                'loader_fee', 'delivery_fee']
+
+
+    class CanSeeRamaDailyCashReportPermissions(permissions.BasePermission):
+        def has_permission(self, request, view):
+            if request.method in permissions.SAFE_METHODS:
+                acc = request.user.account
+                rama = request.GET.get('rama')
+                can_see_ramas_list = acc.can_see_rama_daily_cash_report.all().values_list('pk', flat=True)
+
+                if rama and (int(rama)) in can_see_ramas_list:
+                    return True
+            return False
+
+    authentication_classes = [JSONWebTokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated, CanSeeRamaDailyCashReportPermissions]
+
+    def get(self, request, format=None):
+        data = dict()
+        serializer = self.DateSerializer request.GET.get(date='date')
+        if serializer.is_valid():
+            records = CashRecord.objects.filter(created_at__date=date)
+            data['records'] = CashRecordSerializer(records, many=True).data
+            data['income_records'] = CashRecordSerializer(records.filter(record_type='sale_income'),
+                 many=True).data
+            data['income_records_total'] = records.filter(record_type='sale_income').calc_sum()
+            data['expense_records'] = CashRecordSerializer(
+                records.filter(Q(record_type='rama_expenses') | Q(record_type='withdraw_employee')),
+                 many=True).data
+            data['expense_records_total'] = records.filter(
+                Q(record_type='rama_expenses') | Q(record_type='withdraw_employee')).calc_sum()
+            data['records_total'] = records.calc_sum_incomes_expenses()
+
+            sales = Sale.objects.filter(date__date=date)
+            data['sales'] = SaleSimpleCashSerializer(sales, many=True).data
+            data['sales_totals'] = sales.calc_totals()
+
+            data['sales_sellers_fee'] = [
+                {'name': 'Сергей', 'total': sales.filter(seller__account__nickname='Сергей') \
+                .aggregate(sum_seller_fee=Sum('seller_fee'))['sum_seller_fee']},
+                {'name': 'Дарима', 'total': sales.filter(seller__account__nickname='Дарима') \
+                .aggregate(sum_seller_fee=Sum('seller_fee'))['sum_seller_fee']}
+            ]
+
+            return Response(data)
+        else:
+            return Response({'message': 'Неверная дата.'}, status=status.HTTP_400_BAD_REQUEST)
