@@ -215,6 +215,7 @@ class DailyReport(APIView):
 
     class DateSerializer(serializers.Serializer):
         date = serializers.DateField(format="%Y-%m-%d")
+        rama = serializers.PrimaryKeyRelatedField(source=Rama.objects.all())
 
 
     class CashRecordSerializer(serializers.ModelSerializer):
@@ -248,9 +249,11 @@ class DailyReport(APIView):
 
     def get(self, request, format=None):
         data = dict()
-        serializer = self.DateSerializer(data={'date': request.GET.get(date='date')})
+        serializer = self.DateSerializer(data={'date': request.GET.get('date'), 
+            'rama': request.GET.get('rama')})
         if serializer.is_valid():
-            records = CashRecord.objects.filter(created_at__date=date)
+            records = CashRecord.objects.filter(created_at__date=serializer.validated_data['date'],
+             rama=serializer.validated_data['rama'])
             data['records'] = CashRecordSerializer(records, many=True).data
             data['income_records'] = CashRecordSerializer(records.filter(record_type='sale_income'),
                  many=True).data
@@ -262,7 +265,8 @@ class DailyReport(APIView):
                 Q(record_type='rama_expenses') | Q(record_type='withdraw_employee')).calc_sum()
             data['records_total'] = records.calc_sum_incomes_expenses()
 
-            sales = Sale.objects.filter(date__date=date)
+            sales = Sale.objects.filter(date__date=serializer.validated_data['date'],
+                rama=serializer.validated_data['rama'])
             data['sales'] = SaleSimpleCashSerializer(sales, many=True).data
             data['sales_totals'] = sales.calc_totals()
 
