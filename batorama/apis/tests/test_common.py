@@ -131,7 +131,7 @@ class ShiftStockViewTest(APITestCase):
         ]
 
         shift = Shift.objects.create_shift_raw_records(shift_type='day', employees=employees, 
-            raw_records=data_list, cash=1200, initiator=self.ramshik1, rama=self.rama)
+            raw_records=data_list, cash=1200, initiator=self.manager1, rama=self.rama)
         
     def test_get_rama_shifts(self):
         self.client.force_authenticate(user=self.manager1)

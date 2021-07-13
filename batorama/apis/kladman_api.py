@@ -17,7 +17,6 @@ from stock.models import Sale, LumberRecord, Lumber, ReSaw, RefuseLumber
 from accounts.models import Account
 from cash.models import CashRecord
 
-# Create sale kladman
 
 class LumberRecordSerializer(serializers.ModelSerializer):
     volume_total = serializers.ReadOnlyField(source='volume')
@@ -214,20 +213,6 @@ class CashRecordsView(viewsets.ModelViewSet):
     filter_class = ExpensesFilter
     # permission_classes = [IsAdminUser]
 
-    # def list(self, request):
-    #     rama = request.user.account.rama
-    #     queryset = self.filter_queryset(
-    #         self.queryset.add_rama_current_stock(rama=rama)
-    #         )
-                
-    #     serializer = LumberStockReadSerializer(queryset, many=True)
-
-    #     page = self.paginate_queryset(queryset)
-    #     if page is not None:
-    #         serializer = LumberStockReadSerializer(queryset, many=True)
-    #         return self.get_paginated_response(serializer.data)
-
-    #     return super().list(request)
 
     @action(methods=['post'], detail=False)
     def create_expense(self, request, serializer_class=CashRecordCreateExpenseSerializer):
@@ -253,45 +238,7 @@ class CashRecordsView(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class SaleSimpleCashSerializer(serializers.ModelSerializer):
-    seller_name = serializers.ReadOnlyField()
 
-    class Meta:
-        model = Sale
-        fields = ['client', 'selling_total_cash', 'seller_name', 'seller_fee', 'kladman_fee', 'loader_fee',
-            'delivery_fee']
-
-
-class DailyReport(APIView):
-    # authentication_classes = [JSONWebTokenAuthentication]
-    # permission_classes = [permissions.IsAdminUser]
-
-    def get(self, request, format=None):
-        data = dict()
-        records = CashRecord.objects.filter(created_at__date=timezone.now())
-        data['records'] = CashRecordSerializer(records, many=True).data
-        data['income_records'] = CashRecordSerializer(records.filter(record_type='sale_income'),
-             many=True).data
-        data['income_records_total'] = records.filter(record_type='sale_income').calc_sum()
-        data['expense_records'] = CashRecordSerializer(
-            records.filter(Q(record_type='rama_expenses') | Q(record_type='withdraw_employee')),
-             many=True).data
-        data['expense_records_total'] = records.filter(
-            Q(record_type='rama_expenses') | Q(record_type='withdraw_employee')).calc_sum()
-        data['records_total'] = records.calc_sum_incomes_expenses()
-
-        sales = Sale.objects.filter(date__date=timezone.now())
-        data['sales'] = SaleSimpleCashSerializer(sales, many=True).data
-        data['sales_totals'] = sales.calc_totals()
-
-        data['sales_sellers_fee'] = [
-            {'name': 'Сергей', 'total': sales.filter(seller__account__nickname='Сергей') \
-            .aggregate(sum_seller_fee=Sum('seller_fee'))['sum_seller_fee']},
-            {'name': 'Дарима', 'total': sales.filter(seller__account__nickname='Дарима') \
-            .aggregate(sum_seller_fee=Sum('seller_fee'))['sum_seller_fee']}
-        ]
-
-        return Response(data)
 
 
 # resaw

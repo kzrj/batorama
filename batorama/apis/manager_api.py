@@ -1,11 +1,12 @@
 # # -*- coding: utf-8 -*-
 from django.db.models import Q
+from django.contrib.auth.models import User
+from django.utils import timezone
 
-from rest_framework import status, viewsets, generics
+from rest_framework import status, viewsets, generics, serializers, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated
 
 from django_filters import rest_framework as filters
@@ -18,33 +19,275 @@ from rawstock.models import IncomeTimber, Timber, TimberRecord, Quota
 from core.serializers import AnnotateFieldsModelSerializer, ChoiceField
 
 
-class RamshikWithCashSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Account
-        fields = ['id', 'nickname', 'cash']
+class SaleView(viewsets.ModelViewSet):
+
+    class SaleReadSerializer(serializers.ModelSerializer):
+
+        class SaleLumberRecordSerializer(serializers.ModelSerializer):
+            lumber = serializers.StringRelatedField()
+            wood_species = ChoiceField(source='lumber.wood_species', read_only=True, choices=Lumber.SPECIES)
+            
+            class Meta:
+                model = LumberRecord
+                fields = ['lumber', 'quantity', 'volume', 'selling_price', 'selling_total_cash',
+                 'rama_price', 'rama_total_cash', 'wood_species']
+
+        lumber_records = SaleLumberRecordSerializer(many=True)
+        initiator = serializers.ReadOnlyField(source='initiator.account.nickname')
+        seller_name = serializers.ReadOnlyField()
+        date = serializers.DateTimeField(format='%d/%m', read_only=True)
+
+        class Meta:
+            model = Sale
+            exclude = ['created_at', 'modified_at']
 
 
-class CreateRamshikPayoutSerializer(serializers.Serializer):
-    employee = serializers.PrimaryKeyRelatedField(queryset=Account.objects.all())
-    amount = serializers.IntegerField()
+    class SaleCreateSerializer(serializers.ModelSerializer):
+
+        class RawLumberRecordSerializer(serializers.Serializer):
+            lumber = serializers.PrimaryKeyRelatedField(queryset=Lumber.objects.all())
+            quantity = serializers.IntegerField()
+            rama_price = serializers.IntegerField()
+            selling_price = serializers.IntegerField()
+            selling_total_cash = serializers.IntegerField()
+            calc_type = serializers.CharField()
+
+        raw_records = RawLumberRecordSerializer(many=True)
+        loader = serializers.BooleanField()
+
+        class Meta:
+            model = Sale
+            fields = ('date', 'raw_records', 'seller', 'bonus_kladman', 'client', 'loader',
+             'delivery_fee', )
 
 
-class LastPayoutsSerializer(serializers.ModelSerializer):
-    employee = serializers.ReadOnlyField(source='account.nickname')
+    class LumberSerializer(serializers.ModelSerializer):
+        quantity = serializers.IntegerField(default=0)
+        volume_total = serializers.FloatField(default=0)
+        lumber = serializers.ReadOnlyField(source='pk')
+        rama_price = serializers.ReadOnlyField(source='market_cost')
+        selling_price = serializers.ReadOnlyField(source='market_cost')
+        selling_total_cash = serializers.ReadOnlyField(source='market_cost')
+        calc_type = serializers.CharField(default='exact')
 
-    class Meta:
-        model = CashRecord
-        fields = ['id', 'amount', 'record_type', 'created_at', 'employee']
+        class Meta:
+            model = Lumber
+            exclude = ['created_at', 'modified_at', 'employee_rate', 'market_cost']
+
+    class LumberSimpleSerializer(serializers.ModelSerializer):
+        lumber = serializers.ReadOnlyField(source='pk')
+
+        class Meta:
+            model = Lumber
+            fields = ['name', 'lumber_type', 'wood_species', 'id', 'lumber', 'round_volume']
+
+
+    class SellerSerializer(serializers.ModelSerializer):
+        nickname = serializers.ReadOnlyField(source='account.nickname')
+
+        class Meta:
+            model = User
+            fields = ['id', 'nickname']
+
+
+    class OnlyManagerCanCreateDeletePermissions(permissions.BasePermission):
+        def has_permission(self, request, view):
+            if request.method in permissions.SAFE_METHODS:
+                return True
+
+            if request.method == 'POST' or request.method == 'DELETE':
+                return request.user.account.is_manager
+
+            return False
+
+        def has_object_permission(self, request, view, obj):
+            if request.method == 'DELETE':
+                return request.user.account.rama == obj.rama
+
+            return False
+
+    queryset = Sale.objects.all()
+    serializer_class = SaleReadSerializer
+    permission_classes = [IsAuthenticated, OnlyManagerCanCreateDeletePermissions]
+
+    def create(self, request, serializer_class=SaleCreateSerializer):
+        serializer = self.SaleCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            sale = Sale.objects.create_sale_common(
+                date=serializer.validated_data.get('date'),
+                raw_records=serializer.validated_data['raw_records'],
+                loader=serializer.validated_data['loader'],
+                delivery_fee=serializer.validated_data['delivery_fee'],
+                # add_expenses=serializer.validated_data['add_expenses'],
+                # note=serializer.validated_data['note'],
+                client=serializer.validated_data['client'],
+                seller=serializer.validated_data['seller'],
+                bonus_kladman=serializer.validated_data['bonus_kladman'],
+                initiator=request.user,
+                )
+            
+            return Response({
+                'sale': self.SaleReadSerializer(sale).data,
+                'message': 'Успешно'
+                },
+                 status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['get'], detail=False)
+    def sale_create_data(self, request):
+        kladman = User.objects.filter(account__is_kladman=True,
+             account__rama=request.user.account.rama).first()
+        kladman_id = kladman.pk if kladman else None
+
+        return Response({
+            'pine_brus_lumbers': self.LumberSimpleSerializer(
+                Lumber.objects.filter(lumber_type='brus', wood_species='pine'), many=True).data,
+            'larch_brus_lumbers': self.LumberSimpleSerializer(
+                Lumber.objects.filter(lumber_type='brus', wood_species='larch'), many=True).data,
+            'pine_doska_lumbers': self.LumberSimpleSerializer(
+                Lumber.objects.filter(lumber_type='doska', wood_species='pine'), many=True).data,
+            'larch_doska_lumbers': self.LumberSimpleSerializer(
+                Lumber.objects.filter(lumber_type='doska', wood_species='larch'), many=True).data,
+            'lumbers': self.LumberSerializer(
+                Lumber.objects.all(), many=True).data,
+            'sellers': self.SellerSerializer(User.objects.filter(account__is_seller=True), many=True).data,
+            'kladman_id': kladman_id
+            }, status=status.HTTP_200_OK)
+
+    def destroy(self, request, pk=None):
+        sale = self.get_object()
+        sale.delete()
+        queryset = Sale.objects.filter(rama=request.user.account.rama)
+        return Response({
+            'sales': self.SaleReadSerializer(queryset, many=True).data,
+            'totals': queryset.calc_totals()
+            },
+            status=status.HTTP_200_OK)
+
+
+class ShiftViewSet(viewsets.ViewSet):
+
+    class ShiftCreateSerializer(serializers.ModelSerializer):
+
+        class RawLumberRecordSerializer(serializers.Serializer):
+            lumber = serializers.PrimaryKeyRelatedField(queryset=Lumber.objects.all())
+            quantity = serializers.IntegerField()
+            volume_total = serializers.FloatField()
+            employee_rate = serializers.IntegerField()
+            cash = serializers.FloatField()
+
+        employees = serializers.PrimaryKeyRelatedField(queryset=Account.objects.all(), many=True)
+        raw_records = RawLumberRecordSerializer(many=True)
+
+        class Meta:
+            model = Shift
+            fields = ('date', 'shift_type', 'employees', 'raw_records', 'employee_cash', 'note')
+
+
+    class ShiftReadSerializer(serializers.ModelSerializer):
+
+        class LumberRecordSerializer(serializers.ModelSerializer):
+            lumber = serializers.StringRelatedField()
+            wood_species = serializers.ReadOnlyField(source='lumber.wood_species')
+
+            class Meta:
+                model = LumberRecord
+                fields = ('lumber', 'quantity', 'volume', 'rate', 'total_cash', 'back_total_cash',
+                 'wood_species')
+
+        lumber_records = LumberRecordSerializer(many=True)
+        employees = serializers.StringRelatedField(read_only=True, many=True)
+        date = serializers.DateTimeField(format='%d/%m', read_only=True)
+
+        class Meta:
+            model = Shift
+            fields = '__all__'
+
+
+    class LumberSerializer(serializers.ModelSerializer):
+        quantity = serializers.IntegerField(default=0)
+        volume_total = serializers.FloatField(default=0)
+        cash = serializers.FloatField(default=0)
+
+        class Meta:
+            model = Lumber
+            exclude = ['created_at', 'modified_at', 'china_height', 'china_length', 'china_volume',
+             'china_width', 'round_volume', 'height', 'width', 'length']
+
+
+    class RamshikSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Account
+            fields = ['id', 'nickname']
+
+
+    class OnlyManagerCanCreatePermissions(permissions.BasePermission):
+        def has_permission(self, request, view):
+            if request.method in permissions.SAFE_METHODS or request.method == 'POST':
+                if request.user.account.is_manager:
+                    return True
+
+            return False
+
+    permission_classes = [IsAuthenticated, OnlyManagerCanCreatePermissions]
+
+
+    def create(self, request):
+        serializer = self.ShiftCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            shift = Shift.objects.create_shift_raw_records(
+                date=serializer.validated_data.get('date'),
+                shift_type=serializer.validated_data['shift_type'],
+                employees=serializer.validated_data['employees'],
+                raw_records=serializer.validated_data['raw_records'],
+                cash=serializer.validated_data['employee_cash'],
+                note=serializer.validated_data.get('note'),
+                rama=request.user.account.rama,
+                initiator=request.user,
+                )
+            
+            return Response(self.ShiftReadSerializer(shift).data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['get'], detail=False)
+    def shift_create_data(self, request):
+        lumbers = Lumber.objects.all()
+        return Response({
+            'lumbers': self.LumberSerializer(lumbers, many=True).data,
+            'employees': self.RamshikSerializer(Account.objects.filter(is_ramshik=True,
+                rama=request.user.account.rama), many=True).data,
+            }, status=status.HTTP_200_OK)
 
 
 class RamshikiPaymentViewSet(viewsets.ViewSet):
+    class RamshikWithCashSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Account
+            fields = ['id', 'nickname', 'cash']
+
+
+    class CreateRamshikPayoutSerializer(serializers.Serializer):
+        employee = serializers.PrimaryKeyRelatedField(queryset=Account.objects.all())
+        amount = serializers.IntegerField()
+
+
+    class LastPayoutsSerializer(serializers.ModelSerializer):
+        employee = serializers.ReadOnlyField(source='account.nickname')
+
+        class Meta:
+            model = CashRecord
+            fields = ['id', 'amount', 'record_type', 'created_at', 'employee']
+
+
     @action(detail=False, methods=['get'])
     def init_data(self, request, pk=None):
         return Response({
-            'employees': RamshikWithCashSerializer(
+            'employees': self.RamshikWithCashSerializer(
                 Account.objects.filter(is_ramshik=True, rama=request.user.account.rama)\
                     .order_by('nickname'), many=True).data,
-            'last_payouts': LastPayoutsSerializer(
+            'last_payouts': self.LastPayoutsSerializer(
                 CashRecord.objects.filter(Q(record_type='payout_to_employee_from_shift') |
                     Q(record_type='withdraw_employee')).filter(rama=request.user.account.rama) \
                     .order_by('-created_at')[:10], many=True).data
@@ -53,7 +296,7 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=['post'])
     def ramshik_payout(self, request, pk=None):
-        serializer = CreateRamshikPayoutSerializer(data=request.data)
+        serializer = self.CreateRamshikPayoutSerializer(data=request.data)
         if serializer.is_valid():
             CashRecord.objects.create_withdraw_employee(
                 employee=serializer.validated_data['employee'],
@@ -62,11 +305,11 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
                 initiator=request.user,
                 )
             return Response({
-                'employees': RamshikWithCashSerializer(
+                'employees': self.RamshikWithCashSerializer(
                     Account.objects.filter(is_ramshik=True, rama=request.user.account.rama)\
                         .order_by('nickname'),
                     many=True).data,
-                'last_payouts': LastPayoutsSerializer(
+                'last_payouts': self.LastPayoutsSerializer(
                     CashRecord.objects.filter(Q(record_type='payout_to_employee_from_shift') |
                     Q(record_type='withdraw_employee')).filter(rama=request.user.account.rama) \
                         .order_by('-created_at')[:10], many=True).data,
@@ -75,146 +318,6 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
                 status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class LumberRecordSerializer(serializers.ModelSerializer):
-    lumber = serializers.StringRelatedField()
-    
-    class Meta:
-        model = LumberRecord
-        fields = ['lumber', 'quantity', 'volume', 'rate']
-
-
-class ShiftSerializer(serializers.ModelSerializer):
-    employees = serializers.StringRelatedField(many=True)
-    lumber_records = LumberRecordSerializer(many=True)
-    initiator = serializers.ReadOnlyField(source='initiator.account.nickname')
-    date = serializers.DateTimeField(format='%d/%m', read_only=True)
-
-    class Meta:
-        model = Shift
-        exclude = ['created_at', 'modified_at']
-
-
-class ShiftListView(generics.ListAPIView):
-    class ShiftFilter(filters.FilterSet):
-        date = filters.DateFromToRangeFilter()
-        rama = filters.CharFilter(lookup_expr='exact', field_name='rama__name')
-
-        class Meta:
-            model = Shift
-            fields = '__all__'
-
-    queryset = Shift.objects.all() \
-        .select_related('initiator__account') \
-        .prefetch_related('lumber_records__lumber', 'employees',).order_by('-created_at')
-    serializer_class = ShiftSerializer
-    permission_classes = [IsAuthenticated]
-    filter_class = ShiftFilter
-
-    def list(self, request):
-        data = dict()
-        rama = request.user.account.rama
-        queryset = self.filter_queryset(
-            self.queryset.filter(rama=rama)
-            )
-        return super().list(request)
-
-
-class LumberStockReadSerializer(AnnotateFieldsModelSerializer):
-    stock_total_cash = serializers.ReadOnlyField()
-    
-    class Meta:
-        model = Lumber
-        fields = '__all__'
-
-
-class LumberStockListView(generics.ListAPIView):
-    queryset = Lumber.objects.all() \
-        .prefetch_related('records', )
-    serializer_class = LumberStockReadSerializer
-    permission_classes = [IsAuthenticated]
-
-    def list(self, request):
-        rama = request.user.account.rama
-        queryset = self.filter_queryset(
-            self.queryset.add_rama_current_stock(rama=rama)
-            )
-                
-        serializer = LumberStockReadSerializer(queryset, many=True)
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = LumberStockReadSerializer(queryset, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        return super().list(request)
-
-
-class SaleLumberRecordSerializer(serializers.ModelSerializer):
-    lumber = serializers.StringRelatedField()
-    wood_species = ChoiceField(source='lumber.wood_species', read_only=True, choices=Lumber.SPECIES)
-    
-    class Meta:
-        model = LumberRecord
-        fields = ['lumber', 'quantity', 'volume', 'selling_price', 'selling_total_cash',
-         'rama_price', 'rama_total_cash', 'wood_species']
-
-
-class SaleReadSerializer(serializers.ModelSerializer):
-    lumber_records = SaleLumberRecordSerializer(many=True)
-    initiator = serializers.ReadOnlyField(source='initiator.account.nickname')
-    seller_name = serializers.ReadOnlyField()
-    date = serializers.DateTimeField(format='%d/%m', read_only=True)
-
-    class Meta:
-        model = Sale
-        exclude = ['created_at', 'modified_at']
-
-
-class SaleFilter(filters.FilterSet):
-    date = filters.DateFromToRangeFilter()
-
-    class Meta:
-        model = Sale
-        fields = '__all__'
-
-
-class SaleListView(generics.ListAPIView):
-    queryset = Sale.objects.all() \
-        .select_related('initiator__account') \
-        .prefetch_related('lumber_records__lumber',)
-    serializer_class = SaleReadSerializer
-    permission_classes = [IsAuthenticated]
-    filter_class = SaleFilter
-
-    def list(self, request):
-        data = dict()
-        rama = request.user.account.rama
-        queryset = self.filter_queryset(
-            self.queryset.filter(rama=rama)
-            )
-                
-        serializer = SaleReadSerializer(queryset, many=True)
-        data['sales'] = serializer.data
-        data['totals'] = queryset.calc_totals()
-
-        return Response(data)
-
-    # def list(self, request):
-    #     rama = request.user.account.rama
-    #     queryset = self.filter_queryset(
-    #         self.queryset.filter(rama=rama)
-    #         )
-                
-    #     serializer = SaleReadSerializer(queryset, many=True)
-
-    #     page = self.paginate_queryset(queryset)
-    #     if page is not None:
-    #         serializer = SaleReadSerializer(queryset, many=True)
-    #         return self.get_paginated_response(serializer.data)
-
-    #     return super().list(request)
 
 
 class SetLumberMarketPriceView(APIView):
@@ -243,89 +346,166 @@ class SetLumberMarketPriceView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ReadTimberSerializer(serializers.ModelSerializer):
-    timber = serializers.ReadOnlyField(source='pk')
-    wood_species = ChoiceField(read_only=True, choices=Timber.SPECIES)
-    quantity = serializers.IntegerField(default=0, read_only=True)
+# Create cash_records
+class CashRecordsView(viewsets.ModelViewSet):
 
-    class Meta:
-        model = Timber
-        fields = ['id', 'wood_species', 'diameter', 'volume', 'timber', 'quantity']
+    class CashRecordSerializer(serializers.ModelSerializer):
 
+        class Meta:
+            model = CashRecord
+            fields = ['created_at', 'amount', 'note', 'record_type']
 
-class ReadTimberRecordSerializer(serializers.ModelSerializer):
-    diameter = serializers.ReadOnlyField(source='timber.diameter')
-    wood_species = serializers.ReadOnlyField(source='timber.wood_species')
+    class CashRecordCreateExpenseSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = CashRecord
+            fields = ['amount', 'note']
 
-    class Meta:
-        model = TimberRecord
-        fields = ['quantity', 'diameter', 'wood_species']
+    class ExpensesFilter(filters.FilterSet):
+        created_at = filters.DateFromToRangeFilter()
 
+        class Meta:
+            model = CashRecord
+            fields = '__all__'
 
-class IncomeTimberSerializer(serializers.ModelSerializer):
-    timber_records = ReadTimberRecordSerializer(many=True, read_only=True)
+    class OnlyManagerCanCreateDeletePermissions(permissions.BasePermission):
+        def has_permission(self, request, view):
+            if request.method in permissions.SAFE_METHODS:
+                return True
 
-    class Meta:
-        model = IncomeTimber
-        fields = ['pk', 'quantity', 'volume', 'rama', 'created_at', 'timber_records']
+            if request.method == 'POST' or request.method == 'DELETE':
+                return request.user.account.is_manager
 
+            return False
 
-class RawTimberRecordSerializer(serializers.Serializer):
-    timber = serializers.PrimaryKeyRelatedField(queryset=Timber.objects.all())
-    quantity = serializers.IntegerField()
+        def has_object_permission(self, request, view, obj):
+            if request.method == 'DELETE':
+                return request.user.account.rama == obj.rama
 
+            return False
 
-class CreateIncomeTimberSerializer(serializers.Serializer):
-    raw_timber_records = RawTimberRecordSerializer(many=True)
-    note = serializers.CharField(required=False)
+    queryset = CashRecord.objects.all()
+    serializer_class = CashRecordSerializer
+    filter_class = ExpensesFilter
+    permission_classes = [IsAuthenticated, OnlyManagerCanCreateDeletePermissions]
 
+    def get_queryset(self):
+        # all detail methods will not found if record is outside this queryset       
+        return CashRecord.objects.filter(rama=self.request.user.account.rama)\
+            .filter(Q(record_type='rama_expenses') | Q(record_type='withdraw_employee'))
 
-class IncomeTimberViewSet(viewsets.ModelViewSet):
-    queryset = IncomeTimber.objects.all()
-    serializer_class = IncomeTimberSerializer
-    # permission_classes = [IsAdminUser]
+    def get_today_records(self):
+        return self.get_queryset().filter(created_at__date=timezone.now())
 
-    @action(detail=False, methods=['get'])
-    def init_data(self, request, pk=None):
-        return Response({
-            'timbers': ReadTimberSerializer(
-                Timber.objects.all().order_by('-wood_species', 'diameter'), many=True).data,
-            }, status=status.HTTP_200_OK)
-
-    def create(self, request, serializer_class=CreateIncomeTimberSerializer):
-        serializer = CreateIncomeTimberSerializer(data=request.data)
+    def create(self, request, serializer_class=CashRecordCreateExpenseSerializer):
+        serializer = self.CashRecordCreateExpenseSerializer(data=request.data)
         if serializer.is_valid():
-            income_timber = IncomeTimber.objects.create_income_timber(
-                raw_timber_records=serializer.validated_data['raw_timber_records'],
-                note=serializer.validated_data.get('note'),
-                initiator=request.user,
-                rama=request.user.account.rama
+            cash_record = CashRecord.objects.create_rama_expense(
+                amount=serializer.validated_data['amount'],
+                note=serializer.validated_data['note'],
+                initiator=request.user
                 )
-            Quota.objects.create_quota(income_timber=income_timber)
-            
+
+            records = self.get_today_records()
+
             return Response({
-                'income_timber': IncomeTimberSerializer(income_timber).data,
+                'expense': self.CashRecordSerializer(cash_record).data,
+                'records': self.CashRecordSerializer(records, many=True).data,
+                'total': records.calc_sum(),
                 'message': 'Успешно'
                 },
                  status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def destroy(self, request, pk=None):
+        self.get_object().delete()
+        records = self.get_today_records()
+        return Response({
+            'records': self.CashRecordSerializer(self.get_queryset(), many=True).data,
+            'totals': records.calc_sum()
+            },
+            status=status.HTTP_200_OK)
 
-class QuotasPageView(APIView):
-    def get(self, request, format=None):
-        rama = Rama.objects.get(pk=request.GET.get('rama'))
-        quotas_volumes = Quota.objects.filter(rama=rama).calc_volume_sum()
-        sold_volumes = rama.sales.calc_sold_volume_for_quota_calc()
+# class IncomeTimberViewSet(viewsets.ModelViewSet):
 
-        data = dict()
-        data['total_volume_quota_brus'] = quotas_volumes['total_volume_quota_brus']
-        data['total_volume_quota_doska'] = quotas_volumes['total_volume_quota_doska']
-        data['total_volume_sold_brus'] = sold_volumes['total_brus_volume']
-        data['total_volume_sold_doska'] = sold_volumes['total_doska_volume']
-        data['brus_balance'] = quotas_volumes['total_volume_quota_brus'] - \
-            sold_volumes['total_brus_volume']
-        data['doska_balance'] = quotas_volumes['total_volume_quota_doska'] - \
-            sold_volumes['total_doska_volume']
+#     class ReadTimberSerializer(serializers.ModelSerializer):
+#         timber = serializers.ReadOnlyField(source='pk')
+#         wood_species = ChoiceField(read_only=True, choices=Timber.SPECIES)
+#         quantity = serializers.IntegerField(default=0, read_only=True)
 
-        return Response(data, status=status.HTTP_200_OK)
+#         class Meta:
+#             model = Timber
+#             fields = ['id', 'wood_species', 'diameter', 'volume', 'timber', 'quantity']
+
+
+#     class IncomeTimberSerializer(serializers.ModelSerializer):
+
+#         class RawTimberRecordSerializer(serializers.Serializer):
+#             timber = serializers.PrimaryKeyRelatedField(queryset=Timber.objects.all())
+#             quantity = serializers.IntegerField()
+
+#         timber_records = ReadTimberRecordSerializer(many=True, read_only=True)
+
+#         class Meta:
+#             model = IncomeTimber
+#             fields = ['pk', 'quantity', 'volume', 'rama', 'created_at', 'timber_records']
+
+
+#     class CreateIncomeTimberSerializer(serializers.Serializer):
+
+#         class RawTimberRecordSerializer(serializers.Serializer):
+#             timber = serializers.PrimaryKeyRelatedField(queryset=Timber.objects.all())
+#             quantity = serializers.IntegerField()
+
+#         raw_timber_records = RawTimberRecordSerializer(many=True)
+#         note = serializers.CharField(required=False)
+
+
+#     queryset = IncomeTimber.objects.all()
+#     serializer_class = IncomeTimberSerializer
+#     # permission_classes = [IsAdminUser]
+
+#     @action(detail=False, methods=['get'])
+#     def init_data(self, request, pk=None):
+#         return Response({
+#             'timbers': self.ReadTimberSerializer(
+#                 Timber.objects.all().order_by('-wood_species', 'diameter'), many=True).data,
+#             }, status=status.HTTP_200_OK)
+
+#     def create(self, request, serializer_class=CreateIncomeTimberSerializer):
+#         serializer = self.CreateIncomeTimberSerializer(data=request.data)
+#         if serializer.is_valid():
+#             income_timber = IncomeTimber.objects.create_income_timber(
+#                 raw_timber_records=serializer.validated_data['raw_timber_records'],
+#                 note=serializer.validated_data.get('note'),
+#                 initiator=request.user,
+#                 rama=request.user.account.rama
+#                 )
+#             Quota.objects.create_quota(income_timber=income_timber)
+            
+#             return Response({
+#                 'income_timber': self.IncomeTimberSerializer(income_timber).data,
+#                 'message': 'Успешно'
+#                 },
+#                  status=status.HTTP_200_OK)
+#         else:
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# class QuotasPageView(APIView):
+#     def get(self, request, format=None):
+#         rama = Rama.objects.get(pk=request.GET.get('rama'))
+#         quotas_volumes = Quota.objects.filter(rama=rama).calc_volume_sum()
+#         sold_volumes = rama.sales.calc_sold_volume_for_quota_calc()
+
+#         data = dict()
+#         data['total_volume_quota_brus'] = quotas_volumes['total_volume_quota_brus']
+#         data['total_volume_quota_doska'] = quotas_volumes['total_volume_quota_doska']
+#         data['total_volume_sold_brus'] = sold_volumes['total_brus_volume']
+#         data['total_volume_sold_doska'] = sold_volumes['total_doska_volume']
+#         data['brus_balance'] = quotas_volumes['total_volume_quota_brus'] - \
+#             sold_volumes['total_brus_volume']
+#         data['doska_balance'] = quotas_volumes['total_volume_quota_doska'] - \
+#             sold_volumes['total_doska_volume']
+
+#         return Response(data, status=status.HTTP_200_OK)

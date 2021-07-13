@@ -28,33 +28,36 @@ urlpatterns = [
     path('api/common/sales/', common_api.SalesListView.as_view()),
     path('api/common/cash/', common_api.CashRecordsListView.as_view()),
     path('api/common/daily_report/', common_api.DailyReport.as_view()),
+    path('api/common/sales/calc_data/', common_api.SaleCalcDataView.as_view()),
 
     # manager api
+    path('api/manager/shifts/create/init_data/', manager_api.ShiftViewSet.as_view({'get': 'shift_create_data'})),
+    path('api/manager/shifts/create/', manager_api.ShiftViewSet.as_view({'post': 'create'})),
+
     path('api/manager/ramshik_payments/init_data/', manager_api.RamshikiPaymentViewSet.as_view({'get': 'init_data'})),
     path('api/manager/ramshik_payments/ramshik_payout/', manager_api.RamshikiPaymentViewSet.as_view({'post': 'ramshik_payout'})),
-    path('api/manager/shift_list/', manager_api.ShiftListView.as_view()),
-    path('api/manager/stock/', manager_api.LumberStockListView.as_view()),
-    path('api/manager/sale_list/', manager_api.SaleListView.as_view()),
-    # path('api/manager/total_sales/', SaleListView.as_view({'get': 'total_sales'})),
     path('api/manager/stock/set_price/', manager_api.SetLumberMarketPriceView.as_view()),
-    path('api/manager/rawstock/timber/create_income/', manager_api.IncomeTimberViewSet.as_view({'post': 'create'})),
-    path('api/manager/rawstock/timber/create_income/init_data/', manager_api.IncomeTimberViewSet.as_view({'get': 'init_data'})),
-    path('api/manager/quota/overview/', manager_api.QuotasPageView.as_view()),
+
+    path('api/manager/sales/create/init_data/', manager_api.SaleView.as_view({'get': 'sale_create_data'})),
+    path('api/manager/sales/create/', manager_api.SaleView.as_view({'post': 'create'})),
+    path('api/manager/sales/<int:pk>/', manager_api.SaleView.as_view({'delete': 'destroy'})),
+
+    path('api/manager/cash_records/create_expense/', manager_api.CashRecordsView.as_view({'post': 'create'})),
+    path('api/manager/cash_records/list/', manager_api.CashRecordsView.as_view({'get': 'list'})),
+    path('api/manager/cash_records/<int:pk>/', manager_api.CashRecordsView.as_view({'delete': 'destroy'})),
+
+    # path('api/manager/rawstock/timber/create_income/', manager_api.IncomeTimberViewSet.as_view({'post': 'create'})),
+    # path('api/manager/rawstock/timber/create_income/init_data/', manager_api.IncomeTimberViewSet.as_view({'get': 'init_data'})),
+    # path('api/manager/quota/overview/', manager_api.QuotasPageView.as_view()),
 
     # ramshik api
-    path('api/ramshik/shifts/create/init_data/', ramshik_api.ShiftViewSet.as_view({'get': 'shift_create_data'})),
-    path('api/ramshik/shifts/create/', ramshik_api.ShiftViewSet.as_view({'post': 'create'})),
-    path('api/ramshik/shifts/list/', ramshik_api.ShiftViewSet.as_view({'get': 'list'})),
-    path('api/ramshik/payouts/', ramshik_api.RamshikPayoutViewSet.as_view({'get': 'get_data'})),
+    path('api/ramshik/shifts/list/', ramshik_api.ShiftListView.as_view()),
+    path('api/ramshik/payouts/', ramshik_api.RamshikPayoutView.as_view()),
 
     # kladman api
-    path('api/kladman/sales/create/init_data/', kladman_api.SaleView.as_view({'get': 'sale_create_data'})),
-    path('api/kladman/sales/create/', kladman_api.SaleView.as_view({'post': 'create'})),
-    path('api/kladman/sales/calc_data/', kladman_api.SaleView.as_view({'get': 'sale_calc_data'})),
-    path('api/kladman/sales/<int:pk>/', kladman_api.SaleView.as_view({'delete': 'destroy'})),
-    path('api/kladman/cash_records/create_expense/', kladman_api.CashRecordsView.as_view({'post': 'create_expense'})),
-    path('api/kladman/cash_records/list/', kladman_api.CashRecordsView.as_view({'get': 'list'})),
-    path('api/kladman/daily_report/', kladman_api.DailyReport.as_view()),
+    # path('api/kladman/cash_records/create_expense/', kladman_api.CashRecordsView.as_view({'post': 'create_expense'})),
+    # path('api/kladman/cash_records/list/', kladman_api.CashRecordsView.as_view({'get': 'list'})),
+    # path('api/kladman/daily_report/', kladman_api.DailyReport.as_view()),
     path('api/kladman/resaws/create/', kladman_api.ReSawViewSet.as_view({'post': 'create'})),
     path('api/kladman/resaws/list/', kladman_api.ReSawViewSet.as_view({'get': 'list'})),
 

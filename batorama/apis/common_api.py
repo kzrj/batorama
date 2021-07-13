@@ -2,10 +2,8 @@
 from django.contrib.auth.models import User
 from django.db.models import Q, Subquery, OuterRef, Count, Prefetch, F, Sum
 
-from rest_framework import generics
 from rest_framework.response import Response
-from rest_framework import serializers
-from rest_framework import permissions
+from rest_framework import generics, serializers, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
@@ -281,3 +279,37 @@ class DailyReport(APIView):
             return Response(data)
         else:
             return Response({'message': 'Неверная дата.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SaleCalcDataView(APIView):
+
+    class LumberSimpleSerializer(serializers.ModelSerializer):
+        lumber = serializers.ReadOnlyField(source='pk')
+
+        class Meta:
+            model = Lumber
+            fields = ['name', 'lumber_type', 'wood_species', 'id', 'lumber', 'round_volume']
+
+
+    class LumberSerializer(serializers.ModelSerializer):
+        quantity = serializers.IntegerField(default=0)
+        volume_total = serializers.FloatField(default=0)
+        lumber = serializers.ReadOnlyField(source='pk')
+        rama_price = serializers.ReadOnlyField(source='market_cost')
+        selling_price = serializers.ReadOnlyField(source='market_cost')
+        selling_total_cash = serializers.ReadOnlyField(source='market_cost')
+        calc_type = serializers.CharField(default='exact')
+
+        class Meta:
+            model = Lumber
+            exclude = ['created_at', 'modified_at', 'employee_rate', 'market_cost']
+
+    def get(self, request):
+        return Response({
+            'pine_brus_lumbers': self.LumberSimpleSerializer(
+                Lumber.objects.filter(lumber_type='brus', wood_species='pine'), many=True).data,
+            'pine_doska_lumbers': self.LumberSimpleSerializer(
+                Lumber.objects.filter(lumber_type='doska', wood_species='pine'), many=True).data,
+            'lumbers': self.LumberSerializer(
+                Lumber.objects.all(), many=True).data,
+            }, status=status.HTTP_200_OK)
