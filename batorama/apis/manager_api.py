@@ -396,6 +396,15 @@ class CashRecordsView(viewsets.ModelViewSet):
     def get_today_records(self):
         return self.get_queryset().filter(created_at__date=timezone.now())
 
+    def list(self, request):
+        records = self.filter_queryset(self.get_queryset())
+        
+        return Response({
+                'records': self.CashRecordSerializer(records, many=True).data,
+                'total': records.calc_sum(),
+                },
+                 status=status.HTTP_200_OK)
+
     def create(self, request, serializer_class=CashRecordCreateExpenseSerializer):
         serializer = self.CashRecordCreateExpenseSerializer(data=request.data)
         if serializer.is_valid():
