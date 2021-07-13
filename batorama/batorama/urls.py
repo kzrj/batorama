@@ -10,10 +10,6 @@ from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify
 
 from apis import manager_api, ramshik_api, kladman_api, common_api
 
-# router = routers.DefaultRouter()
-# router.register(r'shifts', ShiftViewSet, basename='shifts')
-# router.register(r'manager/ramshik_payments', RamshikiPaymentViewSet, basename='ramshik_payments')
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     # url(r'^api/', include(router.urls)),
