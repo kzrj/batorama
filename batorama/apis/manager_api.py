@@ -355,10 +355,12 @@ class CashRecordsView(viewsets.ModelViewSet):
             model = CashRecord
             fields = ['created_at', 'amount', 'note', 'record_type']
 
+
     class CashRecordCreateExpenseSerializer(serializers.ModelSerializer):
         class Meta:
             model = CashRecord
             fields = ['amount', 'note']
+
 
     class ExpensesFilter(filters.FilterSet):
         created_at = filters.DateFromToRangeFilter()
@@ -398,7 +400,7 @@ class CashRecordsView(viewsets.ModelViewSet):
 
     def list(self, request):
         records = self.filter_queryset(self.get_queryset())
-        
+
         return Response({
                 'records': self.CashRecordSerializer(records, many=True).data,
                 'total': records.calc_sum(),
