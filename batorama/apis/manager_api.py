@@ -13,7 +13,7 @@ from django_filters import rest_framework as filters
 
 from accounts.models import Account
 from cash.models import CashRecord
-from stock.models import Shift, LumberRecord, Lumber, Sale, Rama
+from stock.models import Shift, LumberRecord, Lumber, Sale, Rama, ReSaw
 from rawstock.models import IncomeTimber, Timber, TimberRecord, Quota
 
 from core.serializers import AnnotateFieldsModelSerializer, ChoiceField
@@ -225,13 +225,11 @@ class ShiftViewSet(viewsets.ViewSet):
     class OnlyManagerCanCreatePermissions(permissions.BasePermission):
         def has_permission(self, request, view):
             if request.method in permissions.SAFE_METHODS or request.method == 'POST':
-                if request.user.account.is_manager:
-                    return True
+                return request.user.account.is_manager
 
             return False
 
     permission_classes = [IsAuthenticated, OnlyManagerCanCreatePermissions]
-
 
     def create(self, request):
         serializer = self.ShiftCreateSerializer(data=request.data)
@@ -436,6 +434,111 @@ class CashRecordsView(viewsets.ModelViewSet):
             'totals': records.calc_sum()
             },
             status=status.HTTP_200_OK)
+
+
+# resaw
+class ReSawSerializer(serializers.ModelSerializer):
+    lumber_in = serializers.ReadOnlyField(source='lumber_in.lumber.name')
+    lumber_in_quantity = serializers.ReadOnlyField(source='lumber_in.quantity')
+
+    lumber_out = serializers.ReadOnlyField(source='lumber_out.lumber.name')
+    lumber_out_quantity = serializers.ReadOnlyField(source='lumber_out.quantity')
+
+    class Meta:
+        model = ReSaw
+        fields = ['id', 'created_at', 'lumber_in', 'lumber_in_quantity', 'lumber_out', 
+            'lumber_out_quantity']
+
+
+class CreateReSawSerializer(serializers.Serializer):
+    lumber_in = serializers.PrimaryKeyRelatedField(queryset=Lumber.objects.all())
+    lumber_in_quantity = serializers.IntegerField()
+
+    lumber_out = serializers.PrimaryKeyRelatedField(queryset=Lumber.objects.all())
+    lumber_out_quantity = serializers.IntegerField()
+
+    class Meta:
+        model = ReSaw
+        fields = ['id', 'created_at', 'lumber_in', 'lumber_in_quantity', 'lumber_out', 
+            'lumber_out_quantity']
+
+
+class ReSawViewSet(viewsets.ModelViewSet):
+
+    class ReSawSerializer(serializers.ModelSerializer):
+        lumber_in = serializers.ReadOnlyField(source='lumber_in.lumber.name')
+        lumber_in_quantity = serializers.ReadOnlyField(source='lumber_in.quantity')
+
+        lumber_out = serializers.ReadOnlyField(source='lumber_out.lumber.name')
+        lumber_out_quantity = serializers.ReadOnlyField(source='lumber_out.quantity')
+
+        class Meta:
+            model = ReSaw
+            fields = ['id', 'created_at', 'lumber_in', 'lumber_in_quantity', 'lumber_out', 
+                'lumber_out_quantity']
+
+
+    class CreateReSawSerializer(serializers.Serializer):
+        lumber_in = serializers.PrimaryKeyRelatedField(queryset=Lumber.objects.all())
+        lumber_in_quantity = serializers.IntegerField()
+
+        lumber_out = serializers.PrimaryKeyRelatedField(queryset=Lumber.objects.all())
+        lumber_out_quantity = serializers.IntegerField()
+
+        class Meta:
+            model = ReSaw
+            fields = ['id', 'created_at', 'lumber_in', 'lumber_in_quantity', 'lumber_out', 
+                'lumber_out_quantity']
+
+
+    class OnlyManagerCanCreatePermissions(permissions.BasePermission):
+        def has_permission(self, request, view):
+            if request.method == 'POST' or request.method == 'DELETE':
+                return request.user.account.is_manager
+
+            return False
+
+        def has_object_permission(self, request, view, obj):
+            if request.method == 'DELETE':
+                return request.user.account.rama == obj.rama
+
+            return False
+
+    permission_classes = [IsAuthenticated, OnlyManagerCanCreatePermissions]
+    queryset = ReSaw.objects.all()
+    serializer_class = ReSawSerializer
+
+    # def get_queryset(self):
+    #     return ReSaw.objects.filter(rama=self.request.user.account.rama)
+
+    def create(self, request, serializer_class=CreateReSawSerializer):
+        serializer = self.CreateReSawSerializer(data=request.data)
+        if serializer.is_valid():
+            resaw = ReSaw.objects.create_resaw(
+                resaw_lumber_in={'lumber': serializer.validated_data['lumber_in'],
+                    'quantity': serializer.validated_data['lumber_in_quantity']},
+                resaw_lumber_out={'lumber': serializer.validated_data['lumber_out'],
+                    'quantity': serializer.validated_data['lumber_out_quantity']},
+                rama=request.user.account.rama,
+                initiator=request.user
+                )
+            return Response({
+                'created': self.ReSawSerializer(resaw).data,
+                'resaws': self.ReSawSerializer(self.get_queryset(), many=True).data,
+                'message': 'Успешно'
+                },
+                 status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, pk=None):
+        self.get_object().delete()
+        return Response({
+            'resaws': self.ReSawSerializer(self.get_queryset(), many=True).data,
+            },
+            status=status.HTTP_200_OK)
+
+
 
 # class IncomeTimberViewSet(viewsets.ModelViewSet):
 

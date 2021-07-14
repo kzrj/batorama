@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 
-from stock.models import Shift, Lumber, LumberRecord, Rama, Sale
+from stock.models import Shift, Lumber, LumberRecord, Rama, Sale, ReSaw
 from rawstock.models import Timber, TimberRecord, IncomeTimber, Quota
 from cash.models import CashRecord
 import stock.testing_utils as lumber_testing
@@ -346,3 +346,68 @@ class CashRecordViewTest(APITestCase):
             {'amount': 999, 'note': 'test'})
         self.assertEqual(response.status_code, 403)
         self.client.logout()
+
+
+class ResawViewSetTest(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        lumber_testing.create_test_data()
+
+        self.rama = Rama.objects.all().first()
+        self.rama2 = Rama.objects.filter(name='rama2').first()
+
+        self.ramshik1 = User.objects.get(username='ramshik1')
+        self.ramshik2 = User.objects.get(username='ramshik2')
+        self.ramshik3 = User.objects.get(username='ramshik3')
+        self.ramshik4 = User.objects.get(username='ramshik4')
+
+        self.brus1 = Lumber.objects.filter(name__contains='брус')[0]
+        self.brus2 = Lumber.objects.filter(name__contains='брус')[1]
+        self.doska1 = Lumber.objects.filter(name__contains='доска')[0]
+        self.doska2 = Lumber.objects.filter(name__contains='доска')[1]
+
+        self.manager1 = User.objects.get(username='manager1')
+        self.manager1.account.can_see_rama_resaws.add(self.rama)
+
+        self.manager2 = User.objects.get(username='manager2')
+        self.manager2.account.can_see_rama_resaws.add(self.rama2)
+
+    def test_resaw_create(self):
+        self.client.force_authenticate(user=self.manager1)
+        response = self.client.post('/api/manager/resaws/create/', 
+            {
+                'lumber_in': self.brus1.pk,
+                'lumber_in_quantity': 10,
+                'lumber_out': self.brus2.pk,
+                'lumber_out_quantity': 15,
+            }, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['created']['lumber_in_quantity'], 10)
+        self.assertEqual(response.data['created']['lumber_out_quantity'], 15)
+
+    def test_resaw_delete(self):
+        self.client.force_authenticate(user=self.manager1)
+        response = self.client.post('/api/manager/resaws/create/', 
+            {
+                'lumber_in': self.brus1.pk,
+                'lumber_in_quantity': 10,
+                'lumber_out': self.brus2.pk,
+                'lumber_out_quantity': 15,
+            }, format='json')
+
+        resaw = ReSaw.objects.all().first()
+        response = self.client.delete(f'/api/manager/resaws/{resaw.pk}/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data['resaws']), 0)
+
+    def test_permissions(self):
+        self.client.force_authenticate(user=self.ramshik1)
+        response = self.client.post('/api/manager/resaws/create/', 
+            {
+                'lumber_in': self.brus1.pk,
+                'lumber_in_quantity': 10,
+                'lumber_out': self.brus2.pk,
+                'lumber_out_quantity': 15,
+            }, format='json')
+        self.assertEqual(response.status_code, 403)

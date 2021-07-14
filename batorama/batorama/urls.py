@@ -25,6 +25,7 @@ urlpatterns = [
     path('api/common/cash/', common_api.CashRecordsListView.as_view()),
     path('api/common/daily_report/', common_api.DailyReport.as_view()),
     path('api/common/sales/calc_data/', common_api.SaleCalcDataView.as_view()),
+    path('api/common/resaw/', common_api.ResawListView.as_view()),
 
     # manager api
     path('api/manager/shifts/create/init_data/', manager_api.ShiftViewSet.as_view({'get': 'shift_create_data'})),
@@ -42,6 +43,9 @@ urlpatterns = [
     path('api/manager/cash_records/list/', manager_api.CashRecordsView.as_view({'get': 'list'})),
     path('api/manager/cash_records/<int:pk>/', manager_api.CashRecordsView.as_view({'delete': 'destroy'})),
 
+    path('api/manager/resaws/create/', manager_api.ReSawViewSet.as_view({'post': 'create'})),
+    path('api/manager/resaws/<int:pk>/', manager_api.ReSawViewSet.as_view({'delete': 'destroy'})),
+
     # path('api/manager/rawstock/timber/create_income/', manager_api.IncomeTimberViewSet.as_view({'post': 'create'})),
     # path('api/manager/rawstock/timber/create_income/init_data/', manager_api.IncomeTimberViewSet.as_view({'get': 'init_data'})),
     # path('api/manager/quota/overview/', manager_api.QuotasPageView.as_view()),
@@ -49,12 +53,5 @@ urlpatterns = [
     # ramshik api
     path('api/ramshik/shifts/list/', ramshik_api.ShiftListView.as_view()),
     path('api/ramshik/payouts/', ramshik_api.RamshikPayoutView.as_view()),
-
-    # kladman api
-    # path('api/kladman/cash_records/create_expense/', kladman_api.CashRecordsView.as_view({'post': 'create_expense'})),
-    # path('api/kladman/cash_records/list/', kladman_api.CashRecordsView.as_view({'get': 'list'})),
-    # path('api/kladman/daily_report/', kladman_api.DailyReport.as_view()),
-    path('api/kladman/resaws/create/', kladman_api.ReSawViewSet.as_view({'post': 'create'})),
-    path('api/kladman/resaws/list/', kladman_api.ReSawViewSet.as_view({'get': 'list'})),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

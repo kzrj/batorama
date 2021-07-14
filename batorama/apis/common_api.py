@@ -10,7 +10,7 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from django_filters import rest_framework as filters
 
-from stock.models import Lumber, Rama, LumberRecord, Shift, Sale
+from stock.models import Lumber, Rama, LumberRecord, Shift, Sale, ReSaw
 from cash.models import CashRecord 
 
 from core.serializers import AnnotateFieldsModelSerializer, ChoiceField
@@ -313,3 +313,35 @@ class SaleCalcDataView(APIView):
             'lumbers': self.LumberSerializer(
                 Lumber.objects.all(), many=True).data,
             }, status=status.HTTP_200_OK)
+
+
+# resaws list
+class ResawListView(generics.ListAPIView):
+
+    class ReSawSerializer(serializers.ModelSerializer):
+        lumber_in = serializers.ReadOnlyField(source='lumber_in.lumber.name')
+        lumber_in_quantity = serializers.ReadOnlyField(source='lumber_in.quantity')
+
+        lumber_out = serializers.ReadOnlyField(source='lumber_out.lumber.name')
+        lumber_out_quantity = serializers.ReadOnlyField(source='lumber_out.quantity')
+
+        class Meta:
+            model = ReSaw
+            fields = ['id', 'created_at', 'lumber_in', 'lumber_in_quantity', 'lumber_out', 
+                'lumber_out_quantity']
+
+
+    class CanSeeRamaResawPermissions(permissions.BasePermission):
+        def has_permission(self, request, view):
+            if request.method in permissions.SAFE_METHODS:
+                acc = request.user.account
+                rama = request.GET.get('rama')
+                can_see_ramas_list = acc.can_see_rama_resaws.all().values_list('pk', flat=True)
+
+                if rama and (int(rama)) in can_see_ramas_list:
+                    return True
+            return False
+
+    queryset = ReSaw.objects.all()
+    serializer_class = ReSawSerializer
+    permission_classes = [IsAuthenticated, CanSeeRamaResawPermissions]

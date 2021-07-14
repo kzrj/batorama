@@ -37,6 +37,8 @@ class Account(CoreModel):
         related_name='accounts_can_see_cash')
     can_see_rama_daily_cash_report = models.ManyToManyField('stock.Rama', blank=True,
         related_name='accounts_can_see_rama_daily_cash_report')
+    can_see_rama_resaws = models.ManyToManyField('stock.Rama', blank=True,
+        related_name='accounts_can_see_resaws')
 
     cash = models.IntegerField(default=0)
 

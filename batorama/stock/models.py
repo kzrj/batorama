@@ -462,6 +462,8 @@ class ReSawQuerySet(models.QuerySet):
         
 
 class ReSaw(CoreModel):
+    rama = models.ForeignKey(Rama, on_delete=models.SET_NULL, null=True, blank=True, 
+        related_name='resaws')
     employee_cash = models.IntegerField(null=True, blank=True)
     employees = models.ManyToManyField('accounts.Account')
     lumber_in = models.OneToOneField(LumberRecord, on_delete=models.CASCADE, related_name='re_saw_in')
