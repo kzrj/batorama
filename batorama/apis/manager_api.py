@@ -477,7 +477,7 @@ class ReSawViewSet(viewsets.ModelViewSet):
         class Meta:
             model = ReSaw
             fields = ['id', 'created_at', 'lumber_in', 'lumber_in_quantity', 'lumber_out', 
-                'lumber_out_quantity', who]
+                'lumber_out_quantity', 'who']
 
 
     class CreateReSawSerializer(serializers.Serializer):
