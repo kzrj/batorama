@@ -30,6 +30,7 @@ urlpatterns = [
     # manager api
     path('api/manager/shifts/create/init_data/', manager_api.ShiftViewSet.as_view({'get': 'shift_create_data'})),
     path('api/manager/shifts/create/', manager_api.ShiftViewSet.as_view({'post': 'create'})),
+    path('api/manager/shifts/<int:pk>/', manager_api.ShiftViewSet.as_view({'delete': 'destroy'})),
 
     path('api/manager/ramshik_payments/init_data/', manager_api.RamshikiPaymentViewSet.as_view({'get': 'init_data'})),
     path('api/manager/ramshik_payments/ramshik_payout/', manager_api.RamshikiPaymentViewSet.as_view({'post': 'ramshik_payout'})),

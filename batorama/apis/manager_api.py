@@ -224,8 +224,17 @@ class ShiftViewSet(viewsets.ViewSet):
 
     class OnlyManagerCanCreatePermissions(permissions.BasePermission):
         def has_permission(self, request, view):
-            if request.method in permissions.SAFE_METHODS or request.method == 'POST':
+            if request.method in permissions.SAFE_METHODS:
                 return request.user.account.is_manager
+
+            if request.method == 'POST' or request.method == 'DELETE':
+                return request.user.account.is_manager
+
+            return False
+
+        def has_object_permission(self, request, view, obj):
+            if request.method == 'DELETE':
+                return request.user.account.rama == obj.rama
 
             return False
 
@@ -257,6 +266,14 @@ class ShiftViewSet(viewsets.ViewSet):
             'employees': self.RamshikSerializer(Account.objects.filter(is_ramshik=True,
                 rama=request.user.account.rama), many=True).data,
             }, status=status.HTTP_200_OK)
+
+    def destroy(self, request, pk=None):
+        self.get_object().delete()
+        return Response({
+            'shifts': self.ShiftReadSerializer(
+                    self.get_queryset().filter(rama=request.user.account.rama), many=True).data,
+            },
+            status=status.HTTP_200_OK)
 
 
 class RamshikiPaymentViewSet(viewsets.ViewSet):
