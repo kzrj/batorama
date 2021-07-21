@@ -272,7 +272,7 @@ class ShiftViewSet(viewsets.ViewSet):
         return Response({
             'shifts': self.ShiftReadSerializer(
                     Shift.objects.filter(rama=request.user.account.rama,
-                     created_at__date__gte=timezone.today()), many=True).data,
+                     created_at__date__gte=timezone.now().date()), many=True).data,
             },
             status=status.HTTP_200_OK)
 
