@@ -357,7 +357,8 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
         Account.objects.get(pk=pk).delete()
         return Response({
             'employees': self.RamshikWithCashSerializer(
-                    Account.objects.filter(rama=request.user.account.rama), many=True).data,
+                    Account.objects.filter(rama=request.user.account.rama, is_ramshik=True),
+                     many=True).data,
             },
             status=status.HTTP_200_OK)
 
