@@ -271,7 +271,7 @@ class ShiftViewSet(viewsets.ViewSet):
         Shift.objects.get(pk=pk).delete()
         return Response({
             'shifts': self.ShiftReadSerializer(
-                    self.get_queryset().filter(rama=request.user.account.rama), many=True).data,
+                    Shift.objects.filter(rama=request.user.account.rama), many=True).data,
             },
             status=status.HTTP_200_OK)
 
