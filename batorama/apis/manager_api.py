@@ -485,10 +485,12 @@ class ReSawViewSet(viewsets.ModelViewSet):
         lumber_out = serializers.PrimaryKeyRelatedField(queryset=Lumber.objects.all())
         lumber_out_quantity = serializers.IntegerField()
 
+        who = serializers.ReadOnlyField(source='initiator.account.nickname')
+
         class Meta:
             model = ReSaw
             fields = ['id', 'created_at', 'lumber_in', 'lumber_in_quantity', 'lumber_out', 
-                'lumber_out_quantity']
+                'lumber_out_quantity', 'who']
 
 
     class OnlyManagerCanCreatePermissions(permissions.BasePermission):
