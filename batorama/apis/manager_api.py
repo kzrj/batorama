@@ -296,6 +296,24 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
             model = CashRecord
             fields = ['id', 'amount', 'record_type', 'created_at', 'employee']
 
+    
+    class OnlyManagerCanCreatePermissions(permissions.BasePermission):
+        def has_permission(self, request, view):
+            if request.method in permissions.SAFE_METHODS:
+                return request.user.account.is_manager
+
+            if request.method == 'POST' or request.method == 'DELETE':
+                return request.user.account.is_manager
+
+            return False
+
+        def has_object_permission(self, request, view, obj):
+            if request.method == 'DELETE':
+                return request.user.account.rama == obj.rama
+
+            return False
+
+    permission_classes = [IsAuthenticated, OnlyManagerCanCreatePermissions]
 
     @action(detail=False, methods=['get'])
     def init_data(self, request, pk=None):
@@ -334,6 +352,14 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
                 status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, pk=None):
+        Account.objects.get(pk=pk).delete()
+        return Response({
+            'employees': self.RamshikWithCashSerializer(
+                    Account.objects.filter(rama=request.user.account.rama), many=True).data,
+            },
+            status=status.HTTP_200_OK)
 
 
 class SetLumberMarketPriceView(APIView):
