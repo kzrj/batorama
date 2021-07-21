@@ -541,7 +541,8 @@ class ReSawViewSet(viewsets.ModelViewSet):
     def destroy(self, request, pk=None):
         self.get_object().delete()
         return Response({
-            'resaws': self.ReSawSerializer(self.get_queryset(), many=True).data,
+            'resaws': self.ReSawSerializer(
+                    self.get_queryset().filter(rama=request.user.account.rama), many=True).data,
             },
             status=status.HTTP_200_OK)
 
