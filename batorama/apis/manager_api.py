@@ -330,9 +330,9 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
                 rama=request.user.account.rama,
                 )
             
-            return Response('employees': self.RamshikWithCashSerializer(
+            return Response({'employees': self.RamshikWithCashSerializer(
                     Account.objects.filter(rama=request.user.account.rama, is_ramshik=True),
-                     many=True).data, status=status.HTTP_201_CREATED)
+                     many=True).data}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
