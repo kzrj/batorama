@@ -336,7 +336,7 @@ class ResawListView(generics.ListAPIView):
         date = filters.DateFromToRangeFilter()
 
         class Meta:
-            model = Sale
+            model = ReSaw
             fields = ['rama', 'date',]
 
 
