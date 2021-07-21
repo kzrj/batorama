@@ -324,11 +324,12 @@ class ResawListView(generics.ListAPIView):
 
         lumber_out = serializers.ReadOnlyField(source='lumber_out.lumber.name')
         lumber_out_quantity = serializers.ReadOnlyField(source='lumber_out.quantity')
+        who = serializers.ReadOnlyField(source='initiator.account.nickname')
 
         class Meta:
             model = ReSaw
             fields = ['id', 'created_at', 'lumber_in', 'lumber_in_quantity', 'lumber_out', 
-                'lumber_out_quantity']
+                'lumber_out_quantity', 'who']
 
 
     class CanSeeRamaResawPermissions(permissions.BasePermission):
