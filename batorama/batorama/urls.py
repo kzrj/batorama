@@ -34,6 +34,7 @@ urlpatterns = [
 
     path('api/manager/ramshik_payments/init_data/', manager_api.RamshikiPaymentViewSet.as_view({'get': 'init_data'})),
     path('api/manager/ramshik_payments/ramshik_payout/', manager_api.RamshikiPaymentViewSet.as_view({'post': 'ramshik_payout'})),
+    path('api/manager/ramshiki/create/', manager_api.RamshikiPaymentViewSet.as_view({'post': 'create'})),
     path('api/manager/ramshiki/<int:pk>/', manager_api.RamshikiPaymentViewSet.as_view({'delete': 'destroy'})),
 
     path('api/manager/stock/set_price/', manager_api.SetLumberMarketPriceView.as_view()),

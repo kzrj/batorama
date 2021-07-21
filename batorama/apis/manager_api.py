@@ -296,6 +296,11 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
             model = CashRecord
             fields = ['id', 'amount', 'record_type', 'created_at', 'employee']
 
+
+    class CreateRamshikSerializer(serializers.Serializer):
+        name = serializers.CharField()
+        cash = serializers.IntegerField(default=0)
+
     
     class OnlyManagerCanCreatePermissions(permissions.BasePermission):
         def has_permission(self, request, view):
@@ -314,6 +319,22 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
             return False
 
     permission_classes = [IsAuthenticated, OnlyManagerCanCreatePermissions]
+
+    def create(self, request):
+        serializer = self.CreateRamshikSerializer(data=request.data)
+        if serializer.is_valid():
+            ramshik = Account.objects.create(
+                nickname=serializer.validated_data['name'],
+                cash=serializer.validated_data['cash'],
+                is_ramshik=True,
+                rama=request.user.account.rama,
+                )
+            
+            return Response('employees': self.RamshikWithCashSerializer(
+                    Account.objects.filter(rama=request.user.account.rama, is_ramshik=True),
+                     many=True).data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['get'])
     def init_data(self, request, pk=None):
