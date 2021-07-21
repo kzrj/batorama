@@ -468,16 +468,19 @@ class ReSawViewSet(viewsets.ModelViewSet):
     class ReSawSerializer(serializers.ModelSerializer):
         lumber_in = serializers.ReadOnlyField(source='lumber_in.lumber.name')
         lumber_in_quantity = serializers.ReadOnlyField(source='lumber_in.quantity')
+        lumber_in_wood_species = serializers.ReadOnlyField(source='lumber_in.wood_species')
 
         lumber_out = serializers.ReadOnlyField(source='lumber_out.lumber.name')
         lumber_out_quantity = serializers.ReadOnlyField(source='lumber_out.quantity')
+        lumber_out_wood_species = serializers.ReadOnlyField(source='lumber_out.wood_species')
 
         who = serializers.ReadOnlyField(source='initiator.account.nickname')
 
         class Meta:
             model = ReSaw
             fields = ['id', 'created_at', 'lumber_in', 'lumber_in_quantity', 'lumber_out', 
-                'lumber_out_quantity', 'who']
+                'lumber_out_quantity', 'lumber_in_wood_species', 'who',
+                'lumber_out_wood_species']
 
 
     class CreateReSawSerializer(serializers.Serializer):
@@ -487,12 +490,10 @@ class ReSawViewSet(viewsets.ModelViewSet):
         lumber_out = serializers.PrimaryKeyRelatedField(queryset=Lumber.objects.all())
         lumber_out_quantity = serializers.IntegerField()
 
-        who = serializers.ReadOnlyField(source='initiator.account.nickname')
-
         class Meta:
             model = ReSaw
             fields = ['id', 'created_at', 'lumber_in', 'lumber_in_quantity', 'lumber_out', 
-                'lumber_out_quantity', 'who']
+                'lumber_out_quantity',]
 
 
     class OnlyManagerCanCreatePermissions(permissions.BasePermission):
