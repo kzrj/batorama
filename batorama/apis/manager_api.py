@@ -468,11 +468,11 @@ class ReSawViewSet(viewsets.ModelViewSet):
     class ReSawSerializer(serializers.ModelSerializer):
         lumber_in = serializers.ReadOnlyField(source='lumber_in.lumber.name')
         lumber_in_quantity = serializers.ReadOnlyField(source='lumber_in.quantity')
-        lumber_in_wood_species = serializers.ReadOnlyField(source='lumber_in.wood_species')
+        lumber_in_wood_species = serializers.ReadOnlyField(source='lumber_in.lumber.wood_species')
 
         lumber_out = serializers.ReadOnlyField(source='lumber_out.lumber.name')
         lumber_out_quantity = serializers.ReadOnlyField(source='lumber_out.quantity')
-        lumber_out_wood_species = serializers.ReadOnlyField(source='lumber_out.wood_species')
+        lumber_out_wood_species = serializers.ReadOnlyField(source='lumber_out.lumber.wood_species')
 
         who = serializers.ReadOnlyField(source='initiator.account.nickname')
 
