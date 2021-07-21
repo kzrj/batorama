@@ -298,7 +298,7 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
 
 
     class CreateRamshikSerializer(serializers.Serializer):
-        name = serializers.CharField()
+        nickname = serializers.CharField()
         cash = serializers.IntegerField(default=0)
 
     
@@ -324,7 +324,7 @@ class RamshikiPaymentViewSet(viewsets.ViewSet):
         serializer = self.CreateRamshikSerializer(data=request.data)
         if serializer.is_valid():
             ramshik = Account.objects.create(
-                nickname=serializer.validated_data['name'],
+                nickname=serializer.validated_data['nickname'],
                 cash=serializer.validated_data['cash'],
                 is_ramshik=True,
                 rama=request.user.account.rama,
