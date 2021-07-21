@@ -332,6 +332,14 @@ class ResawListView(generics.ListAPIView):
                 'lumber_out_quantity', 'who']
 
 
+    class ResawFilter(filters.FilterSet):
+        date = filters.DateFromToRangeFilter()
+
+        class Meta:
+            model = Sale
+            fields = ['rama', 'date',]
+
+
     class CanSeeRamaResawPermissions(permissions.BasePermission):
         def has_permission(self, request, view):
             if request.method in permissions.SAFE_METHODS:
@@ -346,3 +354,4 @@ class ResawListView(generics.ListAPIView):
     queryset = ReSaw.objects.all()
     serializer_class = ReSawSerializer
     permission_classes = [IsAuthenticated, CanSeeRamaResawPermissions]
+    filter_class = ResawFilter
