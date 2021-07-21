@@ -474,6 +474,10 @@ class ReSaw(CoreModel):
 
     objects = ReSawQuerySet.as_manager()
 
+
+    class Meta:
+        ordering = ['-created_at']
+
     def __str__(self):
         return f'Перепил {self.pk}'
 

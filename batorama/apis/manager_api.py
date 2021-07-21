@@ -529,7 +529,9 @@ class ReSawViewSet(viewsets.ModelViewSet):
                 )
             return Response({
                 'created': self.ReSawSerializer(resaw).data,
-                'resaws': self.ReSawSerializer(self.get_queryset(), many=True).data,
+                'resaws': self.ReSawSerializer(
+                    self.get_queryset().filter(rama=request.user.account.rama),
+                     many=True).data,
                 'message': 'Успешно'
                 },
                  status=status.HTTP_200_OK)
