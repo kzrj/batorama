@@ -455,7 +455,7 @@ class ReSawQuerySet(models.QuerySet):
         lumber_out = LumberRecord.objects.create_for_resaw(
             lumber=resaw_lumber_out['lumber'], quantity=resaw_lumber_out['quantity'], rama=rama)
         resaw = self.create(lumber_in=lumber_in, lumber_out=lumber_out, employee_cash=employee_cash,
-            initiator=initiator)
+            initiator=initiator, rama=rama)
         # add employees, employee_cash
 
         return resaw
