@@ -268,7 +268,7 @@ class ShiftViewSet(viewsets.ViewSet):
             }, status=status.HTTP_200_OK)
 
     def destroy(self, request, pk=None):
-        self.get_object().delete()
+        Shift.objects.get(pk=pk).delete()
         return Response({
             'shifts': self.ShiftReadSerializer(
                     self.get_queryset().filter(rama=request.user.account.rama), many=True).data,
