@@ -384,11 +384,11 @@ class IncomeTimberListView(generics.ListAPIView):
 
 
     class IncomeTimberFilter(filters.FilterSet):
-        date = filters.DateFromToRangeFilter()
+        created_at = filters.DateFromToRangeFilter()
 
         class Meta:
             model = IncomeTimber
-            fields = ['rama', 'date',]
+            fields = ['rama', 'created_at',]
 
 
     class CanSeeRamaIncomeTimberPermissions(permissions.BasePermission):
