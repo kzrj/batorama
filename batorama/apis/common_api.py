@@ -380,7 +380,7 @@ class IncomeTimberListView(generics.ListAPIView):
 
         class Meta:
             model = IncomeTimber
-            fields = ['id', 'created_at', 'who', 'quatity', 'volume', 'note', 'timber_records']
+            fields = ['id', 'created_at', 'who', 'quantity', 'volume', 'note', 'timber_records']
 
 
     class IncomeTimberFilter(filters.FilterSet):
