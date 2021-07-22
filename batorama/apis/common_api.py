@@ -12,6 +12,7 @@ from django_filters import rest_framework as filters
 
 from stock.models import Lumber, Rama, LumberRecord, Shift, Sale, ReSaw
 from cash.models import CashRecord 
+from rawstock.models import TimberRecord, IncomeTimber, Timber
 
 from core.serializers import AnnotateFieldsModelSerializer, ChoiceField
 
@@ -358,3 +359,50 @@ class ResawListView(generics.ListAPIView):
     serializer_class = ReSawSerializer
     permission_classes = [IsAuthenticated, CanSeeRamaResawPermissions]
     filter_class = ResawFilter
+
+
+# raw timber income
+class IncomeTimberListView(generics.ListAPIView):
+
+    class IncomeTimberSerializer(serializers.ModelSerializer):
+
+        class TimberRecordSerializer(serializers.ModelSerializer):
+            timber = serializers.StringRelatedField()
+            wood_species = ChoiceField(source='timber.wood_species', read_only=True,
+             choices=Timber.SPECIES)
+
+            class Meta:
+                model = TimberRecord
+                fields = ['timber', 'quantity', 'volume', 'wood_species']
+
+        who = serializers.ReadOnlyField(source='initiator.account.nickname')
+        timber_records = TimberRecordSerializer(many=True)
+
+        class Meta:
+            model = IncomeTimber
+            fields = ['id', 'created_at', 'who', 'quatity', 'volume', 'note', 'timber_records']
+
+
+    class IncomeTimberFilter(filters.FilterSet):
+        date = filters.DateFromToRangeFilter()
+
+        class Meta:
+            model = IncomeTimber
+            fields = ['rama', 'date',]
+
+
+    class CanSeeRamaIncomeTimberPermissions(permissions.BasePermission):
+        def has_permission(self, request, view):
+            if request.method in permissions.SAFE_METHODS:
+                acc = request.user.account
+                rama = request.GET.get('rama')
+                can_see_ramas_list = acc.can_see_rama_raw_stock.all().values_list('pk', flat=True)
+
+                if rama and (int(rama)) in can_see_ramas_list:
+                    return True
+            return False
+
+    queryset = IncomeTimber.objects.all()
+    serializer_class = IncomeTimberSerializer
+    permission_classes = [IsAuthenticated, CanSeeRamaIncomeTimberPermissions]
+    filter_class = IncomeTimberFilter

@@ -26,6 +26,7 @@ urlpatterns = [
     path('api/common/daily_report/', common_api.DailyReport.as_view()),
     path('api/common/sales/calc_data/', common_api.SaleCalcDataView.as_view()),
     path('api/common/resaw/', common_api.ResawListView.as_view()),
+    path('api/common/income_timber/', common_api.IncomeTimberListView.as_view()),
 
     # manager api
     path('api/manager/shifts/create/init_data/', manager_api.ShiftViewSet.as_view({'get': 'shift_create_data'})),
