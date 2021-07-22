@@ -50,8 +50,8 @@ urlpatterns = [
     path('api/manager/resaws/create/', manager_api.ReSawViewSet.as_view({'post': 'create'})),
     path('api/manager/resaws/<int:pk>/', manager_api.ReSawViewSet.as_view({'delete': 'destroy'})),
 
-    # path('api/manager/rawstock/timber/create_income/', manager_api.IncomeTimberViewSet.as_view({'post': 'create'})),
-    # path('api/manager/rawstock/timber/create_income/init_data/', manager_api.IncomeTimberViewSet.as_view({'get': 'init_data'})),
+    path('api/manager/rawstock/timber/create_income/', manager_api.IncomeTimberViewSet.as_view({'post': 'create'})),
+    path('api/manager/rawstock/timber/create_income/init_data/', manager_api.IncomeTimberViewSet.as_view({'get': 'init_data'})),
     # path('api/manager/quota/overview/', manager_api.QuotasPageView.as_view()),
 
     # ramshik api

@@ -616,70 +616,86 @@ class ReSawViewSet(viewsets.ModelViewSet):
 
 
 
-# class IncomeTimberViewSet(viewsets.ModelViewSet):
+class IncomeTimberViewSet(viewsets.ModelViewSet):
 
-#     class ReadTimberSerializer(serializers.ModelSerializer):
-#         timber = serializers.ReadOnlyField(source='pk')
-#         wood_species = ChoiceField(read_only=True, choices=Timber.SPECIES)
-#         quantity = serializers.IntegerField(default=0, read_only=True)
+    class ReadTimberSerializer(serializers.ModelSerializer):
+        timber = serializers.ReadOnlyField(source='pk')
+        wood_species = ChoiceField(read_only=True, choices=Timber.SPECIES)
+        quantity = serializers.IntegerField(default=0, read_only=True)
 
-#         class Meta:
-#             model = Timber
-#             fields = ['id', 'wood_species', 'diameter', 'volume', 'timber', 'quantity']
-
-
-#     class IncomeTimberSerializer(serializers.ModelSerializer):
-
-#         class RawTimberRecordSerializer(serializers.Serializer):
-#             timber = serializers.PrimaryKeyRelatedField(queryset=Timber.objects.all())
-#             quantity = serializers.IntegerField()
-
-#         timber_records = ReadTimberRecordSerializer(many=True, read_only=True)
-
-#         class Meta:
-#             model = IncomeTimber
-#             fields = ['pk', 'quantity', 'volume', 'rama', 'created_at', 'timber_records']
+        class Meta:
+            model = Timber
+            fields = ['id', 'wood_species', 'diameter', 'volume', 'timber', 'quantity']
 
 
-#     class CreateIncomeTimberSerializer(serializers.Serializer):
+    class IncomeTimberSerializer(serializers.ModelSerializer):
 
-#         class RawTimberRecordSerializer(serializers.Serializer):
-#             timber = serializers.PrimaryKeyRelatedField(queryset=Timber.objects.all())
-#             quantity = serializers.IntegerField()
+        class RawTimberRecordSerializer(serializers.Serializer):
+            timber = serializers.PrimaryKeyRelatedField(queryset=Timber.objects.all())
+            quantity = serializers.IntegerField()
 
-#         raw_timber_records = RawTimberRecordSerializer(many=True)
-#         note = serializers.CharField(required=False)
+        timber_records = ReadTimberRecordSerializer(many=True, read_only=True)
+
+        class Meta:
+            model = IncomeTimber
+            fields = ['pk', 'quantity', 'volume', 'rama', 'created_at', 'timber_records']
 
 
-#     queryset = IncomeTimber.objects.all()
-#     serializer_class = IncomeTimberSerializer
-#     # permission_classes = [IsAdminUser]
+    class CreateIncomeTimberSerializer(serializers.Serializer):
 
-#     @action(detail=False, methods=['get'])
-#     def init_data(self, request, pk=None):
-#         return Response({
-#             'timbers': self.ReadTimberSerializer(
-#                 Timber.objects.all().order_by('-wood_species', 'diameter'), many=True).data,
-#             }, status=status.HTTP_200_OK)
+        class RawTimberRecordSerializer(serializers.Serializer):
+            timber = serializers.PrimaryKeyRelatedField(queryset=Timber.objects.all())
+            quantity = serializers.IntegerField()
 
-#     def create(self, request, serializer_class=CreateIncomeTimberSerializer):
-#         serializer = self.CreateIncomeTimberSerializer(data=request.data)
-#         if serializer.is_valid():
-#             income_timber = IncomeTimber.objects.create_income_timber(
-#                 raw_timber_records=serializer.validated_data['raw_timber_records'],
-#                 note=serializer.validated_data.get('note'),
-#                 initiator=request.user,
-#                 rama=request.user.account.rama
-#                 )
-#             Quota.objects.create_quota(income_timber=income_timber)
+        raw_timber_records = RawTimberRecordSerializer(many=True)
+        note = serializers.CharField(required=False)
+
+
+    class OnlyManagerCanCreatePermissions(permissions.BasePermission):
+        def has_permission(self, request, view):
+            if request.method in permissions.SAFE_METHODS:
+                return request.user.account.is_manager
+
+            if request.method == 'POST' or request.method == 'DELETE':
+                return request.user.account.is_manager
+
+            return False
+
+        def has_object_permission(self, request, view, obj):
+            if request.method == 'DELETE':
+                return request.user.account.rama == obj.rama
+
+            return False
+
+    queryset = IncomeTimber.objects.all()
+    serializer_class = IncomeTimberSerializer
+    permission_classes = [IsAuthenticated, OnlyManagerCanCreatePermissions]
+
+    @action(detail=False, methods=['get'])
+    def init_data(self, request, pk=None):
+        return Response({
+            'timbers': self.ReadTimberSerializer(
+                Timber.objects.all().order_by('-wood_species', 'diameter'), many=True).data,
+            }, status=status.HTTP_200_OK)
+
+    def create(self, request, serializer_class=CreateIncomeTimberSerializer):
+        serializer = self.CreateIncomeTimberSerializer(data=request.data)
+        if serializer.is_valid():
+            income_timber = IncomeTimber.objects.create_income_timber(
+                raw_timber_records=serializer.validated_data['raw_timber_records'],
+                note=serializer.validated_data.get('note'),
+                initiator=request.user,
+                rama=request.user.account.rama
+                )
+            Quota.objects.create_quota(income_timber=income_timber)
             
-#             return Response({
-#                 'income_timber': self.IncomeTimberSerializer(income_timber).data,
-#                 'message': 'Успешно'
-#                 },
-#                  status=status.HTTP_200_OK)
-#         else:
-#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                'income_timber': self.IncomeTimberSerializer(income_timber).data,
+                'message': 'Успешно'
+                },
+                 status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # class QuotasPageView(APIView):
