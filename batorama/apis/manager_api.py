@@ -556,26 +556,28 @@ class ReSawViewSet(viewsets.ModelViewSet):
         lumber_out = serializers.PrimaryKeyRelatedField(queryset=Lumber.objects.all())
         lumber_out_quantity = serializers.IntegerField()
 
+        rama = serializers.PrimaryKeyRelatedField(queryset=Rama.objects.all())
+
         class Meta:
             model = ReSaw
             fields = ['id', 'created_at', 'lumber_in', 'lumber_in_quantity', 'lumber_out', 
-                'lumber_out_quantity',]
+                'lumber_out_quantity', 'rama']
 
 
-    class OnlyManagerCanCreatePermissions(permissions.BasePermission):
+    class OnlyCapoCanCreatePermissions(permissions.BasePermission):
         def has_permission(self, request, view):
             if request.method == 'POST' or request.method == 'DELETE':
-                return request.user.account.is_manager
+                return request.user.account.is_boss or request.user.account.is_capo
 
             return False
 
         def has_object_permission(self, request, view, obj):
             if request.method == 'DELETE':
-                return request.user.account.rama == obj.rama
+                return request.user.account.is_boss or request.user.account.is_capo
 
             return False
 
-    permission_classes = [IsAuthenticated, OnlyManagerCanCreatePermissions]
+    permission_classes = [IsAuthenticated, OnlyCapoCanCreatePermissions]
     queryset = ReSaw.objects.all()
     serializer_class = ReSawSerializer
 
@@ -590,7 +592,7 @@ class ReSawViewSet(viewsets.ModelViewSet):
                     'quantity': serializer.validated_data['lumber_in_quantity']},
                 resaw_lumber_out={'lumber': serializer.validated_data['lumber_out'],
                     'quantity': serializer.validated_data['lumber_out_quantity']},
-                rama=request.user.account.rama,
+                rama=serializer.validated_data['rama'],
                 initiator=request.user
                 )
             return Response({
