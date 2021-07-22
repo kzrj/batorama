@@ -634,7 +634,7 @@ class IncomeTimberViewSet(viewsets.ModelViewSet):
             timber = serializers.PrimaryKeyRelatedField(queryset=Timber.objects.all())
             quantity = serializers.IntegerField()
 
-        timber_records = ReadTimberRecordSerializer(many=True, read_only=True)
+        timber_records = RawTimberRecordSerializer(many=True, read_only=True)
 
         class Meta:
             model = IncomeTimber
