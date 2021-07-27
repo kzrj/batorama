@@ -15,4 +15,4 @@ class TimberRecordAdmin(admin.ModelAdmin):
 
 @admin.register(Quota)
 class QuotaAdmin(admin.ModelAdmin):
-    list_display = [f.name for f in Quota
+    list_display = [f.name for f in Quota._meta.fields]
