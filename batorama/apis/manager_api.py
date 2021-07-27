@@ -696,22 +696,3 @@ class IncomeTimberViewSet(viewsets.ModelViewSet):
                  status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# class QuotasPageView(APIView):
-#     def get(self, request, format=None):
-#         rama = Rama.objects.get(pk=request.GET.get('rama'))
-#         quotas_volumes = Quota.objects.filter(rama=rama).calc_volume_sum()
-#         sold_volumes = rama.sales.calc_sold_volume_for_quota_calc()
-
-#         data = dict()
-#         data['total_volume_quota_brus'] = quotas_volumes['total_volume_quota_brus']
-#         data['total_volume_quota_doska'] = quotas_volumes['total_volume_quota_doska']
-#         data['total_volume_sold_brus'] = sold_volumes['total_brus_volume']
-#         data['total_volume_sold_doska'] = sold_volumes['total_doska_volume']
-#         data['brus_balance'] = quotas_volumes['total_volume_quota_brus'] - \
-#             sold_volumes['total_brus_volume']
-#         data['doska_balance'] = quotas_volumes['total_volume_quota_doska'] - \
-#             sold_volumes['total_doska_volume']
-
-#         return Response(data, status=status.HTTP_200_OK)
