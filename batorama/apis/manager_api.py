@@ -14,7 +14,7 @@ from django_filters import rest_framework as filters
 from accounts.models import Account
 from cash.models import CashRecord
 from stock.models import Shift, LumberRecord, Lumber, Sale, Rama, ReSaw
-from rawstock.models import IncomeTimber, Timber, TimberRecord, Quota
+from rawstock.models import IncomeTimber, Timber, TimberRecord
 
 from core.serializers import AnnotateFieldsModelSerializer, ChoiceField
 
@@ -687,7 +687,7 @@ class IncomeTimberViewSet(viewsets.ModelViewSet):
                 initiator=request.user,
                 rama=request.user.account.rama
                 )
-            Quota.objects.create_quota(income_timber=income_timber)
+            # Quota.objects.create_quota(income_timber=income_timber)
             
             return Response({
                 'income_timber': self.IncomeTimberSerializer(income_timber).data,
