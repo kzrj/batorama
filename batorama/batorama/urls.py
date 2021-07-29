@@ -27,7 +27,7 @@ urlpatterns = [
     path('api/common/sales/calc_data/', common_api.SaleCalcDataView.as_view()),
     path('api/common/resaw/', common_api.ResawListView.as_view()),
     path('api/common/income_timbers/', common_api.IncomeTimberListView.as_view()),
-    path('api/common/quotas/', common_api.QuotasPageView.as_view()),
+    # path('api/common/quotas/', common_api.QuotasPageView.as_view()),
 
     # manager api
     path('api/manager/shifts/create/init_data/', manager_api.ShiftViewSet.as_view({'get': 'shift_create_data'})),
