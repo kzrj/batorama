@@ -162,7 +162,7 @@ class Quota(CoreModel):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f'План {self.income_timber.pk} {self.wood_species}'
+        return f'План {self.income_timber.pk}'
 
     def current_quota(self):
         sold_volume = self.rama.sales.calc_sold_volume_for_quota_calc()
