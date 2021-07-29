@@ -108,11 +108,6 @@ class IncomeTimber(CoreModel):
 
 class QuotaQuerySet(models.QuerySet):
     # Services
-    # def create_quota(self, income_timber):
-    #     return self.create(income_timber=income_timber, volume_quota_brus=income_timber.volume*0.5,
-    #         volume_quota_doska=income_timber.volume*0.2, rama=income_timber.rama, 
-    #         initiator=income_timber.initiator)
-
     def create_quota(self, income_timber):
         data = dict()
 
@@ -125,7 +120,7 @@ class QuotaQuerySet(models.QuerySet):
             data['pine_quota'] = self.create(income_timber=income_timber, rama=income_timber.rama, 
                 volume_quota_brus=pine_volume*0.5,
                 volume_quota_doska=pine_volume*0.2,
-                initiator=income_timber.initiator)
+                initiator=income_timber.initiator, wood_species='pine')
         else:
             data['pine_quota'] = None
 
@@ -133,12 +128,11 @@ class QuotaQuerySet(models.QuerySet):
             data['larch_quota'] = self.create(income_timber=income_timber, rama=income_timber.rama, 
                 volume_quota_brus=larch_volume*0.5,
                 volume_quota_doska=larch_volume*0.2,
-                initiator=income_timber.initiator)
+                initiator=income_timber.initiator, wood_species='larch')
         else:
             data['larch_quota'] = None
 
         return data
-
 
     # Selectors
     def calc_volume_sum(self):
@@ -156,8 +150,8 @@ class Quota(CoreModel):
     volume_quota_brus = models.FloatField()
     volume_quota_doska = models.FloatField()
 
-    # income_timber = models.ForeignKey(IncomeTimber, on_delete=models.CASCADE, related_name='quotas')
-    income_timber = models.OneToOneField(IncomeTimber, on_delete=models.CASCADE)
+    income_timber = models.ForeignKey(IncomeTimber, on_delete=models.CASCADE, related_name='quotas')
+    # income_timber = models.OneToOneField(IncomeTimber, on_delete=models.CASCADE)
 
     initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='quotas')
@@ -168,7 +162,7 @@ class Quota(CoreModel):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f'{self.diameter} {self.wood_species}'
+        return f'План {self.income_timber.pk} {self.wood_species}'
 
     def current_quota(self):
         sold_volume = self.rama.sales.calc_sold_volume_for_quota_calc()

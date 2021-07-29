@@ -86,7 +86,7 @@ class LumberRecordsSelectorsStockTest(TransactionTestCase):
         ]
 
         self.shift = Shift.objects.create_shift_raw_records(shift_type='day', employees=employees, 
-            raw_records=data_list1, cash=1200, volume=10, initiator=self.ramshik1, rama=self.rama)
+            raw_records=data_list1, cash=1200, initiator=self.ramshik1, rama=self.rama)
 
         data_list = {
             'lumbers': [

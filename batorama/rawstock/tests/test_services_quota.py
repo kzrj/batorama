@@ -38,13 +38,12 @@ class LumberRecordsServisesTest(TransactionTestCase):
         ]
 
         self.income_timber = IncomeTimber.objects.create_income_timber(raw_timber_records=data_list,
-            initiator=self.kladman)
+            initiator=self.kladman, rama=self.rama)
 
     def test_create_quota(self):
         quotas = Quota.objects.create_quota(income_timber=self.income_timber)
 
-        print(quotas)
-
-        # self.assertEqual(quota.volume_quota_brus, 4.97)
-        # self.assertEqual(quota.volume_quota_doska, 1.988)
-        # self.assertEqual(quota.rama, self.rama)
+        self.assertEqual(quotas['pine_quota'].volume_quota_brus, 4.97)
+        self.assertEqual(quotas['pine_quota'].volume_quota_doska, 1.988)
+        self.assertEqual(quotas['pine_quota'].rama, self.rama)
+        self.assertEqual(quotas['pine_quota'].wood_species, 'pine')

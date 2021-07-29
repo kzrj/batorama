@@ -216,26 +216,30 @@ class SaleQuerySet(models.QuerySet):
             total_add_expenses=Sum('add_expenses'),
             )
 
-    def add_only_brus_volume(self):
-        subquery = LumberRecord.objects.filter(sale__pk=OuterRef('pk'), lumber__lumber_type='brus') \
-                        .values('shift') \
+    def add_only_brus_volume(self, wood_species='pine'):
+        subquery = LumberRecord.objects.filter(sale__pk=OuterRef('pk'),
+                            lumber__lumber_type='brus', lumber__wood_species=wood_species) \
+                        .values('sale') \
                         .annotate(brus_volume=Sum('volume')) \
                         .values('brus_volume')
 
         return self.annotate(brus_volume=Coalesce(Subquery(subquery), 0.0))
 
-    def add_only_doska_volume_exclude_2_5(self):
-        subquery = LumberRecord.objects.filter(sale__pk=OuterRef('pk'), lumber__lumber_type='doska') \
+    def add_only_doska_volume_exclude_2_5(self, wood_species='pine'):
+        subquery = LumberRecord.objects.filter(sale__pk=OuterRef('pk'),
+                            lumber__lumber_type='doska', lumber__wood_species=wood_species) \
                         .exclude(lumber__width=0.025) \
-                        .values('shift') \
+                        .values('sale') \
                         .annotate(doska_volume=Sum('volume')) \
                         .values('doska_volume')
 
         return self.annotate(doska_volume=Coalesce(Subquery(subquery), 0.0))
 
-    def calc_sold_volume_for_quota_calc(self):
-        return self.add_only_brus_volume().add_only_doska_volume_exclude_2_5() \
-            .aggregate(total_brus_volume=Sum('brus_volume'), total_doska_volume=Sum('doska_volume'))
+    def calc_sold_volume_for_quota_calc(self, wood_species='pine'):
+        return self.add_only_brus_volume(wood_species=wood_species) \
+                   .add_only_doska_volume_exclude_2_5(wood_species=wood_species) \
+                   .aggregate(total_brus_volume=Sum('brus_volume'),
+                              total_doska_volume=Sum('doska_volume'))
 
 
 class Sale(CoreModel):

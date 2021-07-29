@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from rawstock.models import Timber, TimberRecord, Quota
+from rawstock.models import Timber, TimberRecord, Quota, IncomeTimber
 
 
 @admin.register(Timber)
@@ -16,3 +16,8 @@ class TimberRecordAdmin(admin.ModelAdmin):
 @admin.register(Quota)
 class QuotaAdmin(admin.ModelAdmin):
     list_display = [f.name for f in Quota._meta.fields]
+
+
+@admin.register(IncomeTimber)
+class IncomeTimberAdmin(admin.ModelAdmin):
+    list_display = [f.name for f in IncomeTimber._meta.fields]
