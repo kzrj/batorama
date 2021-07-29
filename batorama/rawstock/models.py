@@ -106,69 +106,69 @@ class IncomeTimber(CoreModel):
         return f'{self.pk} income timber'
 
 
-class QuotaQuerySet(models.QuerySet):
-    # Services
-    def create_quota(self, income_timber):
-        data = dict()
+# class QuotaQuerySet(models.QuerySet):
+#     # Services
+#     def create_quota(self, income_timber):
+#         data = dict()
 
-        pine_volume = income_timber.timber_records.filter(timber__wood_species='pine') \
-            .aggregate(volume=Sum('volume'))['volume']
-        larch_volume = income_timber.timber_records.filter(timber__wood_species='larch') \
-            .aggregate(volume=Sum('volume'))['volume']
+#         pine_volume = income_timber.timber_records.filter(timber__wood_species='pine') \
+#             .aggregate(volume=Sum('volume'))['volume']
+#         larch_volume = income_timber.timber_records.filter(timber__wood_species='larch') \
+#             .aggregate(volume=Sum('volume'))['volume']
 
-        if pine_volume > 0:
-            data['pine_quota'] = self.create(income_timber=income_timber, rama=income_timber.rama, 
-                volume_quota_brus=pine_volume*0.5,
-                volume_quota_doska=pine_volume*0.2,
-                initiator=income_timber.initiator, wood_species='pine')
-        else:
-            data['pine_quota'] = None
+#         if pine_volume > 0:
+#             data['pine_quota'] = self.create(income_timber=income_timber, rama=income_timber.rama, 
+#                 volume_quota_brus=pine_volume*0.5,
+#                 volume_quota_doska=pine_volume*0.2,
+#                 initiator=income_timber.initiator, wood_species='pine')
+#         else:
+#             data['pine_quota'] = None
 
-        if larch_volume > 0:
-            data['larch_quota'] = self.create(income_timber=income_timber, rama=income_timber.rama, 
-                volume_quota_brus=larch_volume*0.5,
-                volume_quota_doska=larch_volume*0.2,
-                initiator=income_timber.initiator, wood_species='larch')
-        else:
-            data['larch_quota'] = None
+#         if larch_volume > 0:
+#             data['larch_quota'] = self.create(income_timber=income_timber, rama=income_timber.rama, 
+#                 volume_quota_brus=larch_volume*0.5,
+#                 volume_quota_doska=larch_volume*0.2,
+#                 initiator=income_timber.initiator, wood_species='larch')
+#         else:
+#             data['larch_quota'] = None
 
-        return data
+#         return data
 
-    # Selectors
-    def calc_volume_sum(self):
-        return self.aggregate(total_volume_quota_brus=Sum('volume_quota_brus'),
-            total_volume_quota_doska=Sum('volume_quota_doska'))
+#     # Selectors
+#     def calc_volume_sum(self):
+#         return self.aggregate(total_volume_quota_brus=Sum('volume_quota_brus'),
+#             total_volume_quota_doska=Sum('volume_quota_doska'))
 
 
-class Quota(CoreModel):
-    # SPECIES = [('pine', 'Сосна'), ('larch', 'Лиственница')]
-    # wood_species = models.CharField(max_length=20, choices=SPECIES)
+# class Quota(CoreModel):
+#     # SPECIES = [('pine', 'Сосна'), ('larch', 'Лиственница')]
+#     # wood_species = models.CharField(max_length=20, choices=SPECIES)
 
-    rama = models.ForeignKey('stock.Rama', on_delete=models.SET_NULL, blank=True, null=True,
-     related_name='quotas')
+#     rama = models.ForeignKey('stock.Rama', on_delete=models.SET_NULL, blank=True, null=True,
+#      related_name='quotas')
 
-    volume_quota_brus = models.FloatField()
-    volume_quota_doska = models.FloatField()
+#     volume_quota_brus = models.FloatField()
+#     volume_quota_doska = models.FloatField()
 
-    # test_quota_doska = models.FloatField()
+#     # test_quota_doska = models.FloatField()
 
-    # income_timber = models.ForeignKey(IncomeTimber, on_delete=models.CASCADE, related_name='quotas')
-    income_timber = models.OneToOneField(IncomeTimber, on_delete=models.CASCADE)
+#     # income_timber = models.ForeignKey(IncomeTimber, on_delete=models.CASCADE, related_name='quotas')
+#     income_timber = models.OneToOneField(IncomeTimber, on_delete=models.CASCADE)
 
-    initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
-        related_name='quotas')
+#     initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
+#         related_name='quotas')
 
-    objects = QuotaQuerySet.as_manager()
+#     objects = QuotaQuerySet.as_manager()
 
-    class Meta:
-        ordering = ['-created_at']
+#     class Meta:
+#         ordering = ['-created_at']
 
-    def __str__(self):
-        return f'План {self.income_timber.pk}'
+#     def __str__(self):
+#         return f'План {self.income_timber.pk}'
 
-    def current_quota(self):
-        sold_volume = self.rama.sales.calc_sold_volume_for_quota_calc()
+#     def current_quota(self):
+#         sold_volume = self.rama.sales.calc_sold_volume_for_quota_calc()
         
-        return round(self.volume_quota_brus - sold_volume['total_brus_volume'], 3), \
-               round(self.volume_quota_doska - sold_volume['total_doska_volume'], 3), 
+#         return round(self.volume_quota_brus - sold_volume['total_brus_volume'], 3), \
+#                round(self.volume_quota_doska - sold_volume['total_doska_volume'], 3), 
 
