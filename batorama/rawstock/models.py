@@ -141,8 +141,8 @@ class QuotaQuerySet(models.QuerySet):
 
 
 class Quota(CoreModel):
-    SPECIES = [('pine', 'Сосна'), ('larch', 'Лиственница')]
-    wood_species = models.CharField(max_length=20, choices=SPECIES)
+    # SPECIES = [('pine', 'Сосна'), ('larch', 'Лиственница')]
+    # wood_species = models.CharField(max_length=20, choices=SPECIES)
 
     rama = models.ForeignKey('stock.Rama', on_delete=models.SET_NULL, blank=True, null=True,
      related_name='quotas')
