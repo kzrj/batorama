@@ -658,10 +658,11 @@ class IncomeTimberViewSet(viewsets.ModelViewSet):
             wood_species = ChoiceField(source='timber.wood_species', read_only=True,
              choices=Timber.SPECIES)
             total_volume = serializers.ReadOnlyField(source='volume')
+            diameter = serializers.ReadOnlyField(source='timber.diameter')
 
             class Meta:
                 model = TimberRecord
-                fields = ['timber', 'quantity', 'volume', 'wood_species', 'total_volume']
+                fields = ['timber', 'quantity', 'volume', 'wood_species', 'total_volume', 'diameter']
 
         who = serializers.ReadOnlyField(source='initiator.account.nickname')
         timber_records = TimberRecordSerializer(many=True)
