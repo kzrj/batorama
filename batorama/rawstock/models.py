@@ -106,38 +106,38 @@ class IncomeTimber(CoreModel):
         return f'{self.pk} income timber'
 
 
-# class QuotaQuerySet(models.QuerySet):
-#     # Services
-#     def create_quota(self, income_timber):
-#         data = dict()
+class QuotaQuerySet(models.QuerySet):
+    # Services
+    def create_quota(self, income_timber):
+        data = dict()
 
-#         pine_volume = income_timber.timber_records.filter(timber__wood_species='pine') \
-#             .aggregate(volume=Sum('volume'))['volume']
-#         larch_volume = income_timber.timber_records.filter(timber__wood_species='larch') \
-#             .aggregate(volume=Sum('volume'))['volume']
+        pine_volume = income_timber.timber_records.filter(timber__wood_species='pine') \
+            .aggregate(volume=Sum('volume'))['volume']
+        larch_volume = income_timber.timber_records.filter(timber__wood_species='larch') \
+            .aggregate(volume=Sum('volume'))['volume']
 
-#         if pine_volume > 0:
-#             data['pine_quota'] = self.create(income_timber=income_timber, rama=income_timber.rama, 
-#                 volume_quota_brus=pine_volume*0.5,
-#                 volume_quota_doska=pine_volume*0.2,
-#                 initiator=income_timber.initiator, wood_species='pine')
-#         else:
-#             data['pine_quota'] = None
+        if pine_volume > 0:
+            data['pine_quota'] = self.create(income_timber=income_timber, rama=income_timber.rama, 
+                volume_quota_brus=pine_volume*0.5,
+                volume_quota_doska=pine_volume*0.2,
+                initiator=income_timber.initiator, wood_species='pine')
+        else:
+            data['pine_quota'] = None
 
-#         if larch_volume > 0:
-#             data['larch_quota'] = self.create(income_timber=income_timber, rama=income_timber.rama, 
-#                 volume_quota_brus=larch_volume*0.5,
-#                 volume_quota_doska=larch_volume*0.2,
-#                 initiator=income_timber.initiator, wood_species='larch')
-#         else:
-#             data['larch_quota'] = None
+        if larch_volume > 0:
+            data['larch_quota'] = self.create(income_timber=income_timber, rama=income_timber.rama, 
+                volume_quota_brus=larch_volume*0.5,
+                volume_quota_doska=larch_volume*0.2,
+                initiator=income_timber.initiator, wood_species='larch')
+        else:
+            data['larch_quota'] = None
 
-#         return data
+        return data
 
-#     # Selectors
-#     def calc_volume_sum(self):
-#         return self.aggregate(total_volume_quota_brus=Sum('volume_quota_brus'),
-#             total_volume_quota_doska=Sum('volume_quota_doska'))
+    # Selectors
+    def calc_volume_sum(self):
+        return self.aggregate(total_volume_quota_brus=Sum('volume_quota_brus'),
+            total_volume_quota_doska=Sum('volume_quota_doska'))
 
 
 class Quota(CoreModel):
