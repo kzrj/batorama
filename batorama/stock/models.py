@@ -238,8 +238,8 @@ class SaleQuerySet(models.QuerySet):
     def calc_sold_volume_for_quota_calc(self, wood_species='pine'):
         return self.add_only_brus_volume(wood_species=wood_species) \
                    .add_only_doska_volume_exclude_2_5(wood_species=wood_species) \
-                   .aggregate(total_brus_volume=Sum('brus_volume'),
-                              total_doska_volume=Sum('doska_volume'))
+                   .aggregate(total_brus_volume=Coalesce(Sum('brus_volume'), 0.0),
+                              total_doska_volume=Coalesce(Sum('doska_volume'), 0.0))
 
 
 class Sale(CoreModel):

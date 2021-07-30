@@ -136,8 +136,24 @@ class QuotaQuerySet(models.QuerySet):
 
     # Selectors
     def calc_volume_sum(self):
-        return self.aggregate(total_volume_quota_brus=Sum('volume_quota_brus'),
-            total_volume_quota_doska=Sum('volume_quota_doska'))
+        return self.aggregate(total_volume_quota_brus=Coalesce(Sum('volume_quota_brus'), 0.0),
+            total_volume_quota_doska=Coalesce(Sum('volume_quota_doska'), 0.0))
+
+    def curent_rama_quota(self, rama, wood_species):
+        quotas_volumes = self.filter(rama=rama, wood_species=wood_species).calc_volume_sum()
+        sold_volumes = rama.sales.calc_sold_volume_for_quota_calc(wood_species=wood_species)
+
+        data = dict()
+        data['total_volume_quota_brus'] = quotas_volumes['total_volume_quota_brus']
+        data['total_volume_quota_doska'] = quotas_volumes['total_volume_quota_doska']
+        data['total_volume_sold_brus'] = sold_volumes['total_brus_volume']
+        data['total_volume_sold_doska'] = sold_volumes['total_doska_volume']
+        data['brus_balance'] = quotas_volumes['total_volume_quota_brus'] - \
+            sold_volumes['total_brus_volume']
+        data['doska_balance'] = quotas_volumes['total_volume_quota_doska'] - \
+            sold_volumes['total_doska_volume']
+
+        return data
 
 
 class Quota(CoreModel):
