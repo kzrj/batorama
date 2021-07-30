@@ -657,10 +657,11 @@ class IncomeTimberViewSet(viewsets.ModelViewSet):
             timber = serializers.StringRelatedField()
             wood_species = ChoiceField(source='timber.wood_species', read_only=True,
              choices=Timber.SPECIES)
+            total_volume = serializers.ReadOnlyField(source='volume')
 
             class Meta:
                 model = TimberRecord
-                fields = ['timber', 'quantity', 'volume', 'wood_species']
+                fields = ['timber', 'quantity', 'volume', 'wood_species', 'total_volume']
 
         who = serializers.ReadOnlyField(source='initiator.account.nickname')
         timber_records = TimberRecordSerializer(many=True)
@@ -709,7 +710,7 @@ class IncomeTimberViewSet(viewsets.ModelViewSet):
             Quota.objects.create_quota(income_timber=income_timber)
             
             return Response({
-                'income_timber': self.IncomeTimberSerializer(income_timber).data,
+                'income_timber': self.ReadIncomeTimberSerializer(income_timber).data,
                 'message': 'Успешно'
                 },
                  status=status.HTTP_200_OK)
