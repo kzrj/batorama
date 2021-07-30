@@ -651,6 +651,25 @@ class IncomeTimberViewSet(viewsets.ModelViewSet):
         note = serializers.CharField(required=False)
 
 
+    class ReadIncomeTimberSerializer(serializers.ModelSerializer):
+
+        class TimberRecordSerializer(serializers.ModelSerializer):
+            timber = serializers.StringRelatedField()
+            wood_species = ChoiceField(source='timber.wood_species', read_only=True,
+             choices=Timber.SPECIES)
+
+            class Meta:
+                model = TimberRecord
+                fields = ['timber', 'quantity', 'volume', 'wood_species']
+
+        who = serializers.ReadOnlyField(source='initiator.account.nickname')
+        timber_records = TimberRecordSerializer(many=True)
+
+        class Meta:
+            model = IncomeTimber
+            fields = ['id', 'created_at', 'who', 'quantity', 'volume', 'note', 'timber_records']
+
+
     class OnlyManagerCanCreatePermissions(permissions.BasePermission):
         def has_permission(self, request, view):
             if request.method in permissions.SAFE_METHODS:
@@ -696,3 +715,11 @@ class IncomeTimberViewSet(viewsets.ModelViewSet):
                  status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, pk=None):
+        self.get_object().delete()
+        return Response({
+            'income_timbers': self.ReadIncomeTimberSerializer(
+                    self.get_queryset().filter(rama=request.user.account.rama), many=True).data,
+            },
+            status=status.HTTP_200_OK)
