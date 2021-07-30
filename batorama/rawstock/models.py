@@ -140,35 +140,35 @@ class IncomeTimber(CoreModel):
 #             total_volume_quota_doska=Sum('volume_quota_doska'))
 
 
-# class Quota(CoreModel):
-#     # SPECIES = [('pine', 'Сосна'), ('larch', 'Лиственница')]
-#     # wood_species = models.CharField(max_length=20, choices=SPECIES)
+class Quota(CoreModel):
+    SPECIES = [('pine', 'Сосна'), ('larch', 'Лиственница')]
+    wood_species = models.CharField(max_length=20, choices=SPECIES)
 
-#     rama = models.ForeignKey('stock.Rama', on_delete=models.SET_NULL, blank=True, null=True,
-#      related_name='quotas')
+    rama = models.ForeignKey('stock.Rama', on_delete=models.SET_NULL, blank=True, null=True,
+     related_name='quotas')
 
-#     volume_quota_brus = models.FloatField()
-#     volume_quota_doska = models.FloatField()
+    volume_quota_brus = models.FloatField()
+    volume_quota_doska = models.FloatField()
 
-#     # test_quota_doska = models.FloatField()
+    # test_quota_doska = models.FloatField()
 
-#     # income_timber = models.ForeignKey(IncomeTimber, on_delete=models.CASCADE, related_name='quotas')
-#     income_timber = models.OneToOneField(IncomeTimber, on_delete=models.CASCADE)
+    income_timber = models.ForeignKey(IncomeTimber, on_delete=models.CASCADE, related_name='quotas')
+    # income_timber = models.OneToOneField(IncomeTimber, on_delete=models.CASCADE)
 
-#     initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
-#         related_name='quotas')
+    initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='quotas')
 
-#     objects = QuotaQuerySet.as_manager()
+    objects = QuotaQuerySet.as_manager()
 
-#     class Meta:
-#         ordering = ['-created_at']
+    class Meta:
+        ordering = ['-created_at']
 
-#     def __str__(self):
-#         return f'План {self.income_timber.pk}'
+    def __str__(self):
+        return f'План {self.income_timber.pk}'
 
-#     def current_quota(self):
-#         sold_volume = self.rama.sales.calc_sold_volume_for_quota_calc()
+    def current_quota(self):
+        sold_volume = self.rama.sales.calc_sold_volume_for_quota_calc()
         
-#         return round(self.volume_quota_brus - sold_volume['total_brus_volume'], 3), \
-#                round(self.volume_quota_doska - sold_volume['total_doska_volume'], 3), 
+        return round(self.volume_quota_brus - sold_volume['total_brus_volume'], 3), \
+               round(self.volume_quota_doska - sold_volume['total_doska_volume'], 3), 
 
