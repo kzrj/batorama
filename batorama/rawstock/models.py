@@ -116,7 +116,7 @@ class QuotaQuerySet(models.QuerySet):
         larch_volume = income_timber.timber_records.filter(timber__wood_species='larch') \
             .aggregate(volume=Sum('volume'))['volume']
 
-        if pine_volume > 0:
+        if pine_volume and pine_volume > 0:
             data['pine_quota'] = self.create(income_timber=income_timber, rama=income_timber.rama, 
                 volume_quota_brus=pine_volume*0.5,
                 volume_quota_doska=pine_volume*0.2,
@@ -124,7 +124,7 @@ class QuotaQuerySet(models.QuerySet):
         else:
             data['pine_quota'] = None
 
-        if larch_volume > 0:
+        if larch_volume and larch_volume > 0:
             data['larch_quota'] = self.create(income_timber=income_timber, rama=income_timber.rama, 
                 volume_quota_brus=larch_volume*0.5,
                 volume_quota_doska=larch_volume*0.2,
