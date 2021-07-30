@@ -119,7 +119,7 @@ class QuotaQuerySet(models.QuerySet):
         if pine_volume and pine_volume > 0:
             data['pine_quota'] = self.create(income_timber=income_timber, rama=income_timber.rama, 
                 volume_quota_brus=pine_volume*0.5,
-                volume_quota_doska=pine_volume*0.2,
+                volume_quota_doska=pine_volume*0.25,
                 initiator=income_timber.initiator, wood_species='pine')
         else:
             data['pine_quota'] = None
@@ -127,7 +127,7 @@ class QuotaQuerySet(models.QuerySet):
         if larch_volume and larch_volume > 0:
             data['larch_quota'] = self.create(income_timber=income_timber, rama=income_timber.rama, 
                 volume_quota_brus=larch_volume*0.5,
-                volume_quota_doska=larch_volume*0.2,
+                volume_quota_doska=larch_volume*0.25,
                 initiator=income_timber.initiator, wood_species='larch')
         else:
             data['larch_quota'] = None
