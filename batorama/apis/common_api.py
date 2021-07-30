@@ -408,35 +408,35 @@ class IncomeTimberListView(generics.ListAPIView):
     filter_class = IncomeTimberFilter
 
 
-# class QuotasPageView(APIView):
+class QuotasPageView(APIView):
     
-#     # permission_classes = [IsAuthenticated, CanSeeRamaIncomeTimberPermissions]
+    # permission_classes = [IsAuthenticated, CanSeeRamaIncomeTimberPermissions]
 
-#     def get(self, request, format=None):
-#         rama = Rama.objects.get(pk=request.GET.get('rama'))
-#         pine_quotas_volumes = Quota.objects.filter(rama=rama, wood_species='pine').calc_volume_sum()
-#         pine_sold_volumes = rama.sales.calc_sold_volume_for_quota_calc(wood_species='pine')
+    def get(self, request, format=None):
+        rama = Rama.objects.get(pk=request.GET.get('rama'))
+        pine_quotas_volumes = Quota.objects.filter(rama=rama, wood_species='pine').calc_volume_sum()
+        pine_sold_volumes = rama.sales.calc_sold_volume_for_quota_calc(wood_species='pine')
 
-#         data = dict()
-#         data['total_volume_pine_quota_brus'] = pine_quotas_volumes['total_volume_quota_brus']
-#         data['total_volume_pine_quota_doska'] = pine_quotas_volumes['total_volume_quota_doska']
-#         data['total_volume_pine_sold_brus'] = pine_sold_volumes['total_brus_volume']
-#         data['total_volume_pine_sold_doska'] = pine_sold_volumes['total_doska_volume']
-#         data['brus_pine_balance'] = pine_quotas_volumes['total_volume_quota_brus'] - \
-#             pine_sold_volumes['total_brus_volume']
-#         data['doska_pine_balance'] = pine_quotas_volumes['total_volume_quota_doska'] - \
-#             pine_sold_volumes['total_doska_volume']
+        data = dict()
+        data['total_volume_pine_quota_brus'] = pine_quotas_volumes['total_volume_quota_brus']
+        data['total_volume_pine_quota_doska'] = pine_quotas_volumes['total_volume_quota_doska']
+        data['total_volume_pine_sold_brus'] = pine_sold_volumes['total_brus_volume']
+        data['total_volume_pine_sold_doska'] = pine_sold_volumes['total_doska_volume']
+        data['brus_pine_balance'] = pine_quotas_volumes['total_volume_quota_brus'] - \
+            pine_sold_volumes['total_brus_volume']
+        data['doska_pine_balance'] = pine_quotas_volumes['total_volume_quota_doska'] - \
+            pine_sold_volumes['total_doska_volume']
 
-#         larch_quotas_volumes = Quota.objects.filter(rama=rama, wood_species='larch').calc_volume_sum()
-#         larch_sold_volumes = rama.sales.calc_sold_volume_for_quota_calc(wood_species='larch')
+        larch_quotas_volumes = Quota.objects.filter(rama=rama, wood_species='larch').calc_volume_sum()
+        larch_sold_volumes = rama.sales.calc_sold_volume_for_quota_calc(wood_species='larch')
 
-#         data['total_volume_larch_quota_brus'] = larch_quotas_volumes['total_volume_quota_brus']
-#         data['total_volume_larch_quota_doska'] = larch_quotas_volumes['total_volume_quota_doska']
-#         data['total_volume_larch_sold_brus'] = larch_sold_volumes['total_brus_volume']
-#         data['total_volume_larch_sold_doska'] = larch_sold_volumes['total_doska_volume']
-#         data['brus_larch_balance'] = larch_quotas_volumes['total_volume_quota_brus'] - \
-#             larch_sold_volumes['total_brus_volume']
-#         data['doska_larch_balance'] = larch_quotas_volumes['total_volume_quota_doska'] - \
-#             larch_sold_volumes['total_doska_volume']
+        data['total_volume_larch_quota_brus'] = larch_quotas_volumes['total_volume_quota_brus']
+        data['total_volume_larch_quota_doska'] = larch_quotas_volumes['total_volume_quota_doska']
+        data['total_volume_larch_sold_brus'] = larch_sold_volumes['total_brus_volume']
+        data['total_volume_larch_sold_doska'] = larch_sold_volumes['total_doska_volume']
+        data['brus_larch_balance'] = larch_quotas_volumes['total_volume_quota_brus'] - \
+            larch_sold_volumes['total_brus_volume']
+        data['doska_larch_balance'] = larch_quotas_volumes['total_volume_quota_doska'] - \
+            larch_sold_volumes['total_doska_volume']
 
-#         return Response(data, status=status.HTTP_200_OK)
+        return Response(data, status=status.HTTP_200_OK)
