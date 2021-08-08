@@ -217,8 +217,9 @@ class SaleQuerySet(models.QuerySet):
             )
 
     def add_only_brus_volume(self, wood_species='pine'):
-        subquery = LumberRecord.objects.filter(sale__pk=OuterRef('pk'),
-                            lumber__lumber_type='brus', lumber__wood_species=wood_species) \
+        subquery = LumberRecord.objects.filter(sale__pk=OuterRef('pk'), lumber__wood_species=wood_species) \
+                            .filter(Q(lumber__lumber_type='brus') | Q(lumber__name__contains='обрезная')) \
+                            .exclude(lumber__width=0.025) \
                         .values('sale') \
                         .annotate(brus_volume=Sum('volume')) \
                         .values('brus_volume')
