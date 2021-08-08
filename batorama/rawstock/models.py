@@ -166,7 +166,8 @@ class Quota(CoreModel):
     volume_quota_brus = models.FloatField()
     volume_quota_doska = models.FloatField()
 
-    income_timber = models.ForeignKey(IncomeTimber, on_delete=models.CASCADE, related_name='quotas')
+    income_timber = models.ForeignKey(IncomeTimber, on_delete=models.CASCADE, related_name='quotas',
+        blank=True, null=True,)
 
     initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='quotas')
