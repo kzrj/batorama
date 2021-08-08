@@ -230,6 +230,7 @@ class SaleQuerySet(models.QuerySet):
         subquery = LumberRecord.objects.filter(sale__pk=OuterRef('pk'),
                             lumber__lumber_type='doska', lumber__wood_species=wood_species) \
                         .exclude(lumber__width=0.025) \
+                        .exclude(lumber__name__contains='обрезная') \
                         .values('sale') \
                         .annotate(doska_volume=Sum('volume')) \
                         .values('doska_volume')
