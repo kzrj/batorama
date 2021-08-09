@@ -694,7 +694,7 @@ class IncomeTimberViewSet(viewsets.ModelViewSet):
                 return request.user.account.is_manager or request.user.account.is_boss
 
             if request.method == 'POST':
-                return request.user.account.is_manager or request.user.account.is_boss
+                return request.user.account.is_manager
 
             if request.method == 'DELETE':
                 return request.user.account.is_boss
