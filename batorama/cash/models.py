@@ -52,8 +52,9 @@ class CashRecord(CoreModel):
         ('withdraw_cash_from_manager', 'Вывод средств от кладмэна/менеджера'),
         ('rama_expenses', 'Расходы рамы'),
         ('sale_income', 'Приход с продажи'),
+        ('income_timber', 'Начисление менеджеру с прихода круглого леса'),
     ]
-    record_type = models.CharField(max_length=50, choices=RECORD_TYPES)
+    record_type = models.CharField(max_length=100, choices=RECORD_TYPES)
 
     rama = models.ForeignKey('stock.Rama', on_delete=models.SET_NULL, null=True, blank=True,
         related_name='cash_records')

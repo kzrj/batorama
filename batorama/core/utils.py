@@ -58,7 +58,7 @@ def custom_exception_handler(exc, context):
 class RamaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rama
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'sale_type')
 
 
 class EmployeeSerializer(serializers.ModelSerializer):

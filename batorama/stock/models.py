@@ -96,6 +96,10 @@ class Rama(CoreModel):
     STOCK_TYPES = [('mixed', 'Смешанный'), ('sorted', 'Сортированный')]
     stock_type = models.CharField(max_length=50, choices=STOCK_TYPES, null=True, blank=True)
 
+    SALE_TYPES = [('seller_kladman_split', 'Комиссия продавца и кладмэна раздельно'),
+         ('seller_kladman_same', 'Комиссия продавца и кладмэна вместе')]
+    sale_type = models.CharField(max_length=100, choices=SALE_TYPES, null=True, blank=True)
+
     def __str__(self):
         return self.name    
 
