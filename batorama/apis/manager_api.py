@@ -691,7 +691,7 @@ class IncomeTimberViewSet(viewsets.ModelViewSet):
     class OnlyManagerCanCreateBossDeletePermissions(permissions.BasePermission):
         def has_permission(self, request, view):
             if request.method in permissions.SAFE_METHODS:
-                return request.user.account.is_manager
+                return request.user.account.is_manager or request.user.account.is_boss
 
             if request.method == 'POST':
                 return request.user.account.is_manager or request.user.account.is_boss
