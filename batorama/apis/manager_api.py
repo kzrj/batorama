@@ -220,9 +220,9 @@ class ShiftViewSet(viewsets.ViewSet):
         id = serializers.ReadOnlyField(source='lumber.pk')
         name = serializers.ReadOnlyField(source='lumber.name')
         lumber_type = serializers.ReadOnlyField(source='lumber.lumber_type')
-        quantity = serializers.ReadOnlyField(source='lumber.quantity')
+        quantity = serializers.IntegerField(default=0)
         volume = serializers.ReadOnlyField(source='lumber.volume')
-        volume_total = serializers.ReadOnlyField(source='lumber.volume')
+        volume_total = serializers.FloatField(default=0)
         wood_species = serializers.ReadOnlyField(source='lumber.wood_species')
         cash = serializers.FloatField(default=0.0)
 
