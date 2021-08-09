@@ -13,7 +13,7 @@ from django_filters import rest_framework as filters
 
 from accounts.models import Account
 from cash.models import CashRecord
-from stock.models import Shift, LumberRecord, Lumber, Sale, Rama, ReSaw
+from stock.models import Shift, LumberRecord, Lumber, Sale, Rama, ReSaw, LumberSawRate
 from rawstock.models import IncomeTimber, Timber, TimberRecord, Quota
 
 from core.serializers import AnnotateFieldsModelSerializer, ChoiceField
@@ -216,6 +216,22 @@ class ShiftViewSet(viewsets.ViewSet):
              'china_width', 'round_volume', 'height', 'width', 'length']
 
 
+    class LumberSawRateSerializer(serializers.ModelSerializer):
+        id = serializers.ReadOnlyField(source='lumber.pk')
+        name = serializers.ReadOnlyField(source='lumber.name')
+        lumber_type = serializers.ReadOnlyField(source='lumber.lumber_type')
+        quantity = serializers.ReadOnlyField(source='lumber.quantity')
+        volume = serializers.ReadOnlyField(source='lumber.volume')
+        volume_total = serializers.ReadOnlyField(source='lumber.volume')
+        wood_species = serializers.ReadOnlyField(source='lumber.wood_species')
+        cash = serializers.FloatField(default=0.0)
+
+        class Meta:
+            model = LumberSawRate
+            fields = ['id', 'employee_rate', 'name', 'lumber_type', 'quantity', 'volume',
+             'volume_total', 'wood_species', 'cash']
+
+
     class RamshikSerializer(serializers.ModelSerializer):
         class Meta:
             model = Account
@@ -260,9 +276,11 @@ class ShiftViewSet(viewsets.ViewSet):
 
     @action(methods=['get'], detail=False)
     def shift_create_data(self, request):
-        lumbers = Lumber.objects.all()
+        # lumbers = Lumber.objects.all()
+        lumber_rates = LumberSawRate.objects.filter(rama=request.user.account.rama)
         return Response({
-            'lumbers': self.LumberSerializer(lumbers, many=True).data,
+            # 'lumbers': self.LumberSerializer(lumbers, many=True).data,
+            'lumbers': self.LumberSawRateSerializer(lumber_rates, many=True).data,
             'employees': self.RamshikSerializer(Account.objects.filter(is_ramshik=True,
                 rama=request.user.account.rama), many=True).data,
             }, status=status.HTTP_200_OK)

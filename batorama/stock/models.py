@@ -508,3 +508,12 @@ class RefuseLumber(CoreModel):
 
     def __str__(self):
         return f'Брак {self.pk}'
+
+
+class LumberSawRate(CoreModel):
+    lumber = models.ForeignKey(Lumber, on_delete=models.CASCADE, related_name='saw_rates')
+    rama = models.ForeignKey(Rama, on_delete=models.CASCADE, related_name='saw_rates')
+    employee_rate = models.IntegerField()
+
+    def __str__(self):
+        return f'Ставка рамщика {self.pk}'

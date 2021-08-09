@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from stock.models import (Lumber, Shift, LumberRecord, Sale, ReSaw, Rama)
+from stock.models import (Lumber, Shift, LumberRecord, Sale, ReSaw, Rama, LumberSawRate)
 
 
 @admin.register(Rama)
@@ -31,3 +31,8 @@ class ReSawAdmin(admin.ModelAdmin):
 @admin.register(LumberRecord)
 class LumberRecordAdmin(admin.ModelAdmin):
     list_display = [f.name for f in LumberRecord._meta.fields]
+
+
+@admin.register(LumberSawRate)
+class LumberSawRateAdmin(admin.ModelAdmin):
+    list_display = [f.name for f in LumberSawRate._meta.fields]
