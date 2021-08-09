@@ -276,11 +276,11 @@ class ShiftViewSet(viewsets.ViewSet):
 
     @action(methods=['get'], detail=False)
     def shift_create_data(self, request):
-        lumbers = Lumber.objects.all()
+        # lumbers = Lumber.objects.all()
         lumber_rates = LumberSawRate.objects.filter(rama=request.user.account.rama)
         return Response({
-            'lumbers': self.LumberSerializer(lumbers, many=True).data,
-            'lumbers_rate': self.LumberSawRateSerializer(lumber_rates, many=True).data,
+            # 'lumbers': self.LumberSerializer(lumbers, many=True).data,
+            'lumbers': self.LumberSawRateSerializer(lumber_rates, many=True).data,
             'employees': self.RamshikSerializer(Account.objects.filter(is_ramshik=True,
                 rama=request.user.account.rama), many=True).data,
             }, status=status.HTTP_200_OK)
