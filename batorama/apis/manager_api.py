@@ -276,10 +276,8 @@ class ShiftViewSet(viewsets.ViewSet):
 
     @action(methods=['get'], detail=False)
     def shift_create_data(self, request):
-        # lumbers = Lumber.objects.all()
         lumber_rates = LumberSawRate.objects.filter(rama=request.user.account.rama)
         return Response({
-            # 'lumbers': self.LumberSerializer(lumbers, many=True).data,
             'lumbers': self.LumberSawRateSerializer(lumber_rates, many=True).data,
             'employees': self.RamshikSerializer(Account.objects.filter(is_ramshik=True,
                 rama=request.user.account.rama), many=True).data,
@@ -690,25 +688,28 @@ class IncomeTimberViewSet(viewsets.ModelViewSet):
             fields = ['id', 'created_at', 'who', 'quantity', 'volume', 'note', 'timber_records']
 
 
-    class OnlyManagerCanCreatePermissions(permissions.BasePermission):
+    class OnlyManagerCanCreateBossDeletePermissions(permissions.BasePermission):
         def has_permission(self, request, view):
             if request.method in permissions.SAFE_METHODS:
                 return request.user.account.is_manager
 
-            if request.method == 'POST' or request.method == 'DELETE':
-                return request.user.account.is_manager
+            if request.method == 'POST':
+                return request.user.account.is_manager or request.user.account.is_boss
+
+            if request.method == 'DELETE':
+                return request.user.account.is_boss
 
             return False
 
         def has_object_permission(self, request, view, obj):
             if request.method == 'DELETE':
-                return request.user.account.rama == obj.rama
+                return request.user.account.is_boss
 
             return False
 
     queryset = IncomeTimber.objects.all()
     serializer_class = IncomeTimberSerializer
-    permission_classes = [IsAuthenticated, OnlyManagerCanCreatePermissions]
+    permission_classes = [IsAuthenticated, OnlyManagerCanCreateBossDeletePermissions]
 
     @action(detail=False, methods=['get'])
     def init_data(self, request, pk=None):
