@@ -85,6 +85,7 @@ class IncomeTimberQuerySet(models.QuerySet):
         Quota.objects.create_quota(income_timber=income_timber)
 
         income_timber.cash_records.create_income_timber_payment_to_manager(
+            income_timber=income_timber,
             amount=income_timber.volume*0.75*1100,
             initiator=initiator,
             manager=initiator,
