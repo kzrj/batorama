@@ -411,9 +411,11 @@ class IncomeTimberListView(generics.ListAPIView):
 class QuotasPageView(APIView):
 
     class CashRecordSerializer(serializers.ModelSerializer):
+        record_type = ChoiceField(source='record_type', read_only=True, choices=CashRecord.RECORD_TYPES)
+
         class Meta:
             model = CashRecord
-            fields = ['created_at', 'amount', 'note', 'record_type']
+            fields = ['created_at', 'amount', 'note', 'record_type', 'initiator']
     
     # permission_classes = [IsAuthenticated, CanSeeRamaIncomeTimberPermissions]
 
