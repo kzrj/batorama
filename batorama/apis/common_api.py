@@ -432,7 +432,7 @@ class QuotasPageView(APIView):
                                 Q(record_type='income_timber')) \
                         .order_by('-created_at')
 
-        data['cash_records'] = CashRecordSerializer(cash_records, many=True).data
+        data['cash_records'] = self.CashRecordSerializer(cash_records, many=True).data
         data['manager_balance'] = cash_records.calc_manager_balance()
 
         return Response(data, status=status.HTTP_200_OK)
