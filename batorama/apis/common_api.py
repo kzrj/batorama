@@ -412,7 +412,7 @@ class QuotasPageView(APIView):
 
     class CashRecordSerializer(serializers.ModelSerializer):
         record_type = ChoiceField(read_only=True, choices=CashRecord.RECORD_TYPES)
-        who = serializers.ReadOnlyField(source='initiator.account.name')
+        who = serializers.ReadOnlyField(source='initiator.account.nickname')
 
         class Meta:
             model = CashRecord
