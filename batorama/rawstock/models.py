@@ -88,7 +88,7 @@ class IncomeTimberQuerySet(models.QuerySet):
             income_timber=income_timber,
             amount=income_timber.volume*0.75*1100,
             initiator=initiator,
-            manager=initiator,
+            manager=initiator.account,
             note=None
             )
 
