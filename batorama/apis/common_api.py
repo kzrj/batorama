@@ -409,16 +409,30 @@ class IncomeTimberListView(generics.ListAPIView):
 
 
 class QuotasPageView(APIView):
+
+    class CashRecordSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = CashRecord
+            fields = ['created_at', 'amount', 'note', 'record_type']
     
     # permission_classes = [IsAuthenticated, CanSeeRamaIncomeTimberPermissions]
 
     def get(self, request, format=None):
+        data = dict()
+
         rama = Rama.objects.get(pk=request.GET.get('rama'))
         pine_data = Quota.objects.curent_rama_quota(rama=rama, wood_species='pine')
         larch_data = Quota.objects.curent_rama_quota(rama=rama, wood_species='larch')
 
-        data = dict()
         data['pine_data'] = pine_data
         data['larch_data'] = larch_data
+
+        cash_records = CashRecord.objects.filter(rama=rama) \
+                        .filter(Q(record_type='withdraw_cash_from_manager') |
+                                Q(record_type='income_timber')) \
+                        .order_by('-created_at')
+
+        data['cash_records'] = CashRecordSerializer(cash_records, many=True).data
+        data['manager_balance'] = cash_records.calc_manager_balance()
 
         return Response(data, status=status.HTTP_200_OK)

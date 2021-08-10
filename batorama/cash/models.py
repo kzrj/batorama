@@ -48,6 +48,12 @@ class CashRecordQuerySet(models.QuerySet):
             - Coalesce(Sum('amount', filter=Q(record_type='withdraw_employee')), Value(0))
         )['total']
 
+    def calc_manager_balance(self):
+        return self.aggregate(total=
+            Coalesce(Sum('amount', filter=Q(record_type='income_timber')), Value(0))
+            - Coalesce(Sum('amount', filter=Q(record_type='withdraw_cash_from_manager')), Value(0))
+        )['total']
+
 
 class CashRecord(CoreModel):
     amount = models.IntegerField()
