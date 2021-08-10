@@ -412,10 +412,11 @@ class QuotasPageView(APIView):
 
     class CashRecordSerializer(serializers.ModelSerializer):
         record_type = ChoiceField(read_only=True, choices=CashRecord.RECORD_TYPES)
+        who = serializers.ReadOnlyField(source='initiator.account.name')
 
         class Meta:
             model = CashRecord
-            fields = ['created_at', 'amount', 'note', 'record_type', 'initiator']
+            fields = ['created_at', 'amount', 'note', 'record_type', 'who']
     
     # permission_classes = [IsAuthenticated, CanSeeRamaIncomeTimberPermissions]
 
