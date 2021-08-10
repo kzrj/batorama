@@ -727,7 +727,6 @@ class IncomeTimberViewSet(viewsets.ModelViewSet):
                 initiator=request.user,
                 rama=request.user.account.rama
                 )
-            # Quota.objects.create_quota(income_timber=income_timber)
             
             return Response({
                 'income_timber': self.ReadIncomeTimberSerializer(income_timber).data,
