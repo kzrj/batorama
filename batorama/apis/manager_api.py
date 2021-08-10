@@ -519,30 +519,30 @@ class CashRecordsView(viewsets.ModelViewSet):
 
 
 # resaw
-class ReSawSerializer(serializers.ModelSerializer):
-    lumber_in = serializers.ReadOnlyField(source='lumber_in.lumber.name')
-    lumber_in_quantity = serializers.ReadOnlyField(source='lumber_in.quantity')
+# class ReSawSerializer(serializers.ModelSerializer):
+#     lumber_in = serializers.ReadOnlyField(source='lumber_in.lumber.name')
+#     lumber_in_quantity = serializers.ReadOnlyField(source='lumber_in.quantity')
 
-    lumber_out = serializers.ReadOnlyField(source='lumber_out.lumber.name')
-    lumber_out_quantity = serializers.ReadOnlyField(source='lumber_out.quantity')
+#     lumber_out = serializers.ReadOnlyField(source='lumber_out.lumber.name')
+#     lumber_out_quantity = serializers.ReadOnlyField(source='lumber_out.quantity')
 
-    class Meta:
-        model = ReSaw
-        fields = ['id', 'created_at', 'lumber_in', 'lumber_in_quantity', 'lumber_out', 
-            'lumber_out_quantity']
+#     class Meta:
+#         model = ReSaw
+#         fields = ['id', 'created_at', 'lumber_in', 'lumber_in_quantity', 'lumber_out', 
+#             'lumber_out_quantity']
 
 
-class CreateReSawSerializer(serializers.Serializer):
-    lumber_in = serializers.PrimaryKeyRelatedField(queryset=Lumber.objects.all())
-    lumber_in_quantity = serializers.IntegerField()
+# class CreateReSawSerializer(serializers.Serializer):
+#     lumber_in = serializers.PrimaryKeyRelatedField(queryset=Lumber.objects.all())
+#     lumber_in_quantity = serializers.IntegerField()
 
-    lumber_out = serializers.PrimaryKeyRelatedField(queryset=Lumber.objects.all())
-    lumber_out_quantity = serializers.IntegerField()
+#     lumber_out = serializers.PrimaryKeyRelatedField(queryset=Lumber.objects.all())
+#     lumber_out_quantity = serializers.IntegerField()
 
-    class Meta:
-        model = ReSaw
-        fields = ['id', 'created_at', 'lumber_in', 'lumber_in_quantity', 'lumber_out', 
-            'lumber_out_quantity']
+#     class Meta:
+#         model = ReSaw
+#         fields = ['id', 'created_at', 'lumber_in', 'lumber_in_quantity', 'lumber_out', 
+#             'lumber_out_quantity']
 
 
 class ReSawViewSet(viewsets.ModelViewSet):
