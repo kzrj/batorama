@@ -82,6 +82,8 @@ class IncomeTimberQuerySet(models.QuerySet):
             quantity=total_qnty_and_volume['total_qnty'], volume=total_qnty_and_volume['total_volume'])
         timber_records.update(income_timber=income_timber)
 
+        Quota.objects.create_quota(income_timber=income_timber)
+        
         return income_timber
 
 

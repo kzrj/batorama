@@ -32,6 +32,11 @@ class CashRecordQuerySet(models.QuerySet):
         return self.create(amount=amount, note=note, rama=initiator.account.rama, initiator=initiator,
             sale=sale, record_type='sale_income')
 
+    def create_income_timber_payment_to_manager(self, amount, note, initiator, income_timber, manager):
+        manager.add_cash(amount)
+        return self.create(amount=amount, note=note, rama=initiator.account.rama, initiator=initiator,
+            income_timber=income_timber, record_type='income_timber')
+
     # Selectors
     def calc_sum(self):
         return self.aggregate(total=Sum('amount'))['total']
@@ -66,6 +71,8 @@ class CashRecord(CoreModel):
         null=True, blank=True)
     sale = models.ForeignKey('stock.Sale', on_delete=models.SET_NULL, related_name='cash_records',
         null=True, blank=True)
+    income_timber = models.ForeignKey('rawstock.IncomeTimber', on_delete=models.SET_NULL,
+     related_name='cash_records', null=True, blank=True)
 
     initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='cash_records')
