@@ -21,8 +21,9 @@ class CashRecordQuerySet(models.QuerySet):
         employee.remove_cash(amount)
 
     def create_withdraw_cash_from_manager(self, manager_account, amount, initiator=None):
+        manager_account.remove_cash(amount)
         return self.create(amount=amount, account=manager_account, 
-            record_type='withdraw_cash_from_manager', initiator=initiator, rama=initiator.account.rama)
+            record_type='withdraw_cash_from_manager', initiator=initiator, rama=manager_account.rama)
 
     def create_rama_expense(self, amount, note, initiator):
         return self.create(amount=amount, note=note, rama=initiator.account.rama, initiator=initiator,

@@ -442,12 +442,18 @@ class CashRecordsView(viewsets.ModelViewSet):
             fields = ['amount', 'note']
 
 
+    class CreateManagerPayoutSerializer(serializers.Serializer):
+        rama = serializers.PrimaryKeyRelatedField(queryset=Rama.objects.all())
+        amount = serializers.IntegerField()
+
+
     class ExpensesFilter(filters.FilterSet):
         created_at = filters.DateFromToRangeFilter()
 
         class Meta:
             model = CashRecord
             fields = '__all__'
+
 
     class OnlyManagerCanCreateDeletePermissions(permissions.BasePermission):
         def has_permission(self, request, view):
@@ -462,6 +468,14 @@ class CashRecordsView(viewsets.ModelViewSet):
         def has_object_permission(self, request, view, obj):
             if request.method == 'DELETE':
                 return request.user.account.rama == obj.rama
+
+            return False
+
+
+    class BossOrCapoPermission(permissions.BasePermission):
+        def has_permission(self, request, view):
+            if request.method == 'POST':
+                return request.user.account.is_boss or request.user.account.is_capo
 
             return False
 
@@ -516,6 +530,21 @@ class CashRecordsView(viewsets.ModelViewSet):
             'totals': records.calc_sum()
             },
             status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], permission_classes=[BossOrCapoPermission],
+        serializer_class=CreateManagerPayoutSerializer)
+    def payout_to_manager(self, request, pk=None):
+        serializer = self.CreateManagerPayoutSerializer(data=request.data)
+        if serializer.is_valid():
+            rama = serializer.validated_data['rama']
+            manager = Account.objects.filter(rama=rama, is_manager=True).first()
+            CashRecord.objects.create_withdraw_cash_from_manager(
+                manager_account=manager,
+                initiator=request.user,
+                amount=serializer.validated_data['amount']
+            )
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # resaw
