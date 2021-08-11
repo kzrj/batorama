@@ -560,7 +560,7 @@ class CashRecordsView(viewsets.ModelViewSet):
                         .order_by('-created_at')
 
             return Response({
-                'cash_records': self.CashRecordWithTypeSerializer(self.get_queryset(), many=True).data,
+                'cash_records': self.CashRecordWithTypeSerializer(cash_records, many=True).data,
                 'manager_balance': cash_records.calc_manager_balance()
                 },
                 status=status.HTTP_200_OK)
