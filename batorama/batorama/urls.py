@@ -58,7 +58,9 @@ urlpatterns = [
 
     # boss, capo
     path('api/boss_capo/cash_records/payout_to_manager/', 
-        manager_api.CashRecordsView.as_view({'post': 'payout_to_manager'})),
+        manager_api.PayoutToManagerView.as_view({'post': 'payout_to_manager'})),
+    path('api/boss_capo/cash_records/<int:pk>/', 
+        manager_api.PayoutToManagerView.as_view({'delete': 'destroy'})),
 
     # ramshik api
     path('api/ramshik/shifts/list/', ramshik_api.ShiftListView.as_view()),

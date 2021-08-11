@@ -540,33 +540,6 @@ class CashRecordsView(viewsets.ModelViewSet):
             },
             status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['post'], permission_classes=[BossOrCapoPermission],
-        serializer_class=CreateManagerPayoutSerializer)
-    def payout_to_manager(self, request, pk=None):
-        serializer = self.CreateManagerPayoutSerializer(data=request.data)
-        if serializer.is_valid():
-            rama = serializer.validated_data['rama']
-            manager = Account.objects.filter(rama=rama, is_manager=True).first()
-
-            CashRecord.objects.create_withdraw_cash_from_manager(
-                manager_account=manager,
-                initiator=request.user,
-                amount=serializer.validated_data['amount']
-            )
-
-            cash_records = CashRecord.objects.filter(rama=rama) \
-                        .filter(Q(record_type='withdraw_cash_from_manager') |
-                                Q(record_type='income_timber')) \
-                        .order_by('-created_at')
-
-            return Response({
-                'cash_records': self.CashRecordWithTypeSerializer(cash_records, many=True).data,
-                'manager_balance': cash_records.calc_manager_balance()
-                },
-                status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 # resaw
 class ReSawViewSet(viewsets.ModelViewSet):
@@ -767,3 +740,83 @@ class IncomeTimberViewSet(viewsets.ModelViewSet):
                     self.get_queryset().filter(rama=request.user.account.rama), many=True).data,
             },
             status=status.HTTP_200_OK)
+
+
+# payout to manager
+class PayoutToManagerView(viewsets.ModelViewSet):
+
+    class CreateManagerPayoutSerializer(serializers.Serializer):
+        rama = serializers.PrimaryKeyRelatedField(queryset=Rama.objects.all())
+        amount = serializers.IntegerField()
+
+
+    class CashRecordWithTypeSerializer(serializers.ModelSerializer):
+        record_type = ChoiceField(read_only=True, choices=CashRecord.RECORD_TYPES)
+        who = serializers.ReadOnlyField(source='initiator.account.nickname')
+
+        class Meta:
+            model = CashRecord
+            fields = ['created_at', 'amount', 'note', 'record_type', 'who']
+
+
+    class ExpensesFilter(filters.FilterSet):
+        created_at = filters.DateFromToRangeFilter()
+
+        class Meta:
+            model = CashRecord
+            fields = '__all__'
+
+
+    class BossOrCapoPermission(permissions.BasePermission):
+        def has_permission(self, request, view):
+            if request.method == 'POST' or request.method == 'DELETE':
+                return request.user.account.is_boss or request.user.account.is_capo
+
+        def has_object_permission(self, request, view, obj):
+            if request.method == 'DELETE':
+                return request.user.account.is_boss
+            return False
+
+    queryset = CashRecord.objects.all()
+    serializer_class = CashRecordWithTypeSerializer
+    filter_class = ExpensesFilter
+    permission_classes = [IsAuthenticated, BossOrCapoPermission]
+
+    def destroy(self, request, pk=None):
+        rama = self.get_object().rama
+        self.get_object().delete()
+        records = CashRecord.objects.filter(rama=rama) \
+                        .filter(Q(record_type='withdraw_cash_from_manager') |
+                                Q(record_type='income_timber')) \
+                        .order_by('-created_at')
+        return Response({
+            'cash_records': self.CashRecordWithTypeSerializer(records, many=True).data,
+            'manager_balance': records.calc_manager_balance()
+            },
+            status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], serializer_class=CreateManagerPayoutSerializer)
+    def payout_to_manager(self, request, pk=None):
+        serializer = self.CreateManagerPayoutSerializer(data=request.data)
+        if serializer.is_valid():
+            rama = serializer.validated_data['rama']
+            manager = Account.objects.filter(rama=rama, is_manager=True).first()
+
+            CashRecord.objects.create_withdraw_cash_from_manager(
+                manager_account=manager,
+                initiator=request.user,
+                amount=serializer.validated_data['amount']
+            )
+
+            cash_records = CashRecord.objects.filter(rama=rama) \
+                        .filter(Q(record_type='withdraw_cash_from_manager') |
+                                Q(record_type='income_timber')) \
+                        .order_by('-created_at')
+
+            return Response({
+                'cash_records': self.CashRecordWithTypeSerializer(cash_records, many=True).data,
+                'manager_balance': cash_records.calc_manager_balance()
+                },
+                status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
