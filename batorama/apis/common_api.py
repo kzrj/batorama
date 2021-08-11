@@ -69,11 +69,12 @@ class ShiftListView(generics.ListAPIView):
             class Meta:
                 model = LumberRecord
                 fields = ('lumber', 'quantity', 'volume', 'rate', 'total_cash', 'back_total_cash',
-                 'wood_species')
+                 'wood_species',)
 
         lumber_records = LumberRecordSerializer(many=True)
         employees = serializers.StringRelatedField(read_only=True, many=True)
         date = serializers.DateTimeField(format='%d/%m', read_only=True)
+        volume_without_zabor = serializers.ReadOnlyField()
 
         class Meta:
             model = Shift

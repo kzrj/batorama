@@ -174,6 +174,13 @@ class Shift(CoreModel):
     def get_empoyees(self):
         return self.employees.all()
 
+    @property
+    def volume_without_zabor(self):
+         zabor_volume = Coalesce(
+            self.lumber_records.filter(lumber__name__contains='забор') \
+                               .aggregate(zabor=Sum('volume'))['zabor'], 0.0)
+        return self.volume - zabor_volume
+
 
 class SaleQuerySet(models.QuerySet):
     # Servises
