@@ -756,7 +756,7 @@ class PayoutToManagerView(viewsets.ModelViewSet):
 
         class Meta:
             model = CashRecord
-            fields = ['created_at', 'amount', 'note', 'record_type', 'who']
+            fields = ['created_at', 'amount', 'note', 'record_type', 'who', 'id']
 
 
     class ExpensesFilter(filters.FilterSet):

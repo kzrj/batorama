@@ -416,7 +416,7 @@ class QuotasPageView(APIView):
 
         class Meta:
             model = CashRecord
-            fields = ['created_at', 'amount', 'note', 'record_type', 'who']
+            fields = ['created_at', 'amount', 'note', 'record_type', 'who', 'id']
     
     # permission_classes = [IsAuthenticated, CanSeeRamaIncomeTimberPermissions]
 
