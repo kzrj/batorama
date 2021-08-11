@@ -433,27 +433,13 @@ class CashRecordsView(viewsets.ModelViewSet):
 
         class Meta:
             model = CashRecord
-            fields = ['created_at', 'amount', 'note', 'record_type']
+            fields = ['created_at', 'amount', 'note', 'record_type', 'id']
 
 
     class CashRecordCreateExpenseSerializer(serializers.ModelSerializer):
         class Meta:
             model = CashRecord
             fields = ['amount', 'note']
-
-
-    class CreateManagerPayoutSerializer(serializers.Serializer):
-        rama = serializers.PrimaryKeyRelatedField(queryset=Rama.objects.all())
-        amount = serializers.IntegerField()
-
-
-    class CashRecordWithTypeSerializer(serializers.ModelSerializer):
-        record_type = ChoiceField(read_only=True, choices=CashRecord.RECORD_TYPES)
-        who = serializers.ReadOnlyField(source='initiator.account.nickname')
-
-        class Meta:
-            model = CashRecord
-            fields = ['created_at', 'amount', 'note', 'record_type', 'who']
 
 
     class ExpensesFilter(filters.FilterSet):
