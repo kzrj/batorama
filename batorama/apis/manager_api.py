@@ -84,6 +84,7 @@ class SaleView(viewsets.ModelViewSet):
 
     class LumberSawRateSerializer(serializers.ModelSerializer):
         lumber = serializers.ReadOnlyField(source='lumber.pk')
+        id = serializers.ReadOnlyField(source='lumber.pk')
         name = serializers.ReadOnlyField(source='lumber.name')
         lumber_type = serializers.ReadOnlyField(source='lumber.lumber_type')    
         round_volume = serializers.ReadOnlyField(source='lumber.round_volume')
@@ -91,7 +92,7 @@ class SaleView(viewsets.ModelViewSet):
 
         class Meta:
             model = LumberSawRate
-            fields = ['name', 'lumber_type', 'wood_species', 'id', 'lumber', 'round_volume']
+            fields = ['name', 'lumber_type', 'wood_species', 'lumber', 'id', 'round_volume']
 
 
     class SellerSerializer(serializers.ModelSerializer):
@@ -151,16 +152,22 @@ class SaleView(viewsets.ModelViewSet):
         kladman = User.objects.filter(account__is_kladman=True,
              account__rama=request.user.account.rama).first()
         kladman_id = kladman.pk if kladman else None
+        lumber_rates = LumberSawRate.objects.filter(rama=request.user.account.rama) \
+                                            .select_related('lumber')
 
         return Response({
             'pine_brus_lumbers': self.LumberSimpleSerializer(
                 Lumber.objects.filter(lumber_type='brus', wood_species='pine'), many=True).data,
             'larch_brus_lumbers': self.LumberSimpleSerializer(
                 Lumber.objects.filter(lumber_type='brus', wood_species='larch'), many=True).data,
-            'pine_doska_lumbers': self.LumberSimpleSerializer(
-                Lumber.objects.filter(lumber_type='doska', wood_species='pine'), many=True).data,
-            'larch_doska_lumbers': self.LumberSimpleSerializer(
-                Lumber.objects.filter(lumber_type='doska', wood_species='larch'), many=True).data,
+            # 'pine_doska_lumbers': self.LumberSimpleSerializer(
+            #     Lumber.objects.filter(lumber_type='doska', wood_species='pine'), many=True).data,
+            'pine_doska_lumbers': self.LumberSawRateSerializer(
+                lumber_rates.filter(lumber__lumber_type='doska', lumber__wood_species='pine'), many=True).data,
+            # 'larch_doska_lumbers': self.LumberSimpleSerializer(
+            #     Lumber.objects.filter(lumber_type='doska', wood_species='larch'), many=True).data,
+            'larch_doska_lumbers': self.LumberSawRateSerializer(
+                lumber_rates.filter(lumber__lumber_type='doska', lumber__wood_species='larch'), many=True).data,
             'lumbers': self.LumberSerializer(
                 Lumber.objects.all(), many=True).data,
             'sellers': self.SellerSerializer(User.objects.filter(account__is_seller=True), many=True).data,
