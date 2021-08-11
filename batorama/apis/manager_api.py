@@ -447,6 +447,15 @@ class CashRecordsView(viewsets.ModelViewSet):
         amount = serializers.IntegerField()
 
 
+    class CashRecordWithTypeSerializer(serializers.ModelSerializer):
+        record_type = ChoiceField(read_only=True, choices=CashRecord.RECORD_TYPES)
+        who = serializers.ReadOnlyField(source='initiator.account.nickname')
+
+        class Meta:
+            model = CashRecord
+            fields = ['created_at', 'amount', 'note', 'record_type', 'who']
+
+
     class ExpensesFilter(filters.FilterSet):
         created_at = filters.DateFromToRangeFilter()
 
@@ -538,11 +547,23 @@ class CashRecordsView(viewsets.ModelViewSet):
         if serializer.is_valid():
             rama = serializer.validated_data['rama']
             manager = Account.objects.filter(rama=rama, is_manager=True).first()
+
             CashRecord.objects.create_withdraw_cash_from_manager(
                 manager_account=manager,
                 initiator=request.user,
                 amount=serializer.validated_data['amount']
             )
+
+            cash_records = CashRecord.objects.filter(rama=rama) \
+                        .filter(Q(record_type='withdraw_cash_from_manager') |
+                                Q(record_type='income_timber')) \
+                        .order_by('-created_at')
+
+            return Response({
+                'cash_records': self.CashRecordWithTypeSerializer(self.get_queryset(), many=True).data,
+                'manager_balance': cash_records.calc_manager_balance()
+                },
+                status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
