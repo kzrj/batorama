@@ -91,7 +91,7 @@ class SaleView(viewsets.ModelViewSet):
 
         class Meta:
             model = LumberSawRate
-            fields = ['name', 'lumber_type', 'wood_species', 'id', 'lumber', 'round_volume']
+            fields = ['name', 'lumber_type', 'wood_species', 'lumber', 'round_volume']
 
 
     class SellerSerializer(serializers.ModelSerializer):
