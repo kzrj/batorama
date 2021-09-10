@@ -4,7 +4,7 @@ from django.db.models import Q, Subquery, OuterRef, Count, Prefetch, F, Sum
 
 from rest_framework.response import Response
 from rest_framework import generics, serializers, permissions, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
@@ -443,6 +443,8 @@ class QuotasPageView(APIView):
 
 
 class Test1CView(APIView):
+    permission_classes = [AllowAny,]
+
     def get(self, request, format=None):
         data = dict()
         data['hui'] = 'pizda'
