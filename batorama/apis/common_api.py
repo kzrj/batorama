@@ -440,3 +440,10 @@ class QuotasPageView(APIView):
         data['manager_balance'] = cash_records.calc_manager_balance()
 
         return Response(data, status=status.HTTP_200_OK)
+
+
+class Test1CView(APIView):
+    def get(self, request, format=None):
+        data = dict()
+        data['hui'] = 'pizda'
+        return Response(data, status=status.HTTP_200_OK)

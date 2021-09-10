@@ -19,6 +19,9 @@ urlpatterns = [
     url(r'^api/jwt/api-token-verify/', verify_jwt_token),
 
     # common read api
+    path('api/test/1c/', common_api.Test1CView.as_view()),
+
+    # common read api
     path('api/common/stock/', common_api.LumberStockListView.as_view()),
     path('api/common/shifts/', common_api.ShiftListView.as_view()),
     path('api/common/sales/', common_api.SalesListView.as_view()),
