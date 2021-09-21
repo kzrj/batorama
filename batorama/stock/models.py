@@ -71,7 +71,7 @@ class Lumber(CoreModel):
         ordering = ['lumber_type', 'wood_species']
 
     def __str__(self):
-        return self.name
+        return f'{self.name} {self.length}'
 
     @property
     def stock_total_cash(self):
