@@ -31,10 +31,13 @@ services:
     #                   python manage.py test rawstock.tests.test_selectors_quota"
 
     restart: unless-stopped
+    # command: bash -c "cd batorama && 
+    #                   python manage.py makemigrations --no-input &&
+    #                   python manage.py migrate &&
+    #                   python manage.py collectstatic --no-input &&
+    #                   gunicorn batorama.wsgi -b 0.0.0.0:8000"
+
     command: bash -c "cd batorama && 
-                      python manage.py makemigrations --no-input &&
-                      python manage.py migrate &&
-                      python manage.py collectstatic --no-input &&
                       gunicorn batorama.wsgi -b 0.0.0.0:8000"
    
     volumes:
